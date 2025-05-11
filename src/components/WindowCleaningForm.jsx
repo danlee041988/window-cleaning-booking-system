@@ -706,10 +706,10 @@ const WindowCleaningForm = () => {
         };
 
         emailjs.send(
-          'service_9lcbgop',
-          'template_m9ghjrt',
+          process.env.REACT_APP_EMAILJS_SERVICE_ID,      // Use environment variable
+          process.env.REACT_APP_EMAILJS_TEMPLATE_ID,     // Use environment variable
           emailVars,
-          'cbA_IhBfxEeDwbEx6'
+          process.env.REACT_APP_EMAILJS_PUBLIC_KEY       // Use environment variable
         )
         .then((result) => {
             alert('Booking sent! We will be in touch soon.');
