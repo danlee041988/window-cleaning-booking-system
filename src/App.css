@@ -36,3 +36,23 @@
     transform: rotate(360deg);
   }
 }
+
+/* Add styles for range slider thumb */
+.range-thumb-blue::-webkit-slider-thumb {
+  background: #2563EB; /* Tailwind blue-600 */
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px; /* Adjust size as needed */
+  height: 16px; /* Adjust size as needed */
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.range-thumb-blue::-moz-range-thumb {
+  background: #2563EB; /* Tailwind blue-600 */
+  width: 16px; /* Adjust size as needed */
+  height: 16px; /* Adjust size as needed */
+  border-radius: 50%;
+  cursor: pointer;
+  border: none; /* Reset default border */
+}

@@ -1,23 +1,13 @@
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
+import WindowCleaningForm from './components/WindowCleaningForm.jsx';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
+      <main className="flex justify-center items-center min-h-[80vh] py-8 w-full">
+        <WindowCleaningForm />
+      </main>
     </div>
   );
 }
