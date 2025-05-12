@@ -327,6 +327,9 @@ const WindowCleaningForm = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submissionError, setSubmissionError] = useState('');
 
+    // State for continue button error message
+    const [continueError, setContinueError] = useState('');
+
     // Conservatory Roof Frequency Options - MOVED INSIDE
     const conservatoryRoofFrequencyOptions = [
         { value: "adhoc", label: "One-off" },
@@ -558,6 +561,10 @@ const WindowCleaningForm = () => {
         if (contactValidationErrors[name]) {
             setContactValidationErrors(prev => ({ ...prev, [name]: '' }));
         }
+        // Clear general continue error if it was set
+        if (continueError === 'Please fill in all required contact details marked with *.') {
+            setContinueError('');
+        }
     };
     
     const handlePropertyDetailChange = (name, value) => {
@@ -622,6 +629,10 @@ const WindowCleaningForm = () => {
             ...prev,
             date: ''
         }));
+        // Clear general continue error if it was date related
+        if (continueError === 'Please select an available date or request ASAP booking.') {
+            setContinueError('');
+        }
     };
 
     const handleAsapRequestToggle = () => {
@@ -634,6 +645,7 @@ const WindowCleaningForm = () => {
                 selectedDate: !prev.isAsapRequested ? 'ASAP_REQUESTED' : '' 
             }));
             setDateSelectionError('');
+            setContinueError('');
         } else if (availableDates.length > 0 || (formData.postcode.trim().length >=2 && postcodeError === '' && !isLoadingDates) ) {
              setFormData(prev => ({
                 ...prev,
@@ -641,6 +653,7 @@ const WindowCleaningForm = () => {
                 selectedDate: !prev.isAsapRequested ? 'ASAP_REQUESTED' : '' 
             }));
             setDateSelectionError('');
+            setContinueError('');
         }
         else {
             setPostcodeError('Please enter a valid postcode for an area we cover to request ASAP booking.');
@@ -669,12 +682,23 @@ const WindowCleaningForm = () => {
     };
 
     const handleContinueToReview = () => {
-        if (!validateContactDetails()) return;
+        const contactValid = validateContactDetails();
+        const dateValid = formData.selectedDate || formData.isAsapRequested || isSpecialQuoteScenario();
 
-        if (!formData.selectedDate && !formData.isAsapRequested && !isSpecialQuoteScenario()) {
-            setDateSelectionError('Please select an available date or request ASAP booking.');
+        if (!contactValid) {
+            setContinueError('Please fill in all required contact details marked with *.');
             return;
         }
+        if (!dateValid) {
+            const dateErr = 'Please select an available date or request ASAP booking.';
+            setDateSelectionError(dateErr);
+            setContinueError(dateErr); // Also set the general error
+            return;
+        }
+
+        // If validation passes
+        setContinueError(''); // Clear general error
+        setDateSelectionError(''); // Clear specific date error
         setCurrentStep(5); // Go directly to Review step (Step 5 is review)
     };
 
@@ -1574,6 +1598,11 @@ const WindowCleaningForm = () => {
                                         Continue to Review
                                     </button>
                                 </div>
+                                {continueError && (
+                                    <p className="mt-3 text-sm text-red-600 text-center p-2 bg-red-50 border border-red-200 rounded-md">
+                                        {continueError}
+                                    </p>
+                                )}
                             </div>
                         </form>
                     </section>
