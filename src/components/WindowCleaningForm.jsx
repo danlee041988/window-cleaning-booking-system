@@ -1907,7 +1907,8 @@ const WindowCleaningForm = () => {
                             <div className={`flex justify-between items-center pt-3 mt-3 ${calculatedPrices.discount > 0 ? 'border-t-2 border-green-300' : 'border-t-2 border-gray-300'}`}>
                                 <span className="text-lg font-bold text-gray-800">Estimated Total:</span>
                                 <span className="text-2xl font-bold text-blue-600">{formatCurrency(calculatedPrices.total)}</span>
-                                    </div>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1 text-right">(VAT Included)</p>
                             {(formData.services.window || formData.services.gutter || formData.services.fascia) &&
                                 <p className="text-xs text-gray-500 mt-3 text-center">This is an estimated price. All jobs are confirmed on-site before work commences. Payment is due upon completion.</p>
                             }
