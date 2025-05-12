@@ -515,7 +515,12 @@ const WindowCleaningForm = () => {
                 } else {
                     setAvailableDates([]);
                     setSelectedArea('');
-                    setPostcodeError('Sorry, we do not cover this postcode area.'); // Set specific error
+                    // Only set error if postcode is reasonably long enough to be considered invalid
+                    if (postcodePrefix.length >= 3) { // Adjust length threshold as needed
+                        setPostcodeError('Sorry, we do not cover this postcode area.');
+                    } else {
+                        setPostcodeError(''); // Clear error for short/incomplete postcodes
+                    }
                 }
             }
         } else {
@@ -692,9 +697,12 @@ const WindowCleaningForm = () => {
             return;
         }
         if (!dateValid) {
-            const dateErr = 'Please select an available date or request ASAP booking.';
-            setDateSelectionError(dateErr);
-            setContinueError(dateErr); // Also set the general error
+            let specificDateErr = 'Please select an available date or request ASAP booking.';
+            if (postcodeError) { // If there's a postcode error, make the message more specific
+                specificDateErr = `Please resolve the postcode issue (${postcodeError}) and then select a date or choose ASAP.`;
+            }
+            setDateSelectionError(specificDateErr);
+            setContinueError(specificDateErr); // Also set the general error
             return;
         }
 
