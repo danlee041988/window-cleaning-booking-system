@@ -1889,10 +1889,25 @@ const WindowCleaningForm = () => {
                                     <span className="text-sm font-bold text-green-600">-{formatCurrency(calculatedPrices.discount)}</span>
                                 </div>
                             )}
-                            <div className="flex justify-between items-center pt-3 mt-3 border-t-2 border-gray-300">
+                            {/* Subtotal Line - Add if discount > 0 */}
+                            {calculatedPrices.discount > 0 && (
+                                <div className="flex justify-between items-center pt-2 mt-2 border-t border-gray-300">
+                                    <span className="text-sm font-medium text-gray-600">Subtotal:</span>
+                                    <span className="text-sm font-medium text-gray-600">{formatCurrency(calculatedPrices.total + calculatedPrices.discount)}</span>
+                                </div>
+                            )}
+                            {/* Discount Line - Modified for clarity */}
+                            {calculatedPrices.discount > 0 && (
+                                <div className="flex justify-between items-center pt-1">
+                                    <span className="text-sm font-medium text-green-600">Discount Applied (Windows FREE Offer):</span>
+                                    <span className="text-sm font-bold text-green-600">-{formatCurrency(calculatedPrices.discount)}</span>
+                                        </div>
+                            )}
+                            {/* Total Line */}
+                            <div className={`flex justify-between items-center pt-3 mt-3 ${calculatedPrices.discount > 0 ? 'border-t-2 border-green-300' : 'border-t-2 border-gray-300'}`}>
                                 <span className="text-lg font-bold text-gray-800">Estimated Total:</span>
                                 <span className="text-2xl font-bold text-blue-600">{formatCurrency(calculatedPrices.total)}</span>
-                            </div>
+                                    </div>
                             {(formData.services.window || formData.services.gutter || formData.services.fascia) &&
                                 <p className="text-xs text-gray-500 mt-3 text-center">This is an estimated price. All jobs are confirmed on-site before work commences. Payment is due upon completion.</p>
                             }
