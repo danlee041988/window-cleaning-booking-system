@@ -321,6 +321,10 @@ const WindowCleaningForm = () => {
     const [selectedArea, setSelectedArea] = useState('');
     const [validationErrors, setValidationErrors] = useState({});
 
+    // State for submission status
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submissionError, setSubmissionError] = useState('');
+
     // Conservatory Roof Frequency Options - MOVED INSIDE
     const conservatoryRoofFrequencyOptions = [
         { value: "adhoc", label: "One-off" },
@@ -639,6 +643,9 @@ const WindowCleaningForm = () => {
             return;
         }
         
+        setIsSubmitting(true); // Start submission
+        setSubmissionError(''); // Clear previous errors
+
         const forQuoteOnly = isSpecialQuoteScenario();
 
         // Calculate 12-month values for each service
@@ -712,10 +719,20 @@ const WindowCleaningForm = () => {
           process.env.REACT_APP_EMAILJS_PUBLIC_KEY       // Use environment variable
         )
         .then((result) => {
-            alert('Booking sent! We will be in touch soon.');
+            console.log('EmailJS success:', result.text);
+            setLastBookingDetailsForConfirmation(formData); // Store details for confirmation page
+            setAppView('bookingConfirmation'); // Switch to confirmation view
+            // Reset form state if needed for a clean confirmation page load (optional)
+            // setFormData(JSON.parse(JSON.stringify(initialFormData))); 
+            // setCurrentStep(1); // Might not be needed if switching view
+            // setRecaptchaToken('');
+            // if (recaptchaRef.current) recaptchaRef.current.reset();
         }, (error) => {
             console.error('EmailJS error:', error);
-            alert('There was an error sending your booking. Please try again.');
+            setSubmissionError('There was an error sending your booking. Please check your details or contact us directly.'); // Set user-friendly error message
+        })
+        .finally(() => {
+            setIsSubmitting(false); // End submission regardless of success/failure
         });
     };
 
@@ -1711,11 +1728,16 @@ const WindowCleaningForm = () => {
                                 type="button" 
                                 onClick={handleSubmitBooking} 
                                 disabled={!recaptchaToken}
-                                className={`px-8 py-3 text-white font-semibold rounded-lg shadow-md transition-colors text-base bg-green-600 hover:bg-green-700 ${!recaptchaToken ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={`px-8 py-3 text-white font-semibold rounded-lg shadow-md transition-colors text-base bg-green-600 hover:bg-green-700 ${(!recaptchaToken || isSubmitting) ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
-                                Confirm & Submit Booking
+                                {isSubmitting ? 'Submitting...' : 'Confirm & Submit Booking'}
                             </button>
                         </div>
+                        {submissionError && (
+                            <p className="mt-4 text-center text-red-600 bg-red-100 p-3 rounded-md border border-red-300">
+                                {submissionError}
+                            </p>
+                        )}
                     </section>
                 )}
 
