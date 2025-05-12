@@ -915,8 +915,12 @@ const WindowCleaningForm = () => {
 
     if (appView === 'bookingConfirmation') {
         // Determine if GoCardless section should be shown (e.g., for recurring services)
-        // For now, let's assume lastSubmittedBookingDetails.isRecurring is available for this logic
         const showGoCardless = lastSubmittedBookingDetails?.isRecurring || (lastSubmittedBookingDetails?.windowFrequency && lastSubmittedBookingDetails.windowFrequency !== 'adhoc') || true; // Show if any recurring service or default to true
+
+        // Determine if the last submission was a quote request based on its details
+        const wasQuoteRequest = lastSubmittedBookingDetails?.numBedrooms === '6+' || 
+                                lastSubmittedBookingDetails?.propertyStyle === 'commercial' || 
+                                lastSubmittedBookingDetails?.propertyStyle === 'other';
 
     return (
             <div className="max-w-2xl mx-auto mt-12 mb-12 bg-white p-6 sm:p-10 rounded-2xl shadow-xl font-sans">
@@ -924,10 +928,15 @@ const WindowCleaningForm = () => {
                     <svg className="w-16 h-16 mx-auto text-green-500 mb-4" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
                         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
-                    <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-3">Thank You For Your Enquiry!</h1>
+                    <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-3">
+                        {wasQuoteRequest ? 'Thank You For Your Enquiry!' : 'Thank You For Your Booking!'}
+                    </h1>
                     <p className="text-gray-600 text-sm sm:text-base mb-6">
                         {lastSubmittedBookingDetails?.firstName ? `Thanks, ${lastSubmittedBookingDetails.firstName}! ` : ''}
-                        We've received your details. If your booking requires a bespoke quote (e.g., for 6+ beds or commercial properties), we will be in touch via email shortly to discuss pricing and scheduling. For standard bookings, your slot is provisionally held, and we'll confirm shortly.
+                        {wasQuoteRequest 
+                            ? "We\'ve received your enquiry details. We will be in touch via email shortly to discuss your requirements and provide a bespoke quotation."
+                            : "We\'ve received your booking details. Your slot is provisionally held, and we\'ll be in touch via email shortly to confirm everything."
+                        }
                     </p>
                      <p className="text-xs text-gray-500 mb-10">
                         Please note: All prices quoted are based on standard property sizes and conditions. If your property requires significantly more work, we will notify you of any potential additional charges for your approval before commencing.
