@@ -129,6 +129,6 @@ export const scheduleData = [
 
 // Special handling for certain postcodes
 export const specialPostcodeRules = {
-    // BA5, BA6, BA16 areas are only serviced on Fridays
-    fridayOnly: ['BA5', 'BA6', 'BA16']
+    // BA5, BA6, BA16, BS28 areas are only serviced on Fridays
+    fridayOnly: ['BA5', 'BA6', 'BA16', 'BS28']
 }; 

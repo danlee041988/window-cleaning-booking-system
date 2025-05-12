@@ -152,8 +152,10 @@ const frequencyOptionsData = [
 // Add Solar Frequency Options
 const solarFrequencyOptions = [
     { value: "adhoc", label: "One-off" },
-    { value: "6-monthly", label: "Every 6 months" },
-    { value: "annually", label: "Once a year" }
+    { value: "3-monthly", label: "Every 3 Months" },
+    { value: "6-monthly", label: "Every 6 Months" },
+    { value: "12-monthly", label: "Every 12 Months" },
+    { value: "24-monthly", label: "Every 24 Months" }
 ];
 
 // --- NEW Gutter/Fascia Frequency Options ---
@@ -462,23 +464,63 @@ const WindowCleaningForm = () => {
         isSpecialQuoteScenario
     ]);
 
-    // Define calculateAvailableDates as a named function
+    // --- UPDATED: Date Calculation Logic ---
     useEffect(() => {
         if (formData.postcode) {
             const postcodePrefix = formData.postcode.split(' ')[0].toUpperCase();
-            const matchingSchedule = scheduleData.find(schedule => 
-                schedule.postcodes.some(pc => postcodePrefix.startsWith(pc))
-            );
+            const isSpecialFridayArea = specialPostcodeRules && 
+                                       Array.isArray(specialPostcodeRules.fridayOnly) && 
+                                       specialPostcodeRules.fridayOnly.some(pc => postcodePrefix.startsWith(pc));
 
-            if (matchingSchedule) {
-                setAvailableDates(matchingSchedule.dates);
-                setSelectedArea(matchingSchedule.area);
+            if (isSpecialFridayArea) {
+                // Generate all Fridays for the next 6 weeks for special areas
+                const fridays = [];
+                let date = new Date();
+                date.setHours(0, 0, 0, 0);
+                const sixWeeksFromNow = new Date(date);
+                sixWeeksFromNow.setDate(date.getDate() + 42);
+
+                // Move to the next Friday
+                while (date.getDay() !== 5) {
+                    date.setDate(date.getDate() + 1);
+                }
+
+                while (date <= sixWeeksFromNow) {
+                    // *** Placeholder for Bank Holiday Check ***
+                    // if (!isBankHoliday(date)) { // Requires a bank holiday function/library
+                        fridays.push(new Date(date)); // Store Date objects
+                    // }
+                    date.setDate(date.getDate() + 7); // Move to next Friday
+                }
+                setAvailableDates(fridays);
+                setSelectedArea('Special Friday Area'); // Indicate it's a special case
+                setPostcodeError(''); // Clear postcode error if it matches special area
             } else {
-                setAvailableDates([]);
-                setSelectedArea('');
+                // Original logic for other postcodes
+                const matchingSchedule = scheduleData.find(schedule => 
+                    schedule.postcodes.some(pc => postcodePrefix.startsWith(pc))
+                );
+
+                if (matchingSchedule) {
+                    // Convert schedule dates (strings) to Date objects
+                    const scheduleDates = matchingSchedule.dates
+                        .map(dateStr => getNextOccurrence(dateStr))
+                        .filter(date => date instanceof Date); // Ensure only valid dates
+                    setAvailableDates(scheduleDates);
+                    setSelectedArea(matchingSchedule.area);
+                    setPostcodeError(''); // Clear error
+                } else {
+                    setAvailableDates([]);
+                    setSelectedArea('');
+                    setPostcodeError('Sorry, we do not cover this postcode area.'); // Set specific error
+                }
             }
+        } else {
+            setAvailableDates([]); // Clear dates if postcode is empty
+            setSelectedArea('');
+            setPostcodeError(''); // Clear error
         }
-    }, [formData.postcode]);
+    }, [formData.postcode]); // Rerun only when postcode changes
 
     // --- Event Handlers ---
     const handleInputChange = (e) => {
@@ -567,7 +609,7 @@ const WindowCleaningForm = () => {
             if (date.getDay() !== 5) { // 5 is Friday
                 setValidationErrors(prev => ({
                     ...prev,
-                    date: 'This area is only serviced on Fridays'
+                    date: 'Selected date is not a Friday for this area.'
                 }));
                 return;
             }
@@ -935,7 +977,7 @@ const WindowCleaningForm = () => {
                         {lastSubmittedBookingDetails?.firstName ? `Thanks, ${lastSubmittedBookingDetails.firstName}! ` : ''}
                         {wasQuoteRequest 
                             ? "We\'ve received your enquiry details. We will be in touch via email shortly to discuss your requirements and provide a bespoke quotation."
-                            : "We\'ve received your booking details. Your slot is provisionally held, and we\'ll be in touch via email shortly to confirm everything."
+                            : "We\'ve received your booking details. Your appointment is provisionally scheduled. Thank you for choosing Somerset Window Cleaning!"
                         }
                     </p>
                      <p className="text-xs text-gray-500 mb-10">
@@ -982,6 +1024,7 @@ const WindowCleaningForm = () => {
                     </div>
                 )}
 
+                {/* REMOVED Make Another Enquiry Button 
                 <div className="text-center mt-10">
                     <button 
                         onClick={handleMakeAnotherEnquiry}
@@ -989,7 +1032,8 @@ const WindowCleaningForm = () => {
                     >
                         Make Another Enquiry
                     </button>
-            </div>
+                </div>
+                */}
             </div>
         );
     }
@@ -1494,7 +1538,7 @@ const WindowCleaningForm = () => {
                                             >
                                                 {formData.isAsapRequested ? 'ASAP Requested' : 'Request ASAP Booking'}
                                             </button>
-                                            {(formData.postcode.trim().length < 2 || (postcodeError !== '' && availableDates.length === 0)) && !isLoadingDates && (
+                                            {(postcodeError !== '') && (
                                                 <p className="mt-2 text-xs text-red-500">Please enter a valid postcode for a covered area first.</p>
                                             )}
                                             {formData.isAsapRequested && (
