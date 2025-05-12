@@ -623,7 +623,8 @@ const WindowCleaningForm = () => {
         }
         setFormData(prev => ({
             ...prev,
-            selectedDate: dateValue // This line is critical for selection
+            selectedDate: dateValue, // This line is critical for selection
+            isAsapRequested: false // Deselect ASAP when a date is chosen
         }));
         setValidationErrors(prev => ({
             ...prev,
@@ -636,21 +637,22 @@ const WindowCleaningForm = () => {
     };
 
     const handleAsapRequestToggle = () => {
+        const turnAsapOn = !formData.isAsapRequested;
         if (formData.postcode.trim().length >= 2 && postcodeError === '' && availableDates.length === 0 && !isLoadingDates) {
             // This case means postcode is valid enough to search, but no specific dates were found
             // or if dates are available, they can still choose ASAP.
              setFormData(prev => ({
                 ...prev,
-                isAsapRequested: !prev.isAsapRequested,
-                selectedDate: !prev.isAsapRequested ? 'ASAP_REQUESTED' : '' 
+                isAsapRequested: turnAsapOn,
+                selectedDate: turnAsapOn ? 'ASAP_REQUESTED' : '' // Clear date if ASAP is on
             }));
             setDateSelectionError('');
             setContinueError('');
         } else if (availableDates.length > 0 || (formData.postcode.trim().length >=2 && postcodeError === '' && !isLoadingDates) ) {
              setFormData(prev => ({
                 ...prev,
-                isAsapRequested: !prev.isAsapRequested,
-                selectedDate: !prev.isAsapRequested ? 'ASAP_REQUESTED' : '' 
+                isAsapRequested: turnAsapOn,
+                selectedDate: turnAsapOn ? 'ASAP_REQUESTED' : '' // Clear date if ASAP is on
             }));
             setDateSelectionError('');
             setContinueError('');
@@ -1716,16 +1718,29 @@ const WindowCleaningForm = () => {
                                     </tbody>
                                     {!isSpecialQuoteScenario() && (
                                       <tfoot>
+                                        {/* Subtotal Row - Add if discount > 0 */}
+                                        {calculatedPrices.discount > 0 && (
+                                            <tr>
+                                                <td colSpan={2} className="pt-4 text-right font-semibold text-gray-600">Subtotal</td>
+                                                <td className="pt-4 text-right font-semibold text-gray-600">{formatCurrency(calculatedPrices.total + calculatedPrices.discount)}</td>
+                                            </tr>
+                                        )}
+                                        {/* Discount Row - Modified for clarity */}
                                         {calculatedPrices.discount > 0 && (
                                           <tr>
-                                            <td colSpan={2} className="pt-4 text-right font-semibold text-green-700">Special Offer Discount</td>
-                                            <td className="pt-4 text-right font-semibold text-green-700">- {formatCurrency(calculatedPrices.discount)}</td>
+                                            <td colSpan={2} className="pt-1 text-right font-semibold text-green-700">Discount Applied (Windows FREE Offer)</td>
+                                            <td className="pt-1 text-right font-semibold text-green-700">- {formatCurrency(calculatedPrices.discount)}</td>
                                           </tr>
                                         )}
+                                        {/* Total Row */}
                                         <tr>
-                                          <td colSpan={2} className="pt-2 text-right font-bold text-gray-900">Total</td>
-                                          <td className="pt-2 text-right text-2xl font-bold text-blue-700">{formatCurrency(calculatedPrices.total)}</td>
+                                          <td colSpan={2} className={`pt-2 text-right font-bold text-gray-900 ${calculatedPrices.discount > 0 ? 'border-t border-green-300' : ''}`}>Total</td>
+                                          <td className={`pt-2 text-right text-2xl font-bold text-blue-700 ${calculatedPrices.discount > 0 ? 'border-t border-green-300' : ''}`}>{formatCurrency(calculatedPrices.total)}</td>
                                         </tr>
+                                         {/* VAT Note */}
+                                         <tr>
+                                            <td colSpan={3} className="text-xs text-gray-500 text-right pt-1">(VAT Included)</td>
+                                         </tr>
                                       </tfoot>
                                     )}
                                   </table>
