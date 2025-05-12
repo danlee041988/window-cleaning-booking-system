@@ -705,6 +705,14 @@ const WindowCleaningForm = () => {
           emailSubject: 'New Customer Booking',
         };
 
+        // --- DEBUGGING: Log EmailJS parameters ---
+        console.log("Sending EmailJS with:");
+        console.log("Service ID:", process.env.REACT_APP_EMAILJS_SERVICE_ID);
+        console.log("Template ID:", process.env.REACT_APP_EMAILJS_TEMPLATE_ID);
+        console.log("Public Key:", process.env.REACT_APP_EMAILJS_PUBLIC_KEY);
+        console.log("Params:", emailVars);
+        // --- END DEBUGGING ---
+
         emailjs.send(
           process.env.REACT_APP_EMAILJS_SERVICE_ID,      // Use environment variable
           process.env.REACT_APP_EMAILJS_TEMPLATE_ID,     // Use environment variable
