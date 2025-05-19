@@ -368,104 +368,94 @@ const WindowCleaningForm = () => {
 
     // --- Price Calculation Logic (adapted from original) ---
     useEffect(() => {
-        if (isSpecialQuoteScenario()) {
-            setCalculatedPrices({
-                window: 0, gutter: 0, fascia: 0, conservatoryRoof: 0, solarPanels: 0,
-                discount: 0, total: 0, originalWindowPriceForDiscount: 0
-            });
-            return;
-        }
+        const calculatePrice = () => {
+            // Reset prices
+            let windowCleaningBasePrice = 0, frequencyAdj = 0, conservatoryRoofPrice = 0, solarPanelPrice = 0;
+            let baseGutterClearingPrice = 0, baseGutterFasciaPrice = 0, total = 0, discount = 0;
 
-        let rawBaseWindowPrice = 0;
-        const beds = formData.numBedrooms;
-        const style = formData.propertyStyle;
+            // Find the selected house type definition
+            const selectedHouse = formData.houseType ? houseOptions.find(option => option.id === formData.houseType) : null;
 
-        if (beds === '1' || beds === '2') rawBaseWindowPrice = (style === 'detached') ? 25 : 20;
-        else if (beds === '3') rawBaseWindowPrice = (style === 'detached') ? 30 : 25;
-        else if (beds === '4') rawBaseWindowPrice = (style === 'detached') ? 35 : 30;
-        else if (beds === '5') rawBaseWindowPrice = (style === 'detached') ? 40 : 35;
-        else rawBaseWindowPrice = 20; // Fallback
+            // Calculate only for standard residential quotes
+            if (selectedHouse && !formData.isCustomQuote && !formData.isCommercial) {
+                // Base window cleaning price from house type
+                windowCleaningBasePrice = selectedHouse.basePrice;
+                // Add extra for conservatory windows
+                if (formData.hasConservatory) windowCleaningBasePrice += 5;
+                // Add extra for extension windows
+                if (formData.hasExtension) windowCleaningBasePrice += 5;
 
-        let finalBaseWindowPrice = rawBaseWindowPrice;
-        let extensionPrice = 0;
-        let conservatoryPrice = 0;
+                // Frequency Adjustment Logic
+                if (formData.frequency === '8-weekly') frequencyAdj = 0; // Same price as 4-weekly
+                else if (formData.frequency === '12-weekly') frequencyAdj = 5; // +£5 for 12-weekly
+                else if (formData.frequency === 'adhoc') frequencyAdj = windowCleaningBasePrice; // Keep for doubling logic
+                else frequencyAdj = 0; // Default for 4-weekly
 
-        // Calculate extension and conservatory prices
-        if (formData.hasExtension) {
-            extensionPrice = 5;
-            finalBaseWindowPrice += extensionPrice;
-        }
-        if (formData.hasConservatory) {
-            conservatoryPrice = 5;
-            finalBaseWindowPrice += conservatoryPrice;
-        }
+                // Calculate current window cleaning price including frequency adjustment (but not doubling for adhoc yet)
+                const currentWindowCleaningPrice = windowCleaningBasePrice + (formData.frequency === 'adhoc' ? 0 : frequencyAdj);
 
-        let currentWindowPrice = finalBaseWindowPrice;
-        let adhocTierAddition = 0;
+                // Calculate add-on prices
+                if (formData.conservatoryRoof) conservatoryRoofPrice = formData.conservatoryRoofPanels * 10;
+                if (formData.solarPanels) solarPanelPrice = formData.solarPanelCount * 10; // £10 per panel (no minimum)
 
-        const selectedFrequencyData = frequencyOptionsData.find(f => f.value === formData.windowFrequency);
+                // Calculate base gutter/fascia prices based on bedrooms and property type
+                const bedrooms = selectedHouse.bedrooms;
+                const isDetached = selectedHouse.isDetached;
+                
+                // Base prices for gutter clearing
+                if (bedrooms <= 2) {
+                    baseGutterClearingPrice = isDetached ? 100 : 80;
+                } else if (bedrooms === 3) {
+                    baseGutterClearingPrice = isDetached ? 100 : 80;
+                } else if (bedrooms === 4) {
+                    baseGutterClearingPrice = isDetached ? 120 : 100;
+                } else if (bedrooms === 5) {
+                    baseGutterClearingPrice = isDetached ? 140 : 120;
+                }
 
-        if (formData.windowFrequency === 'adhoc') {
-            const bedsForTier = formData.numBedrooms;
-            const styleForTier = formData.propertyStyle;
-            if (bedsForTier === '1' || bedsForTier === '2') adhocTierAddition = 15;
-            else if (bedsForTier === '3') adhocTierAddition = 20;
-            else if (bedsForTier === '4') adhocTierAddition = (styleForTier === 'detached') ? 25 : 20;
-            else if (bedsForTier === '5') adhocTierAddition = 25;
-            
-            currentWindowPrice = finalBaseWindowPrice + adhocTierAddition;
-        } else if (selectedFrequencyData) {
-            currentWindowPrice = finalBaseWindowPrice + selectedFrequencyData.priceMod;
-            currentWindowPrice *= selectedFrequencyData.multiplier;
-        }
+                // Base prices for gutter + fascia
+                if (bedrooms <= 2) {
+                    baseGutterFasciaPrice = isDetached ? 120 : 100;
+                } else if (bedrooms === 3) {
+                    baseGutterFasciaPrice = isDetached ? 120 : 100;
+                } else if (bedrooms === 4) {
+                    baseGutterFasciaPrice = isDetached ? 140 : 120;
+                } else if (bedrooms === 5) {
+                    baseGutterFasciaPrice = isDetached ? 160 : 140;
+                }
 
-        const gutterBasePrice = 80;
-        const fasciaBasePrice = 100;
-        const conservatoryPerPanelPrice = 8;
-        const solarPerPanelPrice = 10;
+                // Get actual costs based on selection
+                const gutterClearingCost = formData.gutterClearing ? baseGutterClearingPrice : 0;
+                const gutterFasciaCost = formData.gutterFasciaClean ? baseGutterFasciaPrice : 0;
 
-        const gutterPrice = gutterBasePrice;
-        const fasciaPrice = fasciaBasePrice;
-        const conservatoryRoofPriceVal = formData.hasConservatory ? formData.conservatoryRoofPanels * conservatoryPerPanelPrice : 0;
-        const solarPanelsPriceVal = formData.solarPanelCount * solarPerPanelPrice;
+                // Apply discount: Free window clean if both gutter services are selected on a regular plan
+                if (formData.gutterClearing && formData.gutterFasciaClean && formData.frequency !== 'adhoc') {
+                    // Discount the calculated window price *including* frequency adjustment
+                    discount = currentWindowCleaningPrice;
+                }
 
-        let total = 0;
-        let discount = 0;
-        let originalWindowPriceForDiscount = 0;
+                // Calculate total price
+                // Note: Adhoc window price is handled in renderPriceLine for display clarity
+                total = currentWindowCleaningPrice + gutterClearingCost + gutterFasciaCost + conservatoryRoofPrice + solarPanelPrice - discount;
 
-        if (formData.services.window) total += currentWindowPrice;
-        if (formData.services.gutter) total += gutterPrice;
-        if (formData.services.fascia) total += fasciaPrice;
-        if (formData.services.conservatoryRoof && formData.hasConservatory) total += conservatoryRoofPriceVal;
-        if (formData.services.solarPanels) total += solarPanelsPriceVal;
-
-        // "Windows FREE" offer
-        if (formData.services.window && formData.services.gutter && formData.services.fascia && formData.windowFrequency !== 'adhoc') {
-            originalWindowPriceForDiscount = currentWindowPrice;
-            discount = currentWindowPrice;
-            total -= discount;
-        }
-
-        setCalculatedPrices({
-            window: currentWindowPrice,
-            windowBase: rawBaseWindowPrice,
-            extensionPrice: extensionPrice,
-            conservatoryPrice: conservatoryPrice,
-            gutter: gutterPrice,
-            fascia: fasciaPrice,
-            conservatoryRoof: conservatoryRoofPriceVal,
-            solarPanels: solarPanelsPriceVal,
-            discount: discount,
-            total: Math.max(0, total),
-            originalWindowPriceForDiscount: originalWindowPriceForDiscount,
-        });
-
-    }, [
-        formData.numBedrooms, formData.propertyStyle, formData.hasExtension, formData.hasConservatory,
-        formData.services, formData.windowFrequency, formData.conservatoryRoofPanels, formData.solarPanelCount,
-        formData.gutterFrequency, formData.fasciaFrequency, formData.solarPanelFrequency,
-        isSpecialQuoteScenario
-    ]);
+                // Update price state
+                setPrice({
+                    windowCleaningBase: windowCleaningBasePrice,
+                    frequencyAdjustment: (formData.frequency === 'adhoc' ? 0 : frequencyAdj), // Store adjustment separately
+                    gutterClearing: baseGutterClearingPrice, // Store base price for display
+                    gutterFasciaClean: baseGutterFasciaPrice, // Store base price for display
+                    conservatoryRoof: conservatoryRoofPrice, // Store calculated price
+                    solarPanels: solarPanelPrice,
+                    total: total,
+                    discount: discount
+                });
+            } else {
+                // Reset price if not a standard residential quote
+                setPrice({ windowCleaningBase: 0, frequencyAdjustment: 0, gutterClearing: 0, gutterFasciaClean: 0, conservatoryRoof: 0, solarPanels: 0, total: 0, discount: 0 });
+            }
+        };
+        calculatePrice();
+    }, [formData]);
 
     // --- UPDATED: Date Calculation Logic ---
     useEffect(() => {
