@@ -439,7 +439,7 @@ const WindowCleaningForm = () => {
                 total = currentWindowCleaningPrice + gutterClearingCost + gutterFasciaCost + conservatoryRoofPrice + solarPanelPrice - discount;
 
                 // Update price state
-                setPrice({
+                setCalculatedPrices({
                     windowCleaningBase: windowCleaningBasePrice,
                     frequencyAdjustment: (formData.frequency === 'adhoc' ? 0 : frequencyAdj), // Store adjustment separately
                     gutterClearing: baseGutterClearingPrice, // Store base price for display
@@ -451,7 +451,7 @@ const WindowCleaningForm = () => {
                 });
             } else {
                 // Reset price if not a standard residential quote
-                setPrice({ windowCleaningBase: 0, frequencyAdjustment: 0, gutterClearing: 0, gutterFasciaClean: 0, conservatoryRoof: 0, solarPanels: 0, total: 0, discount: 0 });
+                setCalculatedPrices({ windowCleaningBase: 0, frequencyAdjustment: 0, gutterClearing: 0, gutterFasciaClean: 0, conservatoryRoof: 0, solarPanels: 0, total: 0, discount: 0 });
             }
         };
         calculatePrice();
