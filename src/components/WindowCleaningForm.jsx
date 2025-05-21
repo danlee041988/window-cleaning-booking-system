@@ -1855,7 +1855,7 @@ const WindowCleaningForm = () => {
                         <div className="my-6 flex flex-col items-center">
                             <ReCAPTCHA 
                                 ref={recaptchaRef} 
-                                sitekey="6LdwUDQrAAAAAJh5Z2V5paJn003OrFouc8KVdA0H" // NEW Site Key
+                                sitekey="6LdwUDQrAAAAAJh5Z2V5paJn003OrFouc8KVdA0H" // Site key updated to user-provided value
                                 onChange={(token) => setRecaptchaToken(token)} 
                             />
                             {reCaptchaError && <p className="mt-2 text-sm text-red-600">{reCaptchaError}</p>}
