@@ -417,6 +417,23 @@ const ReviewSubmitForm = ({ prevStep, values, handleSubmit, setFormData, isLoadi
                     <p className="text-sm text-gray-600 mb-4">
                         Please complete the reCAPTCHA below to submit your {isGeneralEnquiry ? "General Enquiry" : isCommercial ? "Commercial Enquiry" : isCustomQuote ? "Custom Quote Request" : "Booking"}.
                     </p>
+
+                    {/* Booking Notes Textarea */}
+                    <div className="mb-6">
+                        <label htmlFor="bookingNotes" className="block text-sm font-medium text-gray-700 mb-1">
+                            Additional Notes / Special Instructions (Optional)
+                        </label>
+                        <textarea
+                            id="bookingNotes"
+                            name="bookingNotes"
+                            rows="3"
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
+                            placeholder="E.g., gate codes, access issues, specific requests..."
+                            value={bookingNotes || ''} // Ensure it handles undefined by defaulting to empty string
+                            onChange={(e) => setFormData(prev => ({ ...prev, bookingNotes: e.target.value }))}
+                        />
+                    </div>
+
                     <div className="flex justify-center mb-6">
                         <ReCAPTCHA
                             sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY || "YOUR_FALLBACK_SITE_KEY"}
