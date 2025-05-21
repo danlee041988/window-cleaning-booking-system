@@ -4,14 +4,14 @@ import React, { useState, useEffect } from 'react';
 const windowCleaningOptions = [
   // Priced Residential
   // 2-3 Bed
-  { id: 'sdh23', type: 'Semi-Detached House', bedrooms: '2-3 Bed', basePrice: 25 },
-  { id: 'dh23',  type: 'Detached House',      bedrooms: '2-3 Bed', basePrice: 30 },
+  { id: 'sdh23', type: 'Semi-Detached House', bedrooms: '2-3 Bed', basePrice: 20 },
+  { id: 'dh23',  type: 'Detached House',      bedrooms: '2-3 Bed', basePrice: 25 },
   // 4 Bed
-  { id: 'sdh4',  type: 'Semi-Detached House', bedrooms: '4 Bed',   basePrice: 30 },
-  { id: 'dh4',   type: 'Detached House',      bedrooms: '4 Bed',   basePrice: 35 },
+  { id: 'sdh4',  type: 'Semi-Detached House', bedrooms: '4 Bed',   basePrice: 25 },
+  { id: 'dh4',   type: 'Detached House',      bedrooms: '4 Bed',   basePrice: 30 },
   // 5 Bed
-  { id: 'sdh5',  type: 'Semi-Detached House', bedrooms: '5 Bed',   basePrice: 35 },
-  { id: 'dh5',   type: 'Detached House',      bedrooms: '5 Bed',   basePrice: 40 },
+  { id: 'sdh5',  type: 'Semi-Detached House', bedrooms: '5 Bed',   basePrice: 30 },
+  { id: 'dh5',   type: 'Detached House',      bedrooms: '5 Bed',   basePrice: 35 },
   // Information Gathering / Custom Quotes
   { id: 'custom6plus', type: 'Properties', bedrooms: '6+ Beds & Bespoke', basePrice: 0, isCustomQuote: true, isResidential: true },
   { id: 'commercial',  type: 'Commercial Property', bedrooms: 'All Types', basePrice: 0, isCommercialQuote: true }
@@ -28,18 +28,16 @@ const otherServicesOption = {
 
 const frequencyOptionsDefinition = [
   { id: '4-weekly', label: '4 Weekly', adjustment: (price) => price, fullLabel: '4 Weekly' },
-  { id: '8-weekly', label: '8 Weekly', adjustment: (price) => price, fullLabel: '8 Weekly' },
+  { id: '8-weekly', label: '8 Weekly', adjustment: (price) => price + 3, fullLabel: '8 Weekly' },
   { id: '12-weekly', label: '12 Weekly', adjustment: (price) => price + 5, fullLabel: '12 Weekly' },
-  { id: 'adhoc', label: 'One-off', adjustment: (price) => price * 2, fullLabel: 'One-off' },
+  { id: 'adhoc', label: 'One-off', adjustment: (price) => price + 20, fullLabel: 'One-off' },
 ];
 
 const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
   const [globalSelection, setGlobalSelection] = useState({
-    // Default to first non-custom/non-commercial option (sdh23)
-    optionId: windowCleaningOptions.find(opt => !opt.isCustomQuote && !opt.isCommercialQuote)?.id || windowCleaningOptions[0]?.id,
-    frequencyId: '8-weekly',
+    optionId: null,
+    frequencyId: null,
   });
-  const [userHasInteracted, setUserHasInteracted] = useState(false);
 
   const calculatePriceForFrequency = (basePrice, frequencyId) => {
     const freq = frequencyOptionsDefinition.find(f => f.id === frequencyId);
@@ -48,7 +46,6 @@ const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
 
   const handleFrequencySelection = (optionId, frequencyId) => {
     setGlobalSelection({ optionId, frequencyId });
-    setUserHasInteracted(true);
   };
 
   const handleSelectOption = (clickedOption) => {
@@ -79,7 +76,8 @@ const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
         selectedFrequency: selectedFrequencyDetails?.fullLabel || selectedFrequencyId,
         isCustomQuote: isCustom,
         isCommercial: isCommercial,
-        isResidential: isStandardResidential,
+        isResidential: clickedOption.isResidential !== undefined ? !!clickedOption.isResidential : isStandardResidential,
+        isGeneralEnquiry: false, // Ensure this is false for standard residential path
         // Reset fields that might be set if user goes back and changes path
         hasConservatory: false,
         additionalServices: { conservatoryRoof: false, fasciaSoffitGutter: false, gutterClearing: false },
@@ -143,9 +141,9 @@ const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
             return (
               <div 
                 key={option.id} 
-                className="border p-5 rounded-xl shadow-lg flex flex-col text-center transition-all duration-300 hover:shadow-2xl bg-teal-50 border-teal-300 hover:border-teal-400"
+                className="border p-5 rounded-xl shadow-lg flex flex-col text-center transition-all duration-300 hover:shadow-2xl bg-teal-50 border-teal-300 hover:border-teal-400 h-full"
               >
-                <h3 className="text-xl font-semibold mb-4 text-teal-700">
+                <h3 className="text-xl font-semibold mb-4 text-teal-700 h-12">
                   {option.type}
                 </h3>
                 <p className="mb-6 flex-grow text-gray-700">
@@ -166,10 +164,10 @@ const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
             return (
               <div 
                 key={option.id} 
-                className={`border p-5 rounded-xl shadow-lg flex flex-col text-center transition-all duration-300 hover:shadow-2xl 
+                className={`border p-5 rounded-xl shadow-lg flex flex-col text-center transition-all duration-300 hover:shadow-2xl h-full
                             ${isCommercialCard ? 'bg-indigo-50 border-indigo-300 hover:border-indigo-400' : 'bg-blue-50 border-blue-300 hover:border-blue-400'}`}
               >
-                <h3 className={`text-xl font-semibold mb-4 ${isCommercialCard ? 'text-indigo-700' : 'text-blue-700'}`}>
+                <h3 className={`text-xl font-semibold mb-4 ${isCommercialCard ? 'text-indigo-700' : 'text-blue-700'} h-12`}>
                   {option.bedrooms === 'All Types' ? option.type : `${option.bedrooms} - ${option.type}`}
                 </h3>
                 <p className={`mb-6 flex-grow ${isCommercialCard ? 'text-indigo-600' : 'text-gray-700'}`}>
@@ -194,10 +192,10 @@ const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
           return (
             <div 
               key={option.id} 
-              className={`border p-5 rounded-xl shadow-lg bg-white flex flex-col text-center transition-all duration-300 hover:shadow-2xl 
+              className={`border p-5 rounded-xl shadow-lg bg-white flex flex-col text-center transition-all duration-300 hover:shadow-2xl h-full
                           ${globalSelection.optionId === option.id ? 'border-blue-500 ring-2 ring-blue-300' : 'border-gray-200'}`}
             >
-              <h3 className="text-xl font-semibold text-blue-600 mb-4">{`${option.bedrooms} - ${option.type}`}</h3>
+              <h3 className="text-xl font-semibold text-blue-600 mb-4 h-12">{`${option.bedrooms} - ${option.type}`}</h3>
               
               <div className="grid grid-cols-2 gap-2 mb-5">
                 {frequencyOptionsDefinition.map((freq) => {
@@ -222,17 +220,22 @@ const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
                 })}
               </div>
               
-              <button 
-                type="button"
-                onClick={() => handleSelectOption(option)}
-                disabled={userHasInteracted && option.id !== globalSelection.optionId}
-                className={`w-full text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 mt-auto text-lg 
-                            ${(!userHasInteracted || option.id === globalSelection.optionId) 
-                                ? 'bg-green-500 hover:bg-green-600' 
-                                : 'bg-gray-400 cursor-not-allowed'}`}
-              >
-                Select & Continue
-              </button>
+              {(() => {
+                const isActive = globalSelection.optionId === option.id && globalSelection.frequencyId !== null;
+                return (
+                  <button 
+                    type="button"
+                    onClick={() => handleSelectOption(option)}
+                    disabled={!isActive}
+                    className={`w-full font-bold py-3 px-4 rounded-lg transition-colors duration-300 mt-auto text-lg 
+                                ${isActive 
+                                    ? 'bg-green-500 text-white hover:bg-green-600' 
+                                    : 'bg-green-200 text-green-400 cursor-not-allowed'}`}
+                  >
+                    Select & Continue
+                  </button>
+                );
+              })()}
             </div>
           );
         })}

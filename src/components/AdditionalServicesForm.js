@@ -101,20 +101,22 @@ const enquiryFrequencyOptionsList = [
     { id: 'asRequired', label: 'As Required / Not Sure' },
 ];
 
-const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conservatorySurcharge }) => {
+const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conservatorySurchargeAmount, extensionSurchargeAmount }) => {
     const { 
         initialWindowPrice, 
-        additionalServices: currentSelectedAddons, // Used for standard path
-        hasConservatory: initialHasConservatory,    // Used for standard path
+        additionalServices: currentSelectedAddons, 
+        hasConservatory: initialHasConservatory,    
+        hasExtension: initialHasExtension,
         propertyType, bedrooms, selectedFrequency, 
         isGeneralEnquiry,
-        generalEnquiryDetails: initialGeneralEnquiryDetails // New
+        generalEnquiryDetails: initialGeneralEnquiryDetails 
     } = values;
 
     // --- State for Standard Path ---
     const [hasCons, setHasCons] = useState(initialHasConservatory || false);
+    const [hasExt, setHasExt] = useState(initialHasExtension || false);
     const [selectedAddons, setSelectedAddons] = useState(currentSelectedAddons || { gutterClearing: false, fasciaSoffitGutter: false });
-    const [currentWindowPriceWithSurcharge, setCurrentWindowPriceWithSurcharge] = useState(0);
+    const [currentWindowPriceWithSurcharges, setCurrentWindowPriceWithSurcharges] = useState(0);
     const [addonServicesTotalPrice, setAddonServicesTotalPrice] = useState(0);
     const [calculatedDiscount, setCalculatedDiscount] = useState(0);
     const [finalGrandTotal, setFinalGrandTotal] = useState(0);
@@ -135,8 +137,19 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
 
     useEffect(() => {
         if (!isGeneralEnquiry) {
-            const windowPriceWithSurcharge = (initialWindowPrice || 0) + (hasCons ? conservatorySurcharge : 0);
-            setCurrentWindowPriceWithSurcharge(windowPriceWithSurcharge);
+            let basePrice = initialWindowPrice || 0;
+            let currentConservatorySurcharge = 0;
+            let currentExtensionSurcharge = 0;
+
+            if (hasCons) {
+                currentConservatorySurcharge = conservatorySurchargeAmount;
+            }
+            if (hasExt) {
+                currentExtensionSurcharge = extensionSurchargeAmount;
+            }
+
+            const windowPriceWithAllSurcharges = basePrice + currentConservatorySurcharge + currentExtensionSurcharge;
+            setCurrentWindowPriceWithSurcharges(windowPriceWithAllSurcharges);
 
             let currentAddonsPrice = 0;
             if (selectedAddons.gutterClearing && canOfferGutterServices) currentAddonsPrice += gutterClearingPrice;
@@ -149,44 +162,53 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
             const gutterClearSelected = !!selectedAddons.gutterClearing && canOfferGutterServices;
             const fasciaSoffitSelected = !!selectedAddons.fasciaSoffitGutter && canOfferGutterServices;
             let discount = 0;
-            if (gutterClearSelected && fasciaSoffitSelected && windowPriceWithSurcharge > 0) {
-                discount = windowPriceWithSurcharge;
+            if (gutterClearSelected && fasciaSoffitSelected && windowPriceWithAllSurcharges > 0 && selectedFrequency !== 'adhoc') {
+                discount = basePrice;
             }
             setCalculatedDiscount(discount);
             
-            const total = windowPriceWithSurcharge + currentAddonsPrice - discount;
+            const total = windowPriceWithAllSurcharges + currentAddonsPrice - discount;
             setFinalGrandTotal(total);
         }
     }, [
-        isGeneralEnquiry, initialWindowPrice, hasCons, selectedAddons, conservatorySurcharge, 
-        gutterClearingPrice, fasciaSoffitGutterPrice, canOfferGutterServices
+        isGeneralEnquiry, initialWindowPrice, hasCons, hasExt, selectedAddons, conservatorySurchargeAmount, extensionSurchargeAmount, 
+        gutterClearingPrice, fasciaSoffitGutterPrice, canOfferGutterServices, selectedFrequency
     ]);
 
     // --- Handlers for Standard Path ---
-    const handleConservatoryToggle = () => setHasCons(!hasCons);
-    const handleStandardAddonToggle = (serviceId) => { // Renamed to avoid clash
+    const handleExtensionToggle = () => setHasExt(!hasExt);
+    const handleStandardAddonToggle = (serviceId) => {
         if (!canOfferGutterServices && (serviceId === 'gutterClearing' || serviceId === 'fasciaSoffitGutter')) return;
         setSelectedAddons(prev => ({ ...prev, [serviceId]: !prev[serviceId] }));
     };
 
     // --- Handlers for General Enquiry Path ---
     const handleGenEnqServiceToggle = (serviceId) => {
-        setGenEnqServices(prev => ({ ...prev, [serviceId]: !prev[serviceId] }));
+        setGenEnqServices(prevServices => {
+            const newServices = { ...prevServices, [serviceId]: !prevServices[serviceId] };
+            // If window cleaning is deselected, reset its frequency
+            if (serviceId === 'windowCleaning' && !newServices.windowCleaning) {
+                setGenEnqFrequency(''); // Reset frequency state
+            }
+            return newServices;
+        });
     };
 
     const continueStep = (e) => {
         e.preventDefault();
         if (isGeneralEnquiry) {
+            const finalGenEnqFrequency = genEnqServices.windowCleaning ? genEnqFrequency : '';
             setFormData(prevData => ({
                 ...prevData,
                 generalEnquiryDetails: {
                     requestedServices: genEnqServices,
                     otherServiceText: genEnqOtherText,
-                    requestedFrequency: genEnqFrequency,
+                    requestedFrequency: finalGenEnqFrequency,
                     enquiryComments: genEnqComments,
                 },
                 // Reset standard path fields to avoid data confusion
                 hasConservatory: false,
+                hasExtension: false,
                 additionalServices: { gutterClearing: false, fasciaSoffitGutter: false },
                 windowCleaningDiscount: 0, 
                 subTotalBeforeDiscount: 0, 
@@ -202,9 +224,12 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
             setFormData(prevData => ({
                 ...prevData,
                 hasConservatory: hasCons,
+                hasExtension: hasExt,
+                conservatorySurcharge: hasCons ? conservatorySurchargeAmount : 0,
+                extensionSurcharge: hasExt ? extensionSurchargeAmount : 0,
                 additionalServices: finalSelectedAddons, 
                 windowCleaningDiscount: calculatedDiscount,
-                subTotalBeforeDiscount: currentWindowPriceWithSurcharge + addonServicesTotalPrice, 
+                subTotalBeforeDiscount: currentWindowPriceWithSurcharges + addonServicesTotalPrice, 
                 grandTotal: finalGrandTotal,
                 initialWindowPrice: initialWindowPrice || 0 
             }));
@@ -238,24 +263,26 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
 
                     {genEnqServices.other && (
                         <TextArea
-                            label="Please specify other service(s):"
-                            id="genEnqOtherText"
+                            label="Please specify 'Other' service details:"
+                            id="gen-enq-other-text"
                             value={genEnqOtherText}
                             onChange={(e) => setGenEnqOtherText(e.target.value)}
-                            placeholder="e.g., Patio cleaning, Driveway jet washing"
+                            placeholder="e.g., Cleaning of external pipework, specific area cleaning..."
                         />
                     )}
 
-                    <SelectDropdown
-                        label="Preferred Frequency:"
-                        id="genEnqFrequency"
-                        value={genEnqFrequency}
-                        onChange={(e) => setGenEnqFrequency(e.target.value)}
-                        options={enquiryFrequencyOptionsList}
-                    />
+                    {genEnqServices.windowCleaning && (
+                        <SelectDropdown
+                            label="Preferred Frequency for Window Cleaning:"
+                            id="gen-enq-frequency"
+                            value={genEnqFrequency}
+                            onChange={(e) => setGenEnqFrequency(e.target.value)}
+                            options={enquiryFrequencyOptionsList}
+                        />
+                    )}
 
                     <TextArea
-                        label="Additional Details / Comments:"
+                        label="Additional Comments / Details:"
                         id="genEnqComments"
                         value={genEnqComments}
                         onChange={(e) => setGenEnqComments(e.target.value)}
@@ -290,19 +317,33 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
             )}
 
             <div className="space-y-5 mb-8">
-                <label htmlFor="hasConservatoryCheckbox" className="flex items-center justify-between p-4 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                    <div className="flex items-center">
-                        <input type="checkbox" id="hasConservatoryCheckbox" name="hasConservatory" checked={hasCons} onChange={handleConservatoryToggle} className="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" />
-                        <span className="ml-3 text-sm font-medium text-gray-800">Property has a conservatory? 
-                            <span className="text-xs text-gray-500">(windows included in main clean)</span>
+                <div>
+                    <div className="flex items-center justify-between p-4 border border-gray-300 rounded-lg">
+                        <span className="text-sm font-medium text-gray-800">Does your property have a conservatory? 
+                            <span className="text-xs text-gray-500 block sm:inline">(windows included in main clean)</span>
                         </span>
+                        <div className="flex items-center space-x-3">
+                            <button type="button" onClick={() => setHasCons(true)} className={`px-4 py-1.5 rounded-md text-sm font-semibold border transition-colors ${hasCons ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>Yes</button>
+                            <button type="button" onClick={() => setHasCons(false)} className={`px-4 py-1.5 rounded-md text-sm font-semibold border transition-colors ${!hasCons ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>No</button>
+                        </div>
                     </div>
-                    <span className="text-sm font-semibold text-indigo-600">+ £{conservatorySurcharge.toFixed(2)}</span>
-                </label>
+                    {hasCons && <p className="text-xs text-gray-500 mt-1 pl-1">A £{conservatorySurchargeAmount.toFixed(2)} surcharge applies for properties with conservatories.</p>}
+                </div>
+
+                <div>
+                    <div className="flex items-center justify-between p-4 border border-gray-300 rounded-lg">
+                        <span className="text-sm font-medium text-gray-800">Does your property have an extension?</span>
+                        <div className="flex items-center space-x-3">
+                            <button type="button" onClick={() => setHasExt(true)} className={`px-4 py-1.5 rounded-md text-sm font-semibold border transition-colors ${hasExt ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>Yes</button>
+                            <button type="button" onClick={() => setHasExt(false)} className={`px-4 py-1.5 rounded-md text-sm font-semibold border transition-colors ${!hasExt ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>No</button>
+                        </div>
+                    </div>
+                    {hasExt && <p className="text-xs text-gray-500 mt-1 pl-1">A £{extensionSurchargeAmount.toFixed(2)} surcharge applies for properties with extensions.</p>}
+                </div>
 
                 <div className="border border-gray-200 rounded-lg p-4">
                     <h3 className="text-lg font-medium text-gray-800 mb-1">Gutter Related Services</h3>
-                    {( (initialWindowPrice > 0 || (hasCons && conservatorySurcharge > 0)) && canOfferGutterServices ) && 
+                    {( (initialWindowPrice > 0 || (hasCons && conservatorySurchargeAmount > 0)) && canOfferGutterServices ) && 
                         <p className="text-xs text-green-600 bg-green-50 p-2 rounded-md mb-3">
                             <strong>OFFER:</strong> Select Gutter Clearing & Fascia/Soffit Clean and get your window cleaning (incl. conservatory surcharge) <strong>FREE!</strong>
                         </p>
@@ -351,12 +392,18 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                         {hasCons && (
                             <div className="flex justify-between text-sm">
                                 <span>Conservatory Surcharge:</span>
-                                <span>+ £{conservatorySurcharge.toFixed(2)}</span>
+                                <span>+ £{conservatorySurchargeAmount.toFixed(2)}</span>
+                            </div>
+                        )}
+                        {hasExt && (
+                            <div className="flex justify-between text-sm">
+                                <span>Extension Surcharge:</span>
+                                <span>+ £{extensionSurchargeAmount.toFixed(2)}</span>
                             </div>
                         )}
                         <div className="flex justify-between text-sm font-medium border-b pb-1 mb-1">
                             <span>Sub-total (Windows):</span>
-                            <span>£{currentWindowPriceWithSurcharge.toFixed(2)}</span>
+                            <span>£{currentWindowPriceWithSurcharges.toFixed(2)}</span>
                         </div>
                     </>
                 )}
