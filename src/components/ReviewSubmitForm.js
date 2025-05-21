@@ -443,17 +443,26 @@ const ReviewSubmitForm = ({ prevStep, values, handleSubmit, setFormData, isLoadi
                     {submissionError && (
                         <p className="text-sm text-red-600 mb-4 text-center">Error: {submissionError}</p>
                     )}
-                    <button 
-                        type="button" 
-                        onClick={handleActualSubmit} 
-                        disabled={isLoading || !recaptchaToken} // Disable if loading or reCAPTCHA not passed
-                        className={`w-full text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 
-                                    ${isLoading || !recaptchaToken 
-                                        ? 'bg-gray-400 cursor-not-allowed' 
-                                        : 'bg-green-600 hover:bg-green-700 focus:ring-green-500'}`}
-                    >
-                        {isLoading ? 'Submitting...' : `Submit ${isGeneralEnquiry ? "General Enquiry" : isCommercial ? "Commercial Enquiry" : isCustomQuote ? "Custom Quote Request" : "Booking"}`}
-                    </button>
+                    <div className="flex flex-col sm:flex-row gap-3 mt-6">
+                        <button
+                            type="button"
+                            onClick={prevStep} // Call the prevStep function passed via props
+                            className="w-full sm:w-auto flex-grow sm:flex-grow-0 text-gray-700 bg-gray-200 hover:bg-gray-300 font-semibold py-3 px-6 rounded-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
+                        >
+                            Back
+                        </button>
+                        <button 
+                            type="button" 
+                            onClick={handleActualSubmit} 
+                            disabled={isLoading || !recaptchaToken} // Disable if loading or reCAPTCHA not passed
+                            className={`w-full sm:w-auto flex-grow text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 
+                                        ${isLoading || !recaptchaToken 
+                                            ? 'bg-gray-400 cursor-not-allowed' 
+                                            : 'bg-green-600 hover:bg-green-700 focus:ring-green-500'}`}
+                        >
+                            {isLoading ? 'Submitting...' : `Submit ${isGeneralEnquiry ? "General Enquiry" : isCommercial ? "Commercial Enquiry" : isCustomQuote ? "Custom Quote Request" : "Booking"}`}
+                        </button>
+                    </div>
                 </div>
             )}
         </div>
