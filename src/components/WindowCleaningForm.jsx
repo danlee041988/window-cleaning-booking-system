@@ -1535,7 +1535,7 @@ const WindowCleaningForm = () => {
                                                         availableDates
                                                             .filter(date => {
                                                                 const dateObj = (date instanceof Date) ? date : getNextOccurrence(date);
-                                                                if (!dateObj) return false;
+                                                                if (!dateObj || isNaN(dateObj.getTime())) return false; // Ensure dateObj is valid and not an Invalid Date
 
                                                                 // If it's a Friday-only area, only allow Fridays through this initial filter
                                                                 if (isCurrentlyFridayOnlyArea && dateObj.getDay() !== 5) {
@@ -1550,7 +1550,7 @@ const WindowCleaningForm = () => {
                                                             })
                                                             .forEach(date => {
                                                                 const dateObj = (date instanceof Date) ? date : getNextOccurrence(date);
-                                                                if (!dateObj) return; // Should be redundant due to filter, but safe
+                                                                if (!dateObj || isNaN(dateObj.getTime())) return; // Defensive check, though filter should catch it
                                                                 const time = dateObj.getTime();
                                                                 if (!seen.has(time)) {
                                                                     seen.add(time);
