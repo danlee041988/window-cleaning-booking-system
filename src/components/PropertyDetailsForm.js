@@ -357,8 +357,8 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                     {formErrors.preferredContactMethod && <p className="text-sm text-red-600 mt-1">{formErrors.preferredContactMethod}</p>}
                 </div>
 
-                {/* Enhanced Date Selection UI - Only for Standard Residential Bookings */}
-                {!isCommercial && !isCustomQuote && isResidential && !isGeneralEnquiry && (
+                {/* Enhanced Date Selection UI - Only for Standard Residential Bookings and when postcode is entered */}
+                {!isCommercial && !isCustomQuote && isResidential && !isGeneralEnquiry && postcode && postcode.trim().length >= 2 && (
                     <div className="mt-6 pt-4 border-t">
                         <h3 id="date-selection-heading" className="text-xl font-medium text-gray-800 mb-2">
                             Select Date for First Clean <span className="text-red-500">*</span>
@@ -438,18 +438,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                             </div>
                                         </div>
                                     </div>
-                                ) : (!postcode || postcode.trim().length === 0) ? (
-                                    /* No postcode entered */
-                                    <div className="text-center py-6">
-                                        <div className="mx-auto h-12 w-12 text-gray-400 mb-3">
-                                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3a4 4 0 118 0v4m-4 7v6m0 0l3-3m-3 3l-3-3M5 12h14" />
-                                            </svg>
-                                        </div>
-                                        <p className="text-sm text-gray-600 mb-1">Enter your postcode above</p>
-                                        <p className="text-xs text-gray-500">to see available cleaning dates</p>
-                                    </div>
-                                ) : null}
+                                                                 ) : null}
                                 
                                 {/* ASAP Option - now more compact and integrated */}
                                 <div>
