@@ -288,14 +288,40 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                         />
                     )}
 
-                    <TextArea
-                        label="Additional Comments / Details:"
-                        id="genEnqComments"
-                        value={genEnqComments}
-                        onChange={(e) => setGenEnqComments(e.target.value)}
-                        placeholder="Any specific requirements, access notes, or questions?"
-                        rows={4}
-                    />
+                    <div className="mb-4">
+                        <label htmlFor="genEnqComments" className="block text-sm font-medium text-gray-700 mb-2">
+                            Additional Comments or Details (Optional)
+                        </label>
+                        <p className="text-xs text-gray-500 mb-3">
+                            Share any specific requirements or details about your enquiry:
+                        </p>
+                        
+                        <div className="mb-3 p-3 bg-green-50 border border-green-200 rounded-md">
+                            <p className="text-xs text-green-800 font-medium mb-2">💡 Consider including:</p>
+                            <ul className="text-xs text-green-700 space-y-1">
+                                <li>• Property details (type, size, number of windows)</li>
+                                <li>• Access arrangements (gates, parking, keys)</li>
+                                <li>• Preferred contact method and times</li>
+                                <li>• Any urgent requirements or deadlines</li>
+                                <li>• Previous cleaning experiences or preferences</li>
+                                <li>• Budget considerations</li>
+                            </ul>
+                        </div>
+
+                        <textarea
+                            id="genEnqComments"
+                            value={genEnqComments}
+                            onChange={(e) => setGenEnqComments(e.target.value)}
+                            placeholder="Example: I have a 3-bedroom semi-detached house on a main road, so windows get quite dirty. Interested in regular window cleaning every 6-8 weeks and one-off gutter clearing. Property has side access but gate is locked - happy to provide key. Best contacted via mobile during weekday evenings."
+                            rows={5}
+                            className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm resize-vertical"
+                            style={{ minHeight: '100px' }}
+                        />
+                        
+                        <p className="text-xs text-gray-500 mt-2">
+                            This helps us understand your needs and provide a more accurate response.
+                        </p>
+                    </div>
                 </div>
 
                 <div className="mt-10 flex justify-between">

@@ -630,17 +630,74 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                     </div>
                 )}
 
-                {/* UPDATED: Additional Comments for Standard Residential & General Enquiry (if not custom/commercial) */}
-                {/* Now always visible */}
+                {/* Enhanced Additional Comments Section */}
                 <div className="mt-6 pt-4 border-t">
-                    <TextAreaField
-                        label="Additional Comments or Requests (Optional)"
-                        name={isGeneralEnquiry ? "generalEnquiryComments" : "bookingNotes"}
-                        value={isGeneralEnquiry ? values.generalEnquiryComments || '' : values.bookingNotes || ''}
-                        onChange={handleChange}
-                        placeholder={isGeneralEnquiry ? "Please describe what you need (e.g., gutter cleaning for a 3-bed semi)" : "e.g., Gate code: 1234. Side gate unlocked."}
-                        rows={3}
-                    />
+                    <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Additional Comments or Special Requests (Optional)
+                        </label>
+                        <p className="text-xs text-gray-500 mb-3">
+                            Help us provide the best service by sharing any relevant details:
+                        </p>
+                        
+                        {/* Helpful hints based on booking type */}
+                        <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                            <p className="text-xs text-blue-800 font-medium mb-2">💡 Helpful information to include:</p>
+                            <ul className="text-xs text-blue-700 space-y-1">
+                                {isGeneralEnquiry ? (
+                                    <>
+                                        <li>• Describe your property type and size</li>
+                                        <li>• Specific areas needing attention</li>
+                                        <li>• Preferred contact times</li>
+                                        <li>• Any urgent cleaning needs</li>
+                                    </>
+                                ) : isCommercial ? (
+                                    <>
+                                        <li>• Operating hours for cleaning access</li>
+                                        <li>• Health & safety requirements</li>
+                                        <li>• Parking arrangements</li>
+                                        <li>• Key contact person details</li>
+                                    </>
+                                ) : isCustomQuote ? (
+                                    <>
+                                        <li>• Unique architectural features</li>
+                                        <li>• Previous cleaning history</li>
+                                        <li>• Budget considerations</li>
+                                        <li>• Timeline requirements</li>
+                                    </>
+                                ) : (
+                                    <>
+                                        <li>• Access codes (gate, parking, etc.)</li>
+                                        <li>• Pet information</li>
+                                        <li>• Preferred time of day</li>
+                                        <li>• Any areas requiring special attention</li>
+                                    </>
+                                )}
+                            </ul>
+                        </div>
+
+                        <textarea
+                            name={isGeneralEnquiry ? "generalEnquiryComments" : "bookingNotes"}
+                            value={isGeneralEnquiry ? values.generalEnquiryComments || '' : values.bookingNotes || ''}
+                            onChange={handleChange}
+                            placeholder={
+                                isGeneralEnquiry 
+                                    ? "Example: I have a 4-bedroom detached house with conservatory. Interested in monthly window cleaning and occasional gutter clearing. Property has side gate access but 2 friendly dogs in garden. Best contact time is weekday mornings."
+                                    : isCommercial
+                                        ? "Example: Office building with 40+ windows across 3 floors. Require monthly cleaning during business hours (9-5). Parking available on-site. Health & safety induction required for all contractors."
+                                        : isCustomQuote
+                                            ? "Example: Large Victorian property with original sash windows, some requiring ladder access. Previous cleaner mentioned difficulty with rear bay windows. Looking for experienced team for quarterly deep clean."
+                                            : "Example: Gate code is 1234*. Side gate is usually unlocked. We have 2 small dogs (friendly but excitable). Please avoid parking in marked visitor spaces. Best time is weekday mornings before 2pm."
+                            }
+                            rows={5}
+                            className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm resize-vertical"
+                            style={{ minHeight: '100px' }}
+                        />
+                        
+                        <p className="text-xs text-gray-500 mt-2">
+                            The more detail you provide, the better we can prepare for your service and provide an accurate quote.
+                        </p>
+                    </div>
                 </div>
 
                 {/* Services Requested Section */}
