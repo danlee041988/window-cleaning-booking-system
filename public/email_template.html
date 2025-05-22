@@ -49,19 +49,6 @@
             font-size: 0.9em;
             color: #777;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 15px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f9f9f9;
-        }
     </style>
 </head>
 <body>
@@ -124,9 +111,10 @@
             {{#windowCleaningDiscount}}
             <p><span class="label">Window Cleaning Discount:</span> <span class="value">£{{{ windowCleaningDiscounttoFixed2 }}}</span></p>
             {{/windowCleaningDiscount}}
-            <p><span class="label">Grand Total:</span> <span class="value">£{{{ grandTotaltoFixed2 }}}</span></p>
+            <p><span class="label">Grand Total (This Booking):</span> <span class="value">£{{{ grandTotaltoFixed2 }}}</span></p>
             {{#showAnnualValue}}
-            <p><span class="label">Estimated Annual Value:</span> <span class="value">£{{{ estimatedAnnualValueToFixed2 }}}</span></p>
+            <p><span class="label">Price Per Recurring Visit (Windows + Recurring Surcharges):</span> <span class="value">£{{{ recurringPricePerVisitToFixed2 }}}</span></p>
+            <p><span class="label">Estimated Annual Value (Based on Recurring Services):</span> <span class="value">£{{{ estimatedAnnualValueToFixed2 }}}</span></p>
             {{/showAnnualValue}}
             <p><span class="label">Selected Date:</span> <span class="value">{{{ selectedDateFormatted }}}</span></p>
         </div>

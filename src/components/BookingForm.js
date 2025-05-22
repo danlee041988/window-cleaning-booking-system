@@ -10,6 +10,108 @@ import ReviewSubmitForm from './ReviewSubmitForm';
 const CONSERVATORY_SURCHARGE = 5;
 const EXTENSION_SURCHARGE_AMOUNT = 5; // New constant for extension surcharge
 
+const initialFormData = {
+    // From WindowCleaningPricing (Step 1)
+    propertyType: '',
+    bedrooms: '',
+    selectedFrequency: '',
+    initialWindowPrice: 0,
+    selectedWindowService: null,
+
+    isCustomQuote: false,
+    isCommercial: false,
+    isResidential: false,
+    isGeneralEnquiry: false,
+
+    // From AdditionalServicesForm (New Step 2)
+    hasConservatory: false,
+    hasExtension: false,
+    additionalServices: {
+        conservatoryRoof: false,
+        fasciaSoffitGutter: false,
+        gutterClearing: false,
+    },
+    gutterClearingServicePrice: 0,
+    fasciaSoffitGutterServicePrice: 0,
+    windowCleaningDiscount: 0,
+
+    // Calculated totals
+    subTotalBeforeDiscount: 0,
+    conservatorySurcharge: 0,
+    extensionSurcharge: 0,
+    grandTotal: 0,
+
+    // Contact & Quote Details (Step 3 - PropertyDetailsForm)
+    customerName: '',
+    addressLine1: '',
+    addressLine2: '',
+    townCity: '',
+    postcode: '',
+    mobile: '',
+    email: '',
+    preferredContactMethod: 'email',
+    selectedDate: null,
+
+    // For Custom Residential Quote
+    customResidentialDetails: {
+        exactBedrooms: '',
+        approxWindows: '',
+        accessIssues: '',
+        propertyStyle: '',
+        otherPropertyStyleText: '',
+        servicesRequested: {
+            windowCleaning: false,
+            gutterCleaning: false,
+            fasciaSoffitCleaning: false,
+            conservatoryWindowCleaning: false,
+            conservatoryRoofCleaning: false,
+            other: false,
+        },
+        otherServiceText: '',
+        frequencyPreference: '',
+        otherFrequencyText: '',
+        otherNotes: '',
+        customAdditionalComments: ''
+    },
+
+    // For Commercial Enquiry
+    commercialDetails: {
+        businessName: '',
+        propertyType: '',
+        approxSizeOrWindows: '',
+        specificRequirements: '',
+        servicesRequested: {
+            windowCleaning: false,
+            gutterCleaning: false,
+            fasciaSoffitCleaning: false,
+            claddingCleaning: false,
+            signageCleaning: false,
+            other: false,
+        },
+        otherServiceText: '',
+        frequencyPreference: '',
+        otherFrequencyText: '',
+        otherNotes: ''
+    },
+    // For General Enquiry
+    generalEnquiryDetails: {
+        requestedServices: {
+            windowCleaning: false,
+            conservatoryWindows: false,
+            conservatoryRoof: false,
+            gutterClearing: false,
+            fasciaSoffitGutter: false,
+            solarPanels: false,
+            other: false,
+        },
+        otherServiceText: '',
+        requestedFrequency: '',
+        enquiryComments: ''
+    },
+    bookingNotes: '',
+    recaptchaToken: ''
+};
+
 // Placeholder: Implement this function to map your formData to EmailJS template params
 const mapFormDataToTemplateParams = (formData) => {
   let bookingTypeDisplay = 'Unknown Booking Type';
@@ -174,6 +276,7 @@ const mapFormDataToTemplateParams = (formData) => {
   // For Custom Quotes & Commercial Enquiries, basePriceForAnnualCalc remains 0, so annual value is not shown.
 
   // Determine yearly multiplier based on frequency
+  let yearlyMultiplier = 0; // Initialize with a default value
   if (frequencyForAnnualCalc.includes('4 weekly') || frequencyForAnnualCalc.includes('4weekly')) { yearlyMultiplier = 52 / 4; }
   else if (frequencyForAnnualCalc.includes('8 weekly') || frequencyForAnnualCalc.includes('8weekly')) { yearlyMultiplier = 52 / 8; }
   else if (frequencyForAnnualCalc.includes('12 weekly') || frequencyForAnnualCalc.includes('12weekly')) { yearlyMultiplier = 52 / 12; }
@@ -213,110 +316,7 @@ const getEnquiryOrBookingText = (isQuoteOrEnquiry) => {
 
 function BookingForm() {
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState({
-    // From WindowCleaningPricing (Step 1)
-    propertyType: '',
-    bedrooms: '',
-    selectedFrequency: '',
-    initialWindowPrice: 0, // Price from step 1 before any step 2 adjustments
-    selectedWindowService: null, // Raw selection object from step 1, for reference
-
-    isCustomQuote: false,
-    isCommercial: false,
-    isResidential: false, // True if standard residential path from step 1
-    isGeneralEnquiry: false, // ADDED: True if general enquiry path from step 1
-
-    // From AdditionalServicesForm (New Step 2)
-    hasConservatory: false, // Boolean for conservatory presence
-    hasExtension: false, // <-- New state for extension
-    // additionalServices will store selections like { gutterClearing: true, fasciaSoffitGutter: true }
-    additionalServices: { 
-        // Note: conservatoryRoof is a separate service from just having a conservatory
-        conservatoryRoof: false, // This was from old AdditionalServicesForm, keep for now or remove if not needed
-        fasciaSoffitGutter: false,
-        gutterClearing: false,
-    },
-    gutterClearingServicePrice: 0, // Price for this service if selected
-    fasciaSoffitGutterServicePrice: 0, // Price for this service if selected
-    windowCleaningDiscount: 0, // Amount of discount from free window clean offer
-
-    // Calculated totals, updated primarily by AdditionalServicesForm or at review
-    subTotalBeforeDiscount: 0, 
-    conservatorySurcharge: 0, // This is already calculated in AdditionalServicesForm
-    extensionSurcharge: 0, // <-- New state for extension surcharge amount
-    grandTotal: 0, 
-
-    // Contact & Quote Details (Step 3 - PropertyDetailsForm)
-    customerName: '',
-    addressLine1: '',
-    addressLine2: '',
-    townCity: '',
-    postcode: '',
-    mobile: '',
-    email: '',
-    preferredContactMethod: 'email',
-    selectedDate: null, // For standard residential bookings
-
-    // For Custom Residential Quote (collected in PropertyDetailsForm)
-    customResidentialDetails: {
-        exactBedrooms: '', // Can still be useful for context if they know it
-        approxWindows: '',
-        accessIssues: '',
-        // New structured fields for custom residential quotes
-        propertyStyle: '', // e.g., 'detached', 'semiDetached', 'terraced', 'bungalow', 'apartment', 'otherCustomProperty'
-        otherPropertyStyleText: '',
-        servicesRequested: { 
-            windowCleaning: false,
-            gutterCleaning: false,
-            fasciaSoffitCleaning: false,
-            conservatoryWindowCleaning: false, // NEW: For conservatory sides
-            conservatoryRoofCleaning: false,   // NEW: Specifically for conservatory roof
-            other: false,
-        },
-        otherServiceText: '',
-        frequencyPreference: '', // Conditional on windowCleaning service
-        otherFrequencyText: '',
-        otherNotes: '', // Keep for any other details not covered
-        customAdditionalComments: '' // Kept, can be used for further specific notes
-    },
-
-    // For Commercial Enquiry (collected in PropertyDetailsForm)
-    commercialDetails: {
-        businessName: '',
-        propertyType: '', // e.g., office, shop, warehouse
-        approxSizeOrWindows: '',
-        specificRequirements: '', // General notes field
-        // NEW fields for commercial service and frequency
-        servicesRequested: {
-            windowCleaning: false,
-            gutterCleaning: false,
-            fasciaSoffitCleaning: false, // Combined for simplicity, can be separate
-            claddingCleaning: false,
-            signageCleaning: false,
-            other: false,
-        },
-        otherServiceText: '',
-        frequencyPreference: '', // e.g., 'weekly', 'monthly', 'one-off', 'other'
-        otherFrequencyText: '',
-        otherNotes: '' // Kept existing otherNotes, can be used for general comments if specificRequirements is too narrow
-    },
-    generalEnquiryDetails: { // ADDED for General Enquiry Path
-        requestedServices: { // Flags for common services
-            windowCleaning: false,
-            conservatoryWindows: false,
-            conservatoryRoof: false,
-            gutterClearing: false,
-            fasciaSoffitGutter: false,
-            solarPanels: false,
-            other: false, // Flag to indicate if 'otherServiceText' is used
-        },
-        otherServiceText: '', // Text for "Other" service
-        requestedFrequency: '', // e.g., 'oneOff', '4weekly'
-        enquiryComments: ''    // General comments for the enquiry
-    },
-    bookingNotes: '', // ADDED: General notes for standard/custom/commercial bookings
-    recaptchaToken: '' // ADDED for reCAPTCHA
-  });
+  const [formData, setFormData] = useState(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
   const [submissionError, setSubmissionError] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -433,36 +433,10 @@ function BookingForm() {
                  We will be in touch shortly.
               </p>
               <button 
-                onClick={() => { 
-                    setCurrentStep(1); 
-                    setIsSubmitted(false); 
-                    setFormData({ /* TODO: Reset formData to its complete initial state here */ 
-                        propertyType: '', bedrooms: '', selectedFrequency: '', initialWindowPrice: 0, selectedWindowService: null,
-                        isCustomQuote: false, isCommercial: false, isResidential: false, isGeneralEnquiry: false,
-                        hasConservatory: false, hasExtension: false, additionalServices: { conservatoryRoof: false, fasciaSoffitGutter: false, gutterClearing: false, solarPanels: false }, // Assuming solarPanels was part of additionalServices object
-                        additionalServicesDetail: { conservatoryRoof: { selected: false, frequency: 'oneOff', price: 0, panels: 10 }, gutterClearing: { selected: false, frequency: 'oneOff', price: 0 }, fasciaSoffitGutter: { selected: false, frequency: 'oneOff', price: 0 }, solarPanels: { selected: false, frequency: 'oneOff', price: 0, count: 10 } },
-                        windowCleaningDiscount: 0, subTotalBeforeDiscount: 0, conservatorySurcharge: 0, extensionSurcharge: 0, grandTotal: 0,
-                        customerName: '', addressLine1: '', addressLine2: '', townCity: '', postcode: '', mobile: '', email: '', preferredContactMethod: 'email', selectedDate: null,
-                        customResidentialDetails: { 
-                            exactBedrooms: '', approxWindows: '', accessIssues: '', 
-                            propertyStyle: '', otherPropertyStyleText: '',
-                            servicesRequested: { windowCleaning: false, gutterCleaning: false, fasciaSoffitCleaning: false, conservatoryWindowCleaning: false, conservatoryRoofCleaning: false, other: false },
-                            otherServiceText: '',
-                            frequencyPreference: '', otherFrequencyText: '',
-                            otherNotes: '', customAdditionalComments: '' 
-                        },
-                        commercialDetails: { 
-                            businessName: '', propertyType: '', approxSizeOrWindows: '', specificRequirements: '', 
-                            servicesRequested: { windowCleaning: false, gutterCleaning: false, fasciaSoffitCleaning: false, claddingCleaning: false, signageCleaning: false, other: false },
-                            otherServiceText: '',
-                            frequencyPreference: '',
-                            otherFrequencyText: '',
-                            otherNotes: '' 
-                        },
-                        generalEnquiryDetails: { requestedServices: { windowCleaning: false, conservatoryWindows: false, conservatoryRoof: false, gutterClearing: false, fasciaSoffitGutter: false, solarPanels: false, other: false }, otherServiceText: '', requestedFrequency: '', enquiryComments: '' },
-                        bookingNotes: '',
-                        recaptchaToken: ''
-                    }); 
+                onClick={() => {
+                    setCurrentStep(1);
+                    setIsSubmitted(false);
+                    setFormData(initialFormData); // Use the constant for reset
                 }} 
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
