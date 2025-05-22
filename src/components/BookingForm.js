@@ -74,6 +74,10 @@ const mapFormDataToTemplateParams = (formData) => {
     hasExtension: false, // Default
     extensionSurchargetoFixed2: '0.00',
     additionalServices: { conservatoryRoof: false, fasciaSoffitGutter: false, gutterClearing: false }, // Default
+    hasGutterClearingServiceSelected: false, // Default
+    gutterClearingServicePriceToFixed2: '0.00', // Default
+    hasFasciaSoffitGutterServiceSelected: false, // Default
+    fasciaSoffitGutterServicePriceToFixed2: '0.00', // Default
     subTotalBeforeDiscounttoFixed2: '0.00',
     windowCleaningDiscounttoFixed2: '0.00',
     grandTotaltoFixed2: '0.00',
@@ -116,7 +120,10 @@ const mapFormDataToTemplateParams = (formData) => {
     } : null,
 
     // reCAPTCHA
-    'g-recaptcha-response': formData.recaptchaToken || ''
+    'g-recaptcha-response': formData.recaptchaToken || '',
+
+    // Add a flag for non-zero grand total for template logic
+    grandTotal_not_zero: formData.grandTotal > 0
   };
 
   // Populate standard residential details if applicable
@@ -131,12 +138,65 @@ const mapFormDataToTemplateParams = (formData) => {
     params.hasExtension = formData.hasExtension || false;
     params.extensionSurchargetoFixed2 = formatPrice(formData.extensionSurcharge);
     params.additionalServices = formData.additionalServices || { conservatoryRoof: false, fasciaSoffitGutter: false, gutterClearing: false };
+    params.hasGutterClearingServiceSelected = !!formData.additionalServices?.gutterClearing;
+    params.gutterClearingServicePriceToFixed2 = formatPrice(formData.gutterClearingServicePrice);
+    params.hasFasciaSoffitGutterServiceSelected = !!formData.additionalServices?.fasciaSoffitGutter;
+    params.fasciaSoffitGutterServicePriceToFixed2 = formatPrice(formData.fasciaSoffitGutterServicePrice);
     params.subTotalBeforeDiscounttoFixed2 = formatPrice(formData.subTotalBeforeDiscount);
     params.windowCleaningDiscounttoFixed2 = formatPrice(formData.windowCleaningDiscount);
     params.grandTotaltoFixed2 = formatPrice(formData.grandTotal);
     params.selectedDateFormatted = formatDate(formData.selectedDate);
   }
   
+  // Calculate Estimated Annual Value
+  let estimatedAnnualValue = 0;
+  let showAnnualValue = false;
+  let yearlyMultiplier = 0;
+  let frequencyForAnnualCalc = '';
+
+  if (is_standard_residential_booking_bool && formData.grandTotal > 0) {
+    frequencyForAnnualCalc = formData.selectedFrequency ? formData.selectedFrequency.toLowerCase() : '';
+  } else if (formData.isCustomQuote && formData.grandTotal > 0 && formData.customResidentialDetails) {
+    frequencyForAnnualCalc = formData.customResidentialDetails.frequencyPreference ? formData.customResidentialDetails.frequencyPreference.toLowerCase() : '';
+  } else if (formData.isCommercial && formData.grandTotal > 0 && formData.commercialDetails) {
+    frequencyForAnnualCalc = formData.commercialDetails.frequencyPreference ? formData.commercialDetails.frequencyPreference.toLowerCase() : '';
+  }
+
+  // Normalize frequency strings and apply multipliers
+  if (frequencyForAnnualCalc.includes('4 weekly') || frequencyForAnnualCalc.includes('4weekly')) {
+    yearlyMultiplier = 52 / 4;
+  } else if (frequencyForAnnualCalc.includes('8 weekly') || frequencyForAnnualCalc.includes('8weekly')) {
+    yearlyMultiplier = 52 / 8;
+  } else if (frequencyForAnnualCalc.includes('12 weekly') || frequencyForAnnualCalc.includes('12weekly')) {
+    yearlyMultiplier = 52 / 12;
+  } else if (frequencyForAnnualCalc.includes('monthly')) {
+    yearlyMultiplier = 12;
+  } else if (frequencyForAnnualCalc.includes('bi-monthly') || frequencyForAnnualCalc.includes('bimonthly')) {
+    yearlyMultiplier = 6;
+  } else if (frequencyForAnnualCalc.includes('quarterly')) {
+    yearlyMultiplier = 4;
+  } else if (frequencyForAnnualCalc.includes('annually') || frequencyForAnnualCalc.includes('yearly')) {
+    yearlyMultiplier = 1;
+  }
+  // Add other frequencies like '6 weekly', '2 weekly' etc. if they exist in your forms
+  
+  // Exclude one-off types for annual calculation, multiplier remains 0
+  if (frequencyForAnnualCalc.includes('one-off') || frequencyForAnnualCalc.includes('oneoff') || frequencyForAnnualCalc.includes('adhoc') || frequencyForAnnualCalc.includes('asrequired') || frequencyForAnnualCalc.includes('as required')) {
+    yearlyMultiplier = 0; // Explicitly set to 0 for non-recurring to not show annual value
+  }
+
+  if (formData.grandTotal > 0 && yearlyMultiplier > 0) {
+    estimatedAnnualValue = formData.grandTotal * yearlyMultiplier;
+    showAnnualValue = true;
+    params.estimatedAnnualValueToFixed2 = formatPrice(estimatedAnnualValue);
+  } else {
+    params.estimatedAnnualValueToFixed2 = '0.00'; // Default if not applicable
+  }
+  params.showAnnualValue = showAnnualValue;
+  
+  // Add a flag for non-zero grand total for template logic (especially for quotes/enquiries)
+  params.grandTotal_not_zero = !!(formData.grandTotal && parseFloat(formData.grandTotal) > 0);
+
   console.log("Updated templateParams being sent to EmailJS:", JSON.stringify(params, null, 2));
   return params;
 };
@@ -171,6 +231,8 @@ function BookingForm() {
         fasciaSoffitGutter: false,
         gutterClearing: false,
     },
+    gutterClearingServicePrice: 0, // Price for this service if selected
+    fasciaSoffitGutterServicePrice: 0, // Price for this service if selected
     windowCleaningDiscount: 0, // Amount of discount from free window clean offer
 
     // Calculated totals, updated primarily by AdditionalServicesForm or at review

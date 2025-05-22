@@ -106,12 +106,17 @@
             <h4>Selected Additional Services:</h4>
             <ul>
                 {{#additionalServices.conservatoryRoof}}<li>Conservatory Roof Cleaning</li>{{/additionalServices.conservatoryRoof}}
-                {{#additionalServices.fasciaSoffitGutter}}<li>Fascia, Soffit & Gutter Cleaning</li>{{/additionalServices.fasciaSoffitGutter}}
-                {{#additionalServices.gutterClearing}}<li>Gutter Clearing</li>{{/additionalServices.gutterClearing}}
+                {{#hasFasciaSoffitGutterServiceSelected}}
+                    <li>Fascia, Soffit & Gutter Cleaning (£{{{fasciaSoffitGutterServicePriceToFixed2}}})</li>
+                {{/hasFasciaSoffitGutterServiceSelected}}
+                {{#hasGutterClearingServiceSelected}}
+                    <li>Gutter Clearing (£{{{gutterClearingServicePriceToFixed2}}})</li>
+                {{/hasGutterClearingServiceSelected}}
+                
                 {{^additionalServices.conservatoryRoof}}
-                    {{^additionalServices.fasciaSoffitGutter}}
-                        {{^additionalServices.gutterClearing}}<li>None</li>{{/additionalServices.gutterClearing}}
-                    {{/additionalServices.fasciaSoffitGutter}}
+                    {{^hasFasciaSoffitGutterServiceSelected}}
+                        {{^hasGutterClearingServiceSelected}}<li>None</li>{{/hasGutterClearingServiceSelected}}
+                    {{/hasFasciaSoffitGutterServiceSelected}}
                 {{/additionalServices.conservatoryRoof}}
             </ul>
             
@@ -120,6 +125,9 @@
             <p><span class="label">Window Cleaning Discount:</span> <span class="value">£{{{ windowCleaningDiscounttoFixed2 }}}</span></p>
             {{/windowCleaningDiscount}}
             <p><span class="label">Grand Total:</span> <span class="value">£{{{ grandTotaltoFixed2 }}}</span></p>
+            {{#showAnnualValue}}
+            <p><span class="label">Estimated Annual Value:</span> <span class="value">£{{{ estimatedAnnualValueToFixed2 }}}</span></p>
+            {{/showAnnualValue}}
             <p><span class="label">Selected Date:</span> <span class="value">{{{ selectedDateFormatted }}}</span></p>
         </div>
         {{/is_standard_residential_booking_bool}}
@@ -142,6 +150,15 @@
                 {{#customResidentialDetails.servicesRequested.other}}<li>Other: {{{ customResidentialDetails.otherServiceText }}}</li>{{/customResidentialDetails.servicesRequested.other}}
             </ul>
             <p><span class="label">Frequency Preference:</span> <span class="value">{{{ customResidentialDetails.frequencyPreference }}}{{#customResidentialDetails.otherFrequencyText}} ({{{ customResidentialDetails.otherFrequencyText }}}){{/customResidentialDetails.otherFrequencyText}}</span></p>
+            {{#showAnnualValue}}
+                <p><span class="label">Estimated Quote Total (Recurring):</span> <span class="value">£{{{grandTotaltoFixed2}}}</span></p>
+                <p><span class="label">Estimated Annual Value:</span> <span class="value">£{{{estimatedAnnualValueToFixed2}}}</span></p>
+            {{/showAnnualValue}}
+            {{^showAnnualValue}}
+                {{#grandTotal_not_zero}}
+                    <p><span class="label">Estimated Quote Total (One-Off):</span> <span class="value">£{{{grandTotaltoFixed2}}}</span></p>
+                {{/grandTotal_not_zero}}
+            {{/showAnnualValue}}
             <p><span class="label">Other Notes:</span> <span class="value">{{{ customResidentialDetails.otherNotes }}}</span></p>
             <p><span class="label">Additional Comments:</span> <span class="value">{{{ customResidentialDetails.customAdditionalComments }}}</span></p>
         </div>
@@ -164,6 +181,15 @@
                 {{#commercialDetails.servicesRequested.other}}<li>Other: {{{ commercialDetails.otherServiceText }}}</li>{{/commercialDetails.servicesRequested.other}}
             </ul>
             <p><span class="label">Frequency Preference:</span> <span class="value">{{{ commercialDetails.frequencyPreference }}}{{#commercialDetails.otherFrequencyText}} ({{{ commercialDetails.otherFrequencyText }}}){{/commercialDetails.otherFrequencyText}}</span></p>
+            {{#showAnnualValue}}
+                <p><span class="label">Estimated Quote Total (Recurring):</span> <span class="value">£{{{grandTotaltoFixed2}}}</span></p>
+                <p><span class="label">Estimated Annual Value:</span> <span class="value">£{{{estimatedAnnualValueToFixed2}}}</span></p>
+            {{/showAnnualValue}}
+            {{^showAnnualValue}}
+                {{#grandTotal_not_zero}}
+                    <p><span class="label">Estimated Quote Total (One-Off):</span> <span class="value">£{{{grandTotaltoFixed2}}}</span></p>
+                {{/grandTotal_not_zero}}
+            {{/showAnnualValue}}
             <p><span class="label">Specific Requirements:</span> <span class="value">{{{ commercialDetails.specificRequirements }}}</span></p>
             <p><span class="label">Other Notes:</span> <span class="value">{{{ commercialDetails.otherNotes }}}</span></p>
         </div>
