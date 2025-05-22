@@ -132,36 +132,28 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                 );
             }
 
-            console.log(`[DEBUG] Postcode: ${rawPostcode}, Found ${matchingScheduleEntries.length} schedule entr(ies):`, JSON.stringify(matchingScheduleEntries));
+
 
             if (matchingScheduleEntries.length > 0) {
                 const allValidDates = [];
                 matchingScheduleEntries.forEach(scheduleEntry => {
                     const datesToProcess = scheduleEntry.dates;
-                    console.log(`[DEBUG] Processing scheduleEntry for postcodes: ${scheduleEntry.postcodes.join(', ')}, base dates:`, JSON.stringify(datesToProcess));
                     
                     datesToProcess.forEach(dateStr => {
-                        console.log(`[DEBUG] Processing dateStr: ${dateStr}, with recurrence: ${scheduleEntry.recurrence}`);
                         let nextOccurrenceDate = getNextOccurrence(dateStr, scheduleEntry.recurrence);
-                        console.log(`[DEBUG] Next occurrence for ${dateStr}:`, nextOccurrenceDate);
                         
                         if (!nextOccurrenceDate || isNaN(nextOccurrenceDate.getTime())) {
-                            console.warn(`[DEBUG] Invalid or null nextOccurrenceDate for ${dateStr}`);
                             return; 
                         }
 
                         let adjustedDate = findFirstWorkingDayFrom(nextOccurrenceDate);
-                        console.log(`[DEBUG] Adjusted working day for ${dateStr}:`, adjustedDate);
                         
                         // Ensure comparison dates are fresh for each check to avoid issues with object mutation if any
                         const currentTomorrow = new Date(); currentTomorrow.setHours(0,0,0,0); currentTomorrow.setDate(new Date().getDate()+1);
                         const currentSixWeeksFromNow = new Date(); currentSixWeeksFromNow.setHours(0,0,0,0); currentSixWeeksFromNow.setDate(new Date().getDate()+42);
 
                         if (adjustedDate >= currentTomorrow && adjustedDate <= currentSixWeeksFromNow) {
-                            console.log(`[DEBUG]    VALID and within 6 weeks: ${formatDateForDisplay(adjustedDate)}`);
                             allValidDates.push(adjustedDate);
-                        } else {
-                            console.log(`[DEBUG]    INVALID or outside 6 weeks: ${formatDateForDisplay(adjustedDate)} (Tomorrow: ${formatDateForDisplay(currentTomorrow)}, SixWeeks: ${formatDateForDisplay(currentSixWeeksFromNow)})`);
                         }
                     });
                 });
@@ -211,7 +203,6 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
             if (goToStep) {
                 goToStep(1);
             } else {
-                console.warn("goToStep function not provided to PropertyDetailsForm. Cannot go back to Step 1.");
                 // As a fallback, try prevStep, though this might not be the desired step for quotes.
                 prevStep(); 
             }

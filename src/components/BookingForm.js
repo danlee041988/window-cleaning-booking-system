@@ -305,7 +305,6 @@ const mapFormDataToTemplateParams = (formData) => {
   // This was already here and is correct for the template
   params.grandTotal_not_zero = !!(formData.grandTotal && parseFloat(formData.grandTotal) > 0);
 
-  console.log("Final templateParams for EmailJS:", JSON.stringify(params, null, 2));
   return params;
 };
 
