@@ -391,25 +391,25 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
 
                 {/* Enhanced Date Selection UI - Only for Standard Residential Bookings and when postcode is entered */}
                 {!isCommercial && !isCustomQuote && isResidential && !isGeneralEnquiry && postcode && postcode.trim().length >= 2 && (
-                    <div className="mt-6 pt-4 border-t animate-pop-in">
-                        <h3 id="date-selection-heading" className="text-xl font-medium text-gray-800 mb-2">
-                            Select Date for First Clean <span className="text-red-500">*</span>
+                    <div className="mt-8 pt-6 border-t border-gray-600 animate-pop-in">
+                        <h3 id="date-selection-heading" className="text-2xl font-semibold text-gray-200 mb-3">
+                            Select Date for First Clean <span className="text-red-400">*</span>
                         </h3>
-                        <p className="text-sm text-gray-600 mb-4">
+                        <p className="text-sm text-gray-400 mb-6">
                             Choose from available dates or request ASAP service
                         </p>
                         
                         {/* Loading State */}
                         {isLoadingDates && (
-                            <div className="flex items-center justify-center p-6 border border-blue-200 rounded-lg bg-blue-50">
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600 mr-3"></div>
-                                <span className="text-blue-700 font-medium">Loading available dates...</span>
+                            <div className="flex items-center justify-center p-6 border border-blue-700 rounded-lg bg-blue-900/30">
+                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-400 mr-3"></div>
+                                <span className="text-blue-300 font-medium">Loading available dates...</span>
                             </div>
                         )}
                         
                         {/* Error State */}
                         {!isLoadingDates && postcodeError && (
-                            <div className="p-4 border border-red-200 rounded-lg bg-red-50">
+                            <div className="p-4 border border-red-700 rounded-lg bg-red-900/30">
                                 <div className="flex items-center">
                                     <div className="flex-shrink-0">
                                         <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -417,7 +417,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                         </svg>
                                     </div>
                                     <div className="ml-3">
-                                        <p className="text-sm text-red-800">{postcodeError}</p>
+                                        <p className="text-sm text-red-300">{postcodeError}</p>
                                     </div>
                                 </div>
                             </div>
@@ -425,20 +425,20 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                         
                         {/* Form Validation Errors */}
                         {dateSelectionError && (
-                            <p className="text-red-600 text-sm mb-3">{dateSelectionError}</p>
+                            <p className="text-red-400 text-sm mb-3 bg-red-900/20 border border-red-700 rounded p-2">{dateSelectionError}</p>
                         )}
                         {formErrors.selectedDate && !dateSelectionError && (
-                            <p className="text-red-600 text-sm mb-3">{formErrors.selectedDate}</p>
+                            <p className="text-red-400 text-sm mb-3 bg-red-900/20 border border-red-700 rounded p-2">{formErrors.selectedDate}</p>
                         )}
 
                         {/* Main Selection Area */}
                         {!isLoadingDates && !postcodeError && (
-                            <div className="space-y-4">
+                            <div className="space-y-6">
                                 {/* Available Dates Section */}
                                 {availableDates.length > 0 ? (
                                     <div>
-                                        <h4 className="text-sm font-medium text-gray-700 mb-3">Available Dates (Next 6 Weeks)</h4>
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 mb-4">
+                                        <h4 className="text-lg font-semibold text-gray-200 mb-4">Available Dates (Next 6 Weeks)</h4>
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
                                             {availableDates.map(date => {
                                                 const dateValueStr = formatDateForStorage(date);
                                                 const isSelected = selectedDate === dateValueStr;
@@ -447,12 +447,12 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                                         type="button"
                                                         key={dateValueStr}
                                                         onClick={() => handleDateSelect(date)}
-                                                        className={`p-3 border rounded-lg text-center cursor-pointer transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 transform hover:scale-105
+                                                        className={`p-4 border-2 rounded-lg text-center cursor-pointer transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 transform hover:scale-105
                                                             ${isSelected 
-                                                                ? 'bg-indigo-600 border-indigo-700 text-white shadow-lg scale-105' 
-                                                                : 'bg-white border-gray-300 text-gray-700 hover:bg-indigo-50 hover:border-indigo-300 hover:shadow-md'}`}
+                                                                ? 'bg-gradient-to-r from-blue-600 to-blue-700 border-blue-600 text-white shadow-lg scale-105' 
+                                                                : 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600 hover:border-blue-500 hover:shadow-md'}`}
                                                     >
-                                                        <span className={`block text-xs font-medium ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                                                        <span className={`block text-sm font-semibold ${isSelected ? 'text-white' : 'text-gray-200'}`}>
                                                             {formatDateForDisplay(date)}
                                                         </span>
                                                     </button>
@@ -463,10 +463,10 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                         {/* Divider */}
                                         <div className="relative">
                                             <div className="absolute inset-0 flex items-center">
-                                                <div className="w-full border-t border-gray-300" />
+                                                <div className="w-full border-t border-gray-600" />
                                             </div>
                                             <div className="relative flex justify-center text-sm">
-                                                <span className="px-2 bg-white text-gray-500">or</span>
+                                                <span className="px-4 bg-gray-800 text-gray-400">or</span>
                                             </div>
                                         </div>
                                     </div>
@@ -474,24 +474,24 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                 
                                 {/* ASAP Option - now more compact and integrated */}
                                 <div>
-                                    <h4 className="text-sm font-medium text-gray-700 mb-3">Need service urgently?</h4>
+                                    <h4 className="text-lg font-semibold text-gray-200 mb-4">Need service urgently?</h4>
                                     <button
                                         type="button"
                                         onClick={() => handleDateSelect("ASAP")}
-                                        className={`w-full p-4 border-2 rounded-lg text-center cursor-pointer transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 transform hover:scale-[1.02]
+                                        className={`w-full p-6 border-2 rounded-lg text-center cursor-pointer transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 transform hover:scale-[1.02]
                                                     ${selectedDate === "ASAP"
-                                                        ? 'bg-gradient-to-r from-green-500 to-green-600 border-green-600 text-white shadow-lg scale-[1.02]'
-                                                        : 'bg-white border-green-300 text-gray-700 hover:bg-green-50 hover:border-green-400 hover:shadow-md focus:ring-green-400'}`}
+                                                        ? 'bg-gradient-to-r from-green-600 to-green-700 border-green-600 text-white shadow-lg scale-[1.02]'
+                                                        : 'bg-gray-700 border-green-500 text-gray-200 hover:bg-green-800/20 hover:border-green-400 hover:shadow-md'}`}
                                     >
                                         <div className="flex items-center justify-center">
-                                            <svg className={`h-5 w-5 mr-2 ${selectedDate === "ASAP" ? 'text-white' : 'text-green-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <svg className={`h-6 w-6 mr-3 ${selectedDate === "ASAP" ? 'text-white' : 'text-green-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                             </svg>
                                             <div>
-                                                <span className={`block font-semibold ${selectedDate === "ASAP" ? 'text-white' : 'text-gray-900'}`}>
+                                                <span className={`block text-lg font-semibold ${selectedDate === "ASAP" ? 'text-white' : 'text-gray-200'}`}>
                                                     Request First Clean ASAP
                                                 </span>
-                                                <span className={`block text-xs mt-1 ${selectedDate === "ASAP" ? 'text-green-100' : 'text-gray-500'}`}>
+                                                <span className={`block text-sm mt-1 ${selectedDate === "ASAP" ? 'text-green-100' : 'text-gray-400'}`}>
                                                     We'll contact you within 24 hours to arrange the earliest available slot
                                                 </span>
                                             </div>
@@ -505,8 +505,11 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
 
                 {/* Conditional Fields for Custom Residential Quote (6+ beds) */}
                 {isCustomQuote && isResidential && (
-                    <div className="mt-6 pt-4 border-t">
-                        <h3 className="text-xl font-medium text-gray-800 mb-4">Property Specifics (6+ Beds / Bespoke)</h3>
+                    <div className="mt-8 pt-6 border-t border-gray-600">
+                        <div className="bg-gradient-to-r from-gray-800 to-gray-700 p-6 rounded-lg border border-gray-600 mb-6">
+                            <h3 className="text-2xl font-semibold text-gray-200 mb-2">Property Specifics (6+ Beds / Bespoke)</h3>
+                            <p className="text-gray-400 mb-4">Help us understand your unique property requirements</p>
+                        </div>
 
                         <InputField
                             label="Number of Bedrooms"
@@ -517,12 +520,12 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                             type="number"
                             required
                         />
-                        {formErrors.exactBedrooms && <p className="text-sm text-red-600 -mt-3 mb-1">{formErrors.exactBedrooms}</p>}
+                        {formErrors.exactBedrooms && <p className="text-sm text-red-400 -mt-3 mb-1 bg-red-900/20 border border-red-700 rounded p-2">{formErrors.exactBedrooms}</p>}
 
                         {/* Property Style */}
-                        <div className="mb-6">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Property Style <span className="text-red-500">*</span></label>
-                            <div className="space-y-2">
+                        <div className="mb-8">
+                            <label className="block text-lg font-semibold text-gray-200 mb-4">Property Style <span className="text-red-400">*</span></label>
+                            <div className="space-y-3">
                                 {[
                                     { id: 'detached', label: 'Detached House (Large/Unique)' },
                                     { id: 'semiDetachedLarge', label: 'Semi-Detached House (Large/Extended)' },
@@ -531,7 +534,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                     { id: 'apartmentBlock', label: 'Apartment Block (specify units if known)' },
                                     { id: 'otherCustomProperty', label: 'Other (Please specify)' }
                                 ].map(style => (
-                                    <div key={style.id} className="flex items-center">
+                                    <div key={style.id} className="flex items-center group">
                                         <input
                                             type="radio"
                                             id={`customPropertyStyle-${style.id}`}
@@ -539,9 +542,9 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                             value={style.id}
                                             checked={values.customResidentialDetails?.propertyStyle === style.id}
                                             onChange={handleChange}
-                                            className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                                            className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 focus:ring-2 transition duration-150 ease-in-out"
                                         />
-                                        <label htmlFor={`customPropertyStyle-${style.id}`} className="ml-2 block text-sm text-gray-700">
+                                        <label htmlFor={`customPropertyStyle-${style.id}`} className="ml-3 block text-sm text-gray-200 group-hover:text-blue-300 transition-colors cursor-pointer">
                                             {style.label}
                                         </label>
                                     </div>
@@ -556,14 +559,14 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                     />
                                 )}
                             </div>
-                            {formErrors.propertyStyle && <p className="text-sm text-red-600 mt-1">{formErrors.propertyStyle}</p>}
-                            {formErrors.otherPropertyStyleText && <p className="text-sm text-red-600 -mt-3 mb-1">{formErrors.otherPropertyStyleText}</p>}
+                            {formErrors.propertyStyle && <p className="text-sm text-red-400 mt-2 bg-red-900/20 border border-red-700 rounded p-2">{formErrors.propertyStyle}</p>}
+                            {formErrors.otherPropertyStyleText && <p className="text-sm text-red-400 -mt-3 mb-1 bg-red-900/20 border border-red-700 rounded p-2">{formErrors.otherPropertyStyleText}</p>}
                         </div>
 
                         {/* Services Requested */}
-                        <div className="mb-6">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Services Required</label>
-                            <div className="space-y-2">
+                        <div className="mb-8">
+                            <label className="block text-lg font-semibold text-gray-200 mb-4">Services Required</label>
+                            <div className="space-y-3">
                                 {[
                                     { id: 'windowCleaning', label: 'Window Cleaning (Exterior)' },
                                     { id: 'gutterCleaning', label: 'Gutter Clearing (Interior)' },
@@ -572,16 +575,16 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                     { id: 'conservatoryRoofCleaning', label: 'Conservatory Roof Cleaning' },
                                     { id: 'other', label: 'Other (Please specify)' }
                                 ].map(service => (
-                                    <div key={service.id} className="flex items-center">
+                                    <div key={service.id} className="flex items-center group">
                                         <input
                                             type="checkbox"
                                             id={`customService-${service.id}`}
                                             name={`customResidentialDetails.servicesRequested.${service.id}`}
                                             checked={values.customResidentialDetails?.servicesRequested?.[service.id] || false}
                                             onChange={handleChange}
-                                            className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                            className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 transition duration-150 ease-in-out"
                                         />
-                                        <label htmlFor={`customService-${service.id}`} className="ml-2 block text-sm text-gray-700">
+                                        <label htmlFor={`customService-${service.id}`} className="ml-3 block text-sm text-gray-200 group-hover:text-blue-300 transition-colors cursor-pointer">
                                             {service.label}
                                         </label>
                                     </div>
@@ -596,14 +599,14 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                     />
                                 )}
                             </div>
-                            {formErrors.customServices && <p className="text-sm text-red-600 mt-1">{formErrors.customServices}</p>}
+                            {formErrors.customServices && <p className="text-sm text-red-400 mt-2 bg-red-900/20 border border-red-700 rounded p-2">{formErrors.customServices}</p>}
                         </div>
 
                         {/* Preferred Frequency (Conditional on Window Cleaning) */}
                         {values.customResidentialDetails?.servicesRequested?.windowCleaning && (
-                            <div className="mb-6">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Preferred Window Cleaning Frequency</label>
-                                <div className="space-y-2">
+                            <div className="mb-8">
+                                <label className="block text-lg font-semibold text-gray-200 mb-4">Preferred Window Cleaning Frequency</label>
+                                <div className="space-y-3">
                                     {[
                                         { id: '4-weekly', label: '4 Weekly' },
                                         { id: '8-weekly', label: '8 Weekly' },
@@ -611,7 +614,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                         { id: 'one-off', label: 'One-off Clean' },
                                         { id: 'other', label: 'Other (Please specify)' }
                                     ].map(freq => (
-                                        <div key={freq.id} className="flex items-center">
+                                        <div key={freq.id} className="flex items-center group">
                                             <input
                                                 type="radio"
                                                 id={`customFreq-${freq.id}`}
@@ -619,9 +622,9 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                                 value={freq.id}
                                                 checked={values.customResidentialDetails?.frequencyPreference === freq.id}
                                                 onChange={handleChange}
-                                                className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                                                className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 focus:ring-2 transition duration-150 ease-in-out"
                                             />
-                                            <label htmlFor={`customFreq-${freq.id}`} className="ml-2 block text-sm text-gray-700">
+                                            <label htmlFor={`customFreq-${freq.id}`} className="ml-3 block text-sm text-gray-200 group-hover:text-blue-300 transition-colors cursor-pointer">
                                                 {freq.label}
                                             </label>
                                         </div>
@@ -674,8 +677,11 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
 
                 {/* Conditional Fields for Commercial Enquiry */}
                 {isCommercial && (
-                    <div className="mt-6 pt-4 border-t">
-                         <h3 className="text-xl font-medium text-gray-800 mb-4">Commercial Property Details</h3>
+                    <div className="mt-8 pt-6 border-t border-gray-600">
+                        <div className="bg-gradient-to-r from-purple-800 to-purple-700 p-6 rounded-lg border border-purple-600 mb-6">
+                            <h3 className="text-2xl font-semibold text-white mb-2">Commercial Property Details</h3>
+                            <p className="text-purple-200 mb-4">Tell us about your business premises and cleaning requirements</p>
+                        </div>
                         <InputField
                             label="Type of Commercial Property"
                             name="commercialDetails.propertyType"
@@ -684,7 +690,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                             placeholder="e.g., Office, Shop, Restaurant, Warehouse"
                             required
                         />
-                        {formErrors.commercialPropertyType && <p className="text-sm text-red-600 -mt-3 mb-1">{formErrors.commercialPropertyType}</p>}
+                        {formErrors.commercialPropertyType && <p className="text-sm text-red-400 -mt-3 mb-1 bg-red-900/20 border border-red-700 rounded p-2">{formErrors.commercialPropertyType}</p>}
                         <InputField
                             label="Property Size / Key Features (e.g., No. of windows, No. of floors, specific areas)"
                             name="commercialDetails.approxSizeOrWindows"
