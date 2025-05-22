@@ -131,7 +131,7 @@ const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
       <div className="container mx-auto p-6">
         {/* Hero Header Section */}
-        <div className="text-center mb-12 pt-8">
+        <div className="text-center mb-16 pt-12">
           <h1 className="text-5xl font-bold mb-4 text-white">
             Professional Window Cleaning
           </h1>
@@ -140,7 +140,7 @@ const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
           </h2>
           <p className="mb-8 text-gray-300 md:text-lg max-w-2xl mx-auto leading-relaxed">
             Select your property type for instant transparent pricing, or start a business enquiry. 
-            <span className="text-blue-300 font-medium"> Professional service, guaranteed results.</span>
+            <span className="text-blue-300 font-medium"> Professional service, guaranteed results</span>
           </p>
           
           {/* Decorative divider */}
@@ -375,7 +375,7 @@ const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
                     disabled={!isActive}
                     className={`w-full font-bold py-4 px-6 rounded-lg transition-all duration-300 mt-auto text-lg transform shadow-lg
                                 ${isActive 
-                                    ? 'bg-gradient-to-r from-black to-gray-800 text-white hover:from-gray-800 hover:to-gray-900 hover:scale-105 hover:shadow-xl' 
+                                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 hover:scale-105 hover:shadow-xl' 
                                     : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
                   >
                     <span className="flex items-center justify-center">
