@@ -11,7 +11,7 @@ const CONSERVATORY_SURCHARGE = 5;
 const EXTENSION_SURCHARGE_AMOUNT = 5; // New constant for extension surcharge
 
 // Placeholder: Implement this function to map your formData to EmailJS template params
-const mapFormDataToTemplateParams = (formData) => {
+export const mapFormDataToTemplateParams = (formData) => {
   // Helper to calculate annual value (simplified)
   const getAnnualValue = (priceStr, freqKey) => {
     const price = parseFloat(priceStr);
@@ -251,6 +251,12 @@ const mapFormDataToTemplateParams = (formData) => {
     params.subTotalBeforeDiscount = 'N/A';
   }
 
+  // Add is_standard_residential_booking_bool
+  params.is_standard_residential_booking_bool = 
+    formData.isResidential && 
+    !formData.isCustomQuote && 
+    !formData.isCommercial && 
+    !formData.isGeneralEnquiry;
 
   console.log("Mapped EmailJS template params:", params);
   return params;
