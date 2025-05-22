@@ -209,7 +209,9 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                 // Reset standard path fields to avoid data confusion
                 hasConservatory: false,
                 hasExtension: false,
-                additionalServices: { gutterClearing: false, fasciaSoffitGutter: false },
+                additionalServices: { gutterClearing: false, fasciaSoffitGutter: false, conservatoryRoof: false }, // Ensure conservatoryRoof is also reset
+                gutterClearingServicePrice: 0, // Reset
+                fasciaSoffitGutterServicePrice: 0, // Reset
                 windowCleaningDiscount: 0, 
                 subTotalBeforeDiscount: 0, 
                 grandTotal: 0, 
@@ -221,6 +223,24 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                 finalSelectedAddons.gutterClearing = false;
                 finalSelectedAddons.fasciaSoffitGutter = false;
             }
+
+            // DEBUGGING: Log values before setting formData for standard path
+            console.log("[AdditionalServicesForm DEBUG] Standard Path - Values before setFormData:");
+            console.log("  initialWindowPrice:", initialWindowPrice);
+            console.log("  propertyType:", propertyType);
+            console.log("  bedrooms:", bedrooms);
+            console.log("  canOfferGutterServices:", canOfferGutterServices);
+            console.log("  calculated gutterClearingPrice (dynamic):", gutterClearingPrice);
+            console.log("  calculated fasciaSoffitGutterPrice (dynamic):", fasciaSoffitGutterPrice);
+            console.log("  finalSelectedAddons.gutterClearing:", finalSelectedAddons.gutterClearing);
+            console.log("  finalSelectedAddons.fasciaSoffitGutter:", finalSelectedAddons.fasciaSoffitGutter);
+            console.log("  Saving gutterClearingServicePrice:", (finalSelectedAddons.gutterClearing && canOfferGutterServices) ? gutterClearingPrice : 0);
+            console.log("  Saving fasciaSoffitGutterServicePrice:", (finalSelectedAddons.fasciaSoffitGutter && canOfferGutterServices) ? fasciaSoffitGutterPrice : 0);
+            console.log("  currentWindowPriceWithSurcharges:", currentWindowPriceWithSurcharges);
+            console.log("  addonServicesTotalPrice:", addonServicesTotalPrice);
+            console.log("  calculatedDiscount:", calculatedDiscount);
+            console.log("  finalGrandTotal:", finalGrandTotal);
+
             setFormData(prevData => ({
                 ...prevData,
                 hasConservatory: hasCons,
@@ -228,6 +248,8 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                 conservatorySurcharge: hasCons ? conservatorySurchargeAmount : 0,
                 extensionSurcharge: hasExt ? extensionSurchargeAmount : 0,
                 additionalServices: finalSelectedAddons, 
+                gutterClearingServicePrice: (finalSelectedAddons.gutterClearing && canOfferGutterServices) ? gutterClearingPrice : 0,
+                fasciaSoffitGutterServicePrice: (finalSelectedAddons.fasciaSoffitGutter && canOfferGutterServices) ? fasciaSoffitGutterPrice : 0,
                 windowCleaningDiscount: calculatedDiscount,
                 subTotalBeforeDiscount: currentWindowPriceWithSurcharges + addonServicesTotalPrice, 
                 grandTotal: finalGrandTotal,

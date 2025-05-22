@@ -83,6 +83,11 @@ const mapFormDataToTemplateParams = (formData) => {
     grandTotaltoFixed2: '0.00',
     selectedDateFormatted: 'N/A', // Default
 
+    // Placeholders for annual value and recurring price per visit
+    estimatedAnnualValueToFixed2: '0.00',
+    recurringPricePerVisitToFixed2: '0.00', // Price for one recurring visit
+    showAnnualValue: false, // Flag to show annual value section
+
     // Custom Residential Quote Details
     customResidentialDetails: formData.isCustomQuote ? {
         exactBedrooms: formData.customResidentialDetails?.exactBedrooms || 'N/A',
@@ -148,56 +153,56 @@ const mapFormDataToTemplateParams = (formData) => {
     params.selectedDateFormatted = formatDate(formData.selectedDate);
   }
   
-  // Calculate Estimated Annual Value
-  let estimatedAnnualValue = 0;
-  let showAnnualValue = false;
-  let yearlyMultiplier = 0;
+  // Calculate base price for annual calculation (recurring services only for standard residential)
   let frequencyForAnnualCalc = '';
+  let basePriceForAnnualCalc = 0;
 
-  if (is_standard_residential_booking_bool && formData.grandTotal > 0) {
+  if (is_standard_residential_booking_bool) {
     frequencyForAnnualCalc = formData.selectedFrequency ? formData.selectedFrequency.toLowerCase() : '';
-  } else if (formData.isCustomQuote && formData.grandTotal > 0 && formData.customResidentialDetails) {
-    frequencyForAnnualCalc = formData.customResidentialDetails.frequencyPreference ? formData.customResidentialDetails.frequencyPreference.toLowerCase() : '';
-  } else if (formData.isCommercial && formData.grandTotal > 0 && formData.commercialDetails) {
-    frequencyForAnnualCalc = formData.commercialDetails.frequencyPreference ? formData.commercialDetails.frequencyPreference.toLowerCase() : '';
+    // Start with the price of the window cleaning service for the selected frequency
+    if (formData.selectedWindowService && typeof formData.selectedWindowService.price === 'number') {
+      basePriceForAnnualCalc = formData.selectedWindowService.price;
+    }
+    // Add recurring surcharges (assuming conservatory/extension surcharges are recurring)
+    if (formData.hasConservatory && typeof formData.conservatorySurcharge === 'number' && formData.conservatorySurcharge > 0) {
+      basePriceForAnnualCalc += formData.conservatorySurcharge;
+    }
+    if (formData.hasExtension && typeof formData.extensionSurcharge === 'number' && formData.extensionSurcharge > 0) {
+      basePriceForAnnualCalc += formData.extensionSurcharge;
+    }
   }
+  // For Custom Quotes & Commercial Enquiries, basePriceForAnnualCalc remains 0, so annual value is not shown.
 
-  // Normalize frequency strings and apply multipliers
-  if (frequencyForAnnualCalc.includes('4 weekly') || frequencyForAnnualCalc.includes('4weekly')) {
-    yearlyMultiplier = 52 / 4;
-  } else if (frequencyForAnnualCalc.includes('8 weekly') || frequencyForAnnualCalc.includes('8weekly')) {
-    yearlyMultiplier = 52 / 8;
-  } else if (frequencyForAnnualCalc.includes('12 weekly') || frequencyForAnnualCalc.includes('12weekly')) {
-    yearlyMultiplier = 52 / 12;
-  } else if (frequencyForAnnualCalc.includes('monthly')) {
-    yearlyMultiplier = 12;
-  } else if (frequencyForAnnualCalc.includes('bi-monthly') || frequencyForAnnualCalc.includes('bimonthly')) {
-    yearlyMultiplier = 6;
-  } else if (frequencyForAnnualCalc.includes('quarterly')) {
-    yearlyMultiplier = 4;
-  } else if (frequencyForAnnualCalc.includes('annually') || frequencyForAnnualCalc.includes('yearly')) {
-    yearlyMultiplier = 1;
-  }
-  // Add other frequencies like '6 weekly', '2 weekly' etc. if they exist in your forms
+  // Determine yearly multiplier based on frequency
+  if (frequencyForAnnualCalc.includes('4 weekly') || frequencyForAnnualCalc.includes('4weekly')) { yearlyMultiplier = 52 / 4; }
+  else if (frequencyForAnnualCalc.includes('8 weekly') || frequencyForAnnualCalc.includes('8weekly')) { yearlyMultiplier = 52 / 8; }
+  else if (frequencyForAnnualCalc.includes('12 weekly') || frequencyForAnnualCalc.includes('12weekly')) { yearlyMultiplier = 52 / 12; }
+  else if (frequencyForAnnualCalc.includes('monthly')) { yearlyMultiplier = 12; }
+  else if (frequencyForAnnualCalc.includes('bi-monthly') || frequencyForAnnualCalc.includes('bimonthly')) { yearlyMultiplier = 6; }
+  else if (frequencyForAnnualCalc.includes('quarterly')) { yearlyMultiplier = 4; }
+  else if (frequencyForAnnualCalc.includes('annually') || frequencyForAnnualCalc.includes('yearly')) { yearlyMultiplier = 1; }
   
-  // Exclude one-off types for annual calculation, multiplier remains 0
-  if (frequencyForAnnualCalc.includes('one-off') || frequencyForAnnualCalc.includes('oneoff') || frequencyForAnnualCalc.includes('adhoc') || frequencyForAnnualCalc.includes('asrequired') || frequencyForAnnualCalc.includes('as required')) {
-    yearlyMultiplier = 0; // Explicitly set to 0 for non-recurring to not show annual value
+  if (frequencyForAnnualCalc.includes('one-off') || frequencyForAnnualCalc.includes('oneoff') || 
+      frequencyForAnnualCalc.includes('adhoc') || frequencyForAnnualCalc.includes('asrequired') || 
+      frequencyForAnnualCalc.includes('as required') || frequencyForAnnualCalc === '') {
+    yearlyMultiplier = 0; // Ensures no annual calc for one-off or unspecified frequency
   }
 
-  if (formData.grandTotal > 0 && yearlyMultiplier > 0) {
-    estimatedAnnualValue = formData.grandTotal * yearlyMultiplier;
-    showAnnualValue = true;
+  if (basePriceForAnnualCalc > 0 && yearlyMultiplier > 0) {
+    const estimatedAnnualValue = basePriceForAnnualCalc * yearlyMultiplier;
     params.estimatedAnnualValueToFixed2 = formatPrice(estimatedAnnualValue);
+    params.recurringPricePerVisitToFixed2 = formatPrice(basePriceForAnnualCalc);
+    params.showAnnualValue = true;
   } else {
-    params.estimatedAnnualValueToFixed2 = '0.00'; // Default if not applicable
+    params.estimatedAnnualValueToFixed2 = '0.00';
+    params.recurringPricePerVisitToFixed2 = '0.00';
+    params.showAnnualValue = false; // Explicitly set to false
   }
-  params.showAnnualValue = showAnnualValue;
   
-  // Add a flag for non-zero grand total for template logic (especially for quotes/enquiries)
+  // This was already here and is correct for the template
   params.grandTotal_not_zero = !!(formData.grandTotal && parseFloat(formData.grandTotal) > 0);
 
-  console.log("Updated templateParams being sent to EmailJS:", JSON.stringify(params, null, 2));
+  console.log("Final templateParams for EmailJS:", JSON.stringify(params, null, 2));
   return params;
 };
 
