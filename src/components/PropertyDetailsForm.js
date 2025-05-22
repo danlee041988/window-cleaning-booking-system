@@ -77,12 +77,16 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
 
         if (isResidentialStandardBooking) {
             const trimmedPostcode = postcode ? postcode.trim() : "";
-            if (trimmedPostcode.length > 0) {
-                calculateAndSetAvailableDates();
+            if (trimmedPostcode.length >= 3) { // Wait for at least 3 characters before processing
+                // Add a small delay to avoid triggering on every keystroke
+                const timer = setTimeout(() => {
+                    calculateAndSetAvailableDates();
+                }, 300);
+                return () => clearTimeout(timer);
             } else {
-                // Postcode input is empty for residential standard
+                // Less than 3 characters, clear everything but don't show errors
                 setAvailableDates([]);
-                setPostcodeError(''); // Clear any existing error
+                setPostcodeError('');
                 setIsLoadingDates(false);
             }
         } else {
@@ -95,15 +99,14 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
     }, [postcode, addressLine1, isCommercial, isCustomQuote, isResidential, isGeneralEnquiry]); // addressLine1 for Meare logic
 
     const calculateAndSetAvailableDates = () => {
-        const rawPostcode = postcode.trim().toUpperCase(); // postcode is guaranteed to be non-empty here by the useEffect condition
+        const rawPostcode = postcode.trim().toUpperCase();
 
-        if (rawPostcode.length < 2) { // Handles 1-character postcode specifically
+        if (rawPostcode.length < 3) { // Wait for at least 3 characters
             setIsLoadingDates(false);
-            setPostcodeError('Please enter a more complete postcode.');
             setAvailableDates([]);
+            setPostcodeError('');
             return;
         }
-        // From here, rawPostcode.length >= 2
 
         setIsLoadingDates(true);
         setAvailableDates([]); // Clear previous dates
@@ -169,11 +172,11 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                 } else {
                     setPostcodeError(''); // Clear error if dates are found
                 }
-            } else { // No matchingScheduleEntries found (for postcode length >= 2)
+            } else { // No matchingScheduleEntries found
                 setAvailableDates([]); // Ensure dates are cleared
-                if (rawPostcode.length >= 3) {
+                if (rawPostcode.length >= 4) { // Only show "not covered" error for more complete postcodes
                     setPostcodeError('Sorry, we may not cover your specific postcode area. Please contact us.');
-                } else { // This means rawPostcode.length is exactly 2
+                } else {
                     setPostcodeError('Please enter more of your postcode to check for available dates.');
                 }
             }
@@ -318,7 +321,6 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                 <InputField label="Town/City" name="townCity" value={townCity} onChange={handleChange('townCity')} placeholder="e.g., Market Harborough" required />
                 {formErrors.townCity && <p className="text-sm text-red-600 -mt-3 mb-1">{formErrors.townCity}</p>}
                 <InputField label="Postcode" name="postcode" value={postcode} onChange={handleChange('postcode')} placeholder="e.g., BA16 0AA" required />
-                {postcodeError && <p className="text-sm text-red-600 -mt-3 mb-1">{postcodeError}</p>}
                 {formErrors.postcode && <p className="text-sm text-red-600 -mt-3 mb-1">{formErrors.postcode}</p>}
 
                 {/* Contact Info: Mobile/Email */}
@@ -359,7 +361,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
 
                 {/* Enhanced Date Selection UI - Only for Standard Residential Bookings and when postcode is entered */}
                 {!isCommercial && !isCustomQuote && isResidential && !isGeneralEnquiry && postcode && postcode.trim().length >= 2 && (
-                    <div className="mt-6 pt-4 border-t">
+                    <div className="mt-6 pt-4 border-t animate-pop-in">
                         <h3 id="date-selection-heading" className="text-xl font-medium text-gray-800 mb-2">
                             Select Date for First Clean <span className="text-red-500">*</span>
                         </h3>
