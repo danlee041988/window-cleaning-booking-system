@@ -639,19 +639,18 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                     </div>
                 )}
 
-                {/* ADDED: Additional Comments for Standard Residential & General Enquiry (if not custom/commercial) */}
-                {((isResidential && !isCustomQuote) || isGeneralEnquiry) && (
-                     <div className="mt-6 pt-4 border-t">
-                        <TextAreaField
-                            label="Additional Comments or Requests (Optional)"
-                            name={isGeneralEnquiry ? "generalEnquiryComments" : "bookingNotes"}
-                            value={isGeneralEnquiry ? values.generalEnquiryComments || '' : values.bookingNotes || ''}
-                            onChange={handleChange}
-                            placeholder={isGeneralEnquiry ? "Please describe what you need (e.g., gutter cleaning for a 3-bed semi)" : "e.g., Gate code: 1234. Side gate unlocked."}
-                            rows={3}
-                        />
-                    </div>
-                )}
+                {/* UPDATED: Additional Comments for Standard Residential & General Enquiry (if not custom/commercial) */}
+                {/* Now always visible */}
+                <div className="mt-6 pt-4 border-t">
+                    <TextAreaField
+                        label="Additional Comments or Requests (Optional)"
+                        name={isGeneralEnquiry ? "generalEnquiryComments" : "bookingNotes"}
+                        value={isGeneralEnquiry ? values.generalEnquiryComments || '' : values.bookingNotes || ''}
+                        onChange={handleChange}
+                        placeholder={isGeneralEnquiry ? "Please describe what you need (e.g., gutter cleaning for a 3-bed semi)" : "e.g., Gate code: 1234. Side gate unlocked."}
+                        rows={3}
+                    />
+                </div>
 
                 {/* Services Requested Section */}
                 {isCommercial && (
