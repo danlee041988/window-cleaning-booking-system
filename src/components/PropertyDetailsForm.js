@@ -250,12 +250,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
             if (!servicesSelected) errors.customServices = 'Please select at least one service for the custom quote.';
 
         } else if (isCommercial) { // Commercial Enquiry
-            if (!commercialDetails?.propertyType?.trim()) errors.commercialPropertyType = 'Type of Commercial Property is required.';
-            const commServicesSelected = Object.values(commercialDetails?.servicesRequested || {}).some(selected => selected);
-            if (!commServicesSelected) errors.commercialServices = 'Please select at least one service for the commercial enquiry.';
-            if (commercialDetails?.servicesRequested?.windowCleaning && !commercialDetails?.frequencyPreference) {
-                errors.commercialFrequency = 'Please select a preferred frequency for window cleaning.';
-            }
+            if (!commercialDetails?.propertyType?.trim()) errors.commercialPropertyType = 'Please select your business type.';
         }
         // General Enquiry doesn't have many specific required fields beyond contact info here, mostly free text.
 
@@ -264,14 +259,13 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
 
     const continueStep = (e) => {
         e.preventDefault();
-        // TEMP: Bypass validation for testing
-        /*
-        if (!validateForm()) {
-            // Errors will be displayed by the validateForm function by calling setFormErrors
-            // Optionally, scroll to the first error or show a general message
-            const firstErrorKey = Object.keys(formErrors).find(key => formErrors[key]);
+        const errors = validateForm();
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
+            // Scroll to first error
+            const firstErrorKey = Object.keys(errors)[0];
             if (firstErrorKey) {
-                const errorElement = document.getElementsByName(firstErrorKey)[0];
+                const errorElement = document.getElementsByName(firstErrorKey)[0] || document.querySelector(`[name*="${firstErrorKey}"]`);
                 if (errorElement) {
                     errorElement.focus();
                     errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -279,8 +273,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
             }
             return; // Stop if validation fails
         }
-        */
-        // If validation passes (or is bypassed)
+        // If validation passes
         setFormErrors({}); // Clear any previous errors
         setDateSelectionError(''); // Clear specific date error if any
         nextStep();
@@ -675,43 +668,72 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                     </div>
                 )}
 
-                {/* Conditional Fields for Commercial Enquiry */}
+                {/* Simplified Commercial Enquiry */}
                 {isCommercial && (
                     <div className="mt-8 pt-6 border-t border-gray-600">
                         <div className="bg-gradient-to-r from-purple-800 to-purple-700 p-6 rounded-lg border border-purple-600 mb-6">
-                            <h3 className="text-2xl font-semibold text-white mb-2">Commercial Property Details</h3>
-                            <p className="text-purple-200 mb-4">Tell us about your business premises and cleaning requirements</p>
+                            <h3 className="text-2xl font-semibold text-white mb-2">Business Details</h3>
+                            <p className="text-purple-200">Just a few quick details about your business cleaning needs</p>
                         </div>
-                        <InputField
-                            label="Type of Commercial Property"
-                            name="commercialDetails.propertyType"
-                            value={commercialDetails?.propertyType || ''}
-                            onChange={handleChange}
-                            placeholder="e.g., Office, Shop, Restaurant, Warehouse"
-                            required
-                        />
-                        {formErrors.commercialPropertyType && <p className="text-sm text-red-400 -mt-3 mb-1 bg-red-900/20 border border-red-700 rounded p-2">{formErrors.commercialPropertyType}</p>}
-                        <InputField
-                            label="Property Size / Key Features (e.g., No. of windows, No. of floors, specific areas)"
-                            name="commercialDetails.approxSizeOrWindows"
-                            value={commercialDetails?.approxSizeOrWindows || ''}
-                            onChange={handleChange}
-                            placeholder="e.g., Approx 50 windows, 3-storey office, large shopfront"
-                        />
-                        <TextAreaField
-                            label="Specific Requirements or Services Needed"
-                            name="commercialDetails.specificRequirements"
-                            value={commercialDetails?.specificRequirements || ''}
-                            onChange={handleChange}
-                            placeholder="e.g., Internal window cleaning, high-level access needed"
-                        />
-                         <TextAreaField
-                            label="Other Notes for Commercial Enquiry"
-                            name="commercialDetails.otherNotes"
-                            value={commercialDetails?.otherNotes || ''}
-                            onChange={handleChange}
-                            placeholder="e.g., Preferred times for cleaning, contract length interest"
-                        />
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-200 mb-2">
+                                    Type of Business <span className="text-red-400">*</span>
+                                </label>
+                                <select
+                                    name="commercialDetails.propertyType"
+                                    value={commercialDetails?.propertyType || ''}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500"
+                                    required
+                                >
+                                    <option value="">Select your business type</option>
+                                    <option value="office">Office Building</option>
+                                    <option value="retail">Shop/Retail Store</option>
+                                    <option value="restaurant">Restaurant/Café</option>
+                                    <option value="warehouse">Warehouse/Industrial</option>
+                                    <option value="medical">Medical/Dental Practice</option>
+                                    <option value="school">School/Educational</option>
+                                    <option value="hotel">Hotel/Accommodation</option>
+                                    <option value="other">Other</option>
+                                </select>
+                                {formErrors.commercialPropertyType && <p className="text-sm text-red-400 mt-2 bg-red-900/20 border border-red-700 rounded p-2">{formErrors.commercialPropertyType}</p>}
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-200 mb-2">
+                                    Approximate Size
+                                </label>
+                                <select
+                                    name="commercialDetails.approxSizeOrWindows"
+                                    value={commercialDetails?.approxSizeOrWindows || ''}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500"
+                                >
+                                    <option value="">Select approximate size</option>
+                                    <option value="small">Small (up to 20 windows)</option>
+                                    <option value="medium">Medium (20-50 windows)</option>
+                                    <option value="large">Large (50+ windows)</option>
+                                    <option value="multi-storey">Multi-storey building</option>
+                                    <option value="complex">Large complex/multiple buildings</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="mb-6">
+                            <label className="block text-sm font-semibold text-gray-200 mb-2">
+                                What cleaning services do you need?
+                            </label>
+                            <textarea
+                                name="commercialDetails.specificRequirements"
+                                value={commercialDetails?.specificRequirements || ''}
+                                onChange={handleChange}
+                                placeholder="Tell us what you need... e.g., 'Weekly window cleaning for our office. We're a 2-storey building with about 30 windows. Would prefer cleaning during business hours.'"
+                                rows={4}
+                                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500 resize-vertical"
+                            />
+                        </div>
                     </div>
                 )}
 
@@ -785,89 +807,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                     </div>
                 </div>
 
-                {/* Services Requested Section */}
-                {isCommercial && (
-                    <div className="mb-8">
-                        <h3 className="text-xl font-semibold text-gray-200 mb-4">Services Required</h3>
-                        <div className="space-y-3">
-                            {[
-                                { id: 'windowCleaning', label: 'Window Cleaning' },
-                                { id: 'gutterCleaning', label: 'Gutter Cleaning' },
-                                { id: 'fasciaSoffitCleaning', label: 'Fascia & Soffit Cleaning' },
-                                { id: 'claddingCleaning', label: 'Cladding Cleaning' },
-                                { id: 'signageCleaning', label: 'Signage Cleaning' },
-                                { id: 'other', label: 'Other (Please specify)' }
-                            ].map(service => (
-                                <div key={service.id} className="flex items-center group">
-                                    <input
-                                        type="checkbox"
-                                        id={`commercialService-${service.id}`}
-                                        name={`commercialDetails.servicesRequested.${service.id}`}
-                                        checked={commercialDetails?.servicesRequested?.[service.id] || false}
-                                        onChange={handleChange}
-                                        className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 transition duration-150 ease-in-out"
-                                    />
-                                    <label htmlFor={`commercialService-${service.id}`} className="ml-3 block text-sm text-gray-200 group-hover:text-blue-300 transition-colors cursor-pointer">
-                                        {service.label}
-                                    </label>
-                                </div>
-                            ))}
-                            {commercialDetails?.servicesRequested?.other && (
-                                <InputField 
-                                    label="Please specify other service(s)" 
-                                    name="commercialDetails.otherServiceText" 
-                                    value={commercialDetails?.otherServiceText || ''} 
-                                    onChange={handleChange} 
-                                    placeholder="e.g., Pressure Washing Entrance" 
-                                />
-                            )}
-                        </div>
-                        {formErrors.commercialServices && <p className="text-sm text-red-400 mt-2 bg-red-900/20 border border-red-700 rounded p-2">{formErrors.commercialServices}</p>}
-                    </div>
-                )}
 
-                {/* Preferred Frequency Section - Conditional on Window Cleaning Service */}
-                {commercialDetails?.servicesRequested?.windowCleaning && (
-                    <div className="mb-8">
-                        <h3 className="text-xl font-semibold text-gray-200 mb-4">Preferred Frequency (for Window Cleaning)</h3>
-                        <div className="space-y-3">
-                            {[
-                                { id: 'weekly', label: 'Weekly' },
-                                { id: 'fortnightly', label: 'Fortnightly (Every 2 Weeks)' },
-                                { id: 'monthly', label: 'Monthly (Every 4 Weeks)' },
-                                { id: 'quarterly', label: 'Quarterly (Every 12 Weeks)' },
-                                { id: 'bi-annually', label: 'Bi-Annually (Every 6 Months)' },
-                                { id: 'annually', label: 'Annually' },
-                                { id: 'one-off', label: 'One-off' },
-                                { id: 'other', label: 'Other (Please specify)' }
-                            ].map(freq => (
-                                <div key={freq.id} className="flex items-center group">
-                                    <input
-                                        type="radio"
-                                        id={`commercialFreq-${freq.id}`}
-                                        name="commercialDetails.frequencyPreference"
-                                        value={freq.id}
-                                        checked={commercialDetails?.frequencyPreference === freq.id}
-                                        onChange={handleChange}
-                                        className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 focus:ring-2 transition duration-150 ease-in-out"
-                                    />
-                                    <label htmlFor={`commercialFreq-${freq.id}`} className="ml-3 block text-sm text-gray-200 group-hover:text-blue-300 transition-colors cursor-pointer">
-                                        {freq.label}
-                                    </label>
-                                </div>
-                            ))}
-                            {commercialDetails?.frequencyPreference === 'other' && (
-                                <InputField 
-                                    label="Please specify other frequency" 
-                                    name="commercialDetails.otherFrequencyText" 
-                                    value={commercialDetails?.otherFrequencyText || ''} 
-                                    onChange={handleChange} 
-                                    placeholder="e.g., Every 2 months" 
-                                />
-                            )}
-                        </div>
-                    </div>
-                )}
 
                 {/* Navigation Buttons */}
                 <div className="mt-12 flex justify-between items-center">
