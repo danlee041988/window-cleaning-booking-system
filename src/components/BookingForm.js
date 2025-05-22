@@ -109,7 +109,13 @@ const initialFormData = {
         enquiryComments: ''
     },
     bookingNotes: '',
-    recaptchaToken: ''
+    recaptchaToken: '',
+    
+    // Quote requests for services requiring physical assessment
+    quoteRequests: {
+        solarPanelCleaning: false,
+        conservatoryRoofCleaning: false
+    }
 };
 
 // Placeholder: Implement this function to map your formData to EmailJS template params
@@ -228,6 +234,9 @@ const mapFormDataToTemplateParams = (formData) => {
 
     // reCAPTCHA
     'g-recaptcha-response': formData.recaptchaToken || '',
+
+    // Quote requests
+    quoteRequests: formData.quoteRequests || { solarPanelCleaning: false, conservatoryRoofCleaning: false },
 
     // Add a flag for non-zero grand total for template logic
     grandTotal_not_zero: formData.grandTotal > 0
@@ -410,39 +419,151 @@ function BookingForm() {
                 isLoading={isLoading} 
                 submissionError={submissionError} 
              />;
-    case 5: // Placeholder for a Thank You / Confirmation page/component
+    case 5: // Thank You / Confirmation page
       return (
-        <div className="text-center p-10 bg-white shadow-lg rounded-lg">
-          {submissionError ? (
-            <>
-              <h2 className="text-2xl font-semibold text-red-600 mb-4">Submission Failed</h2>
-              <p className="text-gray-700 mb-4">{submissionError}</p>
-              <button 
-                onClick={() => { setCurrentStep(4); setSubmissionError(null); }} 
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Try Again
-              </button>
-            </>
-          ) : (
-            <>
-              <h2 className="text-2xl font-semibold text-green-600 mb-4">Thank You!</h2>
-              <p className="text-gray-700 mb-6">
-                Your {getEnquiryOrBookingText(formData.isCommercial || formData.isCustomQuote || formData.isGeneralEnquiry)} has been submitted successfully.
-                 We will be in touch shortly.
-              </p>
-              <button 
-                onClick={() => {
-                    setCurrentStep(1);
-                    setIsSubmitted(false);
-                    setFormData(initialFormData); // Use the constant for reset
-                }} 
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Make Another Enquiry
-              </button>
-            </>
-          )}
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
+          <div className="container mx-auto px-6 py-12">
+            <div className="max-w-2xl mx-auto bg-gradient-to-br from-gray-800 to-gray-900 shadow-2xl rounded-2xl p-8 border border-gray-700 text-center">
+              {submissionError ? (
+                <>
+                  {/* Error State */}
+                  <div className="inline-flex items-center justify-center w-20 h-20 bg-red-600 rounded-full mb-6">
+                    <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <h2 className="text-3xl font-bold text-red-400 mb-4">Submission Failed</h2>
+                  <p className="text-gray-300 mb-8 text-lg leading-relaxed">
+                    We're sorry, but there was an issue submitting your request. Please try again.
+                  </p>
+                  <div className="p-4 bg-red-900/30 border border-red-600 rounded-lg mb-8">
+                    <p className="text-red-300 text-sm">{submissionError}</p>
+                  </div>
+                  <button 
+                    onClick={() => { setCurrentStep(4); setSubmissionError(null); }} 
+                    className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                  >
+                    <span className="flex items-center justify-center">
+                      <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+                      </svg>
+                      Try Again
+                    </span>
+                  </button>
+                </>
+              ) : (
+                <>
+                  {/* Success State */}
+                  <div className="inline-flex items-center justify-center w-20 h-20 bg-green-600 rounded-full mb-6">
+                    <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  
+                  <h2 className="text-4xl font-bold text-green-400 mb-4">Thank You!</h2>
+                  
+                  <div className="mb-8">
+                    <p className="text-gray-200 text-xl mb-4 leading-relaxed">
+                      Your <span className="text-blue-300 font-semibold">{getEnquiryOrBookingText(formData.isCommercial || formData.isCustomQuote || formData.isGeneralEnquiry)}</span> has been submitted successfully.
+                    </p>
+                    <p className="text-gray-400 text-lg">
+                      We will be in touch shortly to confirm the details and arrange your service.
+                    </p>
+                  </div>
+
+                  {/* Decorative divider */}
+                  <div className="flex items-center justify-center mb-8">
+                    <div className="h-px bg-gradient-to-r from-transparent via-green-500 to-transparent w-32"></div>
+                    <div className="mx-4 w-2 h-2 bg-green-500 rounded-full"></div>
+                    <div className="h-px bg-gradient-to-r from-transparent via-green-500 to-transparent w-32"></div>
+                  </div>
+
+                  {/* Next Steps Info */}
+                  <div className="bg-gradient-to-r from-blue-900/30 to-blue-800/30 border border-blue-600 rounded-lg p-6 mb-8">
+                    <h3 className="text-xl font-semibold text-blue-300 mb-3">What happens next?</h3>
+                    <div className="text-left space-y-3 text-gray-300">
+                      <div className="flex items-start">
+                        <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-600 text-white text-sm font-bold rounded-full mr-3 mt-0.5 flex-shrink-0">1</span>
+                        <p>We'll review your {getEnquiryOrBookingText(formData.isCommercial || formData.isCustomQuote || formData.isGeneralEnquiry)} within 24 hours</p>
+                      </div>
+                      <div className="flex items-start">
+                        <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-600 text-white text-sm font-bold rounded-full mr-3 mt-0.5 flex-shrink-0">2</span>
+                        <p>We'll contact you via your preferred method to confirm details</p>
+                      </div>
+                      <div className="flex items-start">
+                        <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-600 text-white text-sm font-bold rounded-full mr-3 mt-0.5 flex-shrink-0">3</span>
+                        <p>
+                          {formData.isCommercial || formData.isCustomQuote || formData.isGeneralEnquiry 
+                            ? "We'll provide you with a detailed, personalized quote"
+                            : "We'll confirm your booking and provide service details"
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Direct Debit Signup Option - Only show for confirmed bookings with pricing */}
+                  {!formData.isCommercial && !formData.isCustomQuote && !formData.isGeneralEnquiry && formData.grandTotal > 0 && (
+                    <div className="bg-gradient-to-r from-green-900/30 to-green-800/30 border border-green-600 rounded-lg p-6 mb-8">
+                      <div className="text-center mb-4">
+                        <div className="inline-flex items-center justify-center w-12 h-12 bg-green-600 rounded-full mb-3">
+                          <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <h3 className="text-xl font-semibold text-green-300 mb-2">Set Up Direct Debit for Easy Payments</h3>
+                        <p className="text-gray-300 text-sm mb-4">Save time and never miss a payment with our secure Direct Debit service</p>
+                      </div>
+                      
+                      <div className="bg-gray-800/50 rounded-lg p-4 mb-4">
+                        <h4 className="text-green-400 font-semibold mb-2">Why choose Direct Debit?</h4>
+                        <ul className="text-gray-300 text-sm space-y-1">
+                          <li>• Automatic payments - no need to remember due dates</li>
+                          <li>• Protected by the Direct Debit Guarantee</li>
+                          <li>• Easy to cancel anytime with no fees</li>
+                          <li>• No more missed payments or late fees</li>
+                          <li>• Secure and regulated by UK banking standards</li>
+                        </ul>
+                      </div>
+                      
+                      <div className="text-center">
+                        <a 
+                          href="https://pay.gocardless.com/BRT0002EH17JGWX" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 transform hover:scale-105 shadow-lg mb-3"
+                        >
+                          <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          Set Up Direct Debit Now
+                        </a>
+                        <p className="text-gray-400 text-xs">
+                          Optional - you can always pay manually if you prefer
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  <button 
+                    onClick={() => {
+                        setCurrentStep(1);
+                        setIsSubmitted(false);
+                        setFormData(initialFormData);
+                    }} 
+                    className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                  >
+                    <span className="flex items-center justify-center">
+                      <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                      </svg>
+                      Make Another Enquiry
+                    </span>
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       );
     default:

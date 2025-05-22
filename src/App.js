@@ -5,9 +5,8 @@ import BookingForm from './components/BookingForm.js'; // New form we are workin
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
-      <main className="flex justify-center items-center min-h-[80vh] py-8 w-full">
-        {/* <WindowCleaningForm /> */}
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
+      <main className="w-full">
         <BookingForm />
       </main>
     </div>

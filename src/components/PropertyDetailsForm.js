@@ -485,7 +485,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                                     Request First Clean ASAP
                                                 </span>
                                                 <span className={`block text-sm mt-1 ${selectedDate === "ASAP" ? 'text-green-100' : 'text-gray-400'}`}>
-                                                    We'll contact you within 24 hours to arrange the earliest available slot
+                                                    We'll contact you within 1 working day to arrange the earliest available slot
                                                 </span>
                                             </div>
                                         </div>
@@ -534,7 +534,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                             name="customResidentialDetails.propertyStyle"
                                             value={style.id}
                                             checked={values.customResidentialDetails?.propertyStyle === style.id}
-                                            onChange={handleChange}
+                                            onChange={handleChange('customResidentialDetails.propertyStyle')}
                                             className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 focus:ring-2 transition duration-150 ease-in-out"
                                         />
                                         <label htmlFor={`customPropertyStyle-${style.id}`} className="ml-3 block text-sm text-gray-200 group-hover:text-blue-300 transition-colors cursor-pointer">
@@ -574,7 +574,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                             id={`customService-${service.id}`}
                                             name={`customResidentialDetails.servicesRequested.${service.id}`}
                                             checked={values.customResidentialDetails?.servicesRequested?.[service.id] || false}
-                                            onChange={handleChange}
+                                            onChange={handleChange(`customResidentialDetails.servicesRequested.${service.id}`)}
                                             className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 transition duration-150 ease-in-out"
                                         />
                                         <label htmlFor={`customService-${service.id}`} className="ml-3 block text-sm text-gray-200 group-hover:text-blue-300 transition-colors cursor-pointer">
@@ -614,7 +614,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                                 name="customResidentialDetails.frequencyPreference"
                                                 value={freq.id}
                                                 checked={values.customResidentialDetails?.frequencyPreference === freq.id}
-                                                onChange={handleChange}
+                                                onChange={handleChange('customResidentialDetails.frequencyPreference')}
                                                 className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 focus:ring-2 transition duration-150 ease-in-out"
                                             />
                                             <label htmlFor={`customFreq-${freq.id}`} className="ml-3 block text-sm text-gray-200 group-hover:text-blue-300 transition-colors cursor-pointer">
@@ -657,14 +657,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                             onChange={handleChange}
                             placeholder="Anything else specific to your property or needs?"
                         />
-                         <TextAreaField
-                            label="Additional Comments (Optional)"
-                            name="customResidentialDetails.customAdditionalComments"
-                            value={values.customResidentialDetails?.customAdditionalComments || ''}
-                            onChange={handleChange}
-                            placeholder="Further details or specific requests..."
-                            rows={3}
-                        />
+
                     </div>
                 )}
 
@@ -684,7 +677,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                 <select
                                     name="commercialDetails.propertyType"
                                     value={commercialDetails?.propertyType || ''}
-                                    onChange={handleChange}
+                                    onChange={handleChange('commercialDetails.propertyType')}
                                     className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500"
                                     required
                                 >
@@ -708,7 +701,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                 <select
                                     name="commercialDetails.approxSizeOrWindows"
                                     value={commercialDetails?.approxSizeOrWindows || ''}
-                                    onChange={handleChange}
+                                    onChange={handleChange('commercialDetails.approxSizeOrWindows')}
                                     className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500"
                                 >
                                     <option value="">Select approximate size</option>
@@ -728,7 +721,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                             <textarea
                                 name="commercialDetails.specificRequirements"
                                 value={commercialDetails?.specificRequirements || ''}
-                                onChange={handleChange}
+                                onChange={handleChange('commercialDetails.specificRequirements')}
                                 placeholder="Tell us what you need... e.g., 'Weekly window cleaning for our office. We're a 2-storey building with about 30 windows. Would prefer cleaning during business hours.'"
                                 rows={4}
                                 className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500 resize-vertical"
@@ -784,9 +777,9 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                         </div>
 
                         <textarea
-                            name={isGeneralEnquiry ? "generalEnquiryComments" : "bookingNotes"}
-                            value={isGeneralEnquiry ? values.generalEnquiryComments || '' : values.bookingNotes || ''}
-                            onChange={handleChange}
+                            name={isGeneralEnquiry ? "generalEnquiryDetails.enquiryComments" : "bookingNotes"}
+                            value={isGeneralEnquiry ? values.generalEnquiryDetails?.enquiryComments || '' : values.bookingNotes || ''}
+                            onChange={handleChange(isGeneralEnquiry ? "generalEnquiryDetails.enquiryComments" : "bookingNotes")}
                             placeholder={
                                 isGeneralEnquiry 
                                     ? "Example: I have a 4-bedroom detached house with conservatory. Interested in monthly window cleaning and occasional gutter clearing. Property has side gate access but 2 friendly dogs in garden. Best contact time is weekday mornings."
@@ -794,7 +787,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                         ? "Example: Office building with 40+ windows across 3 floors. Require monthly cleaning during business hours (9-5). Parking available on-site. Health & safety induction required for all contractors."
                                         : isCustomQuote
                                             ? "Example: Large Victorian property with original sash windows, some requiring ladder access. Previous cleaner mentioned difficulty with rear bay windows. Looking for experienced team for quarterly deep clean."
-                                            : "Example: Gate code is 1234*. Side gate is usually unlocked. We have 2 small dogs (friendly but excitable). Please avoid parking in marked visitor spaces. Best time is weekday mornings before 2pm."
+                                            : "Example: Gate code is 1234*. Side gate is usually unlocked. We have 2 small dogs (friendly but excitable). Please avoid parking in marked visitor spaces."
                             }
                             rows={5}
                             className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500 resize-vertical"
@@ -802,7 +795,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                         />
                         
                         <p className="text-sm text-gray-400 mt-3">
-                            The more detail you provide, the better we can prepare for your service and provide an accurate quote.
+                            The more detail you provide, the better we can prepare for your service.
                         </p>
                     </div>
                 </div>
