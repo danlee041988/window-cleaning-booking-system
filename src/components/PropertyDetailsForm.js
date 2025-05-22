@@ -21,8 +21,8 @@ const calculateGutterClearingPrice = (propertyType, bedrooms) => {
 
 // Reusable Input Field Component
 const InputField = ({ label, name, value, onChange, type = 'text', placeholder, required = false }) => (
-    <div className="mb-4">
-        <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">{label}{required && <span className="text-red-500">*</span>}</label>
+    <div className="mb-6">
+        <label htmlFor={name} className="block text-sm font-semibold text-gray-200 mb-2">{label}{required && <span className="text-red-400">*</span>}</label>
         <input
             type={type}
             name={name}
@@ -31,15 +31,15 @@ const InputField = ({ label, name, value, onChange, type = 'text', placeholder, 
             onChange={onChange}
             placeholder={placeholder}
             required={required}
-            className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500"
         />
     </div>
 );
 
 // Reusable Textarea Field Component
 const TextAreaField = ({ label, name, value, onChange, placeholder, rows = 3 }) => (
-    <div className="mb-4">
-        <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+    <div className="mb-6">
+        <label htmlFor={name} className="block text-sm font-semibold text-gray-200 mb-2">{label}</label>
         <textarea
             name={name}
             id={name}
@@ -47,7 +47,7 @@ const TextAreaField = ({ label, name, value, onChange, placeholder, rows = 3 }) 
             onChange={onChange}
             placeholder={placeholder}
             rows={rows}
-            className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500 resize-vertical"
         />
     </div>
 );
@@ -291,16 +291,32 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
     };
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-2xl bg-white shadow-xl rounded-lg">
-            <h2 className="text-2xl font-semibold text-gray-700 mb-6 text-center">
-                {isGeneralEnquiry 
-                    ? "Your Contact Details for Enquiry"
-                    : isCommercial 
-                        ? "Commercial Enquiry Details" 
-                        : isCustomQuote 
-                            ? `Custom Quote: ${values.selectedWindowService?.bedrooms || 'Bespoke Property'}`
-                            : "Your Details & Preferred Date"}
-            </h2>
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
+            <div className="container mx-auto px-6 py-12">
+                <div className="max-w-4xl mx-auto bg-gradient-to-br from-gray-800 to-gray-900 shadow-2xl rounded-2xl p-8 border border-gray-700">
+                    <div className="text-center mb-12">
+                        <h2 className="text-4xl font-bold text-white mb-4">
+                            {isGeneralEnquiry 
+                                ? "Your Contact Details for Enquiry"
+                                : isCommercial 
+                                    ? "Business Enquiry Details" 
+                                    : isCustomQuote 
+                                        ? `Custom Quote: ${values.selectedWindowService?.bedrooms || 'Bespoke Property'}`
+                                        : "Your Details & Preferred Date"}
+                        </h2>
+                        <p className="text-blue-300 text-lg">
+                            {isCommercial 
+                                ? "Professional window cleaning services for your business"
+                                : "Complete your details to secure your booking"}
+                        </p>
+                        
+                        {/* Decorative divider */}
+                        <div className="flex items-center justify-center mt-6">
+                            <div className="h-px bg-gradient-to-r from-transparent via-blue-500 to-transparent w-32"></div>
+                            <div className="mx-4 w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <div className="h-px bg-gradient-to-r from-transparent via-blue-500 to-transparent w-32"></div>
+                        </div>
+                    </div>
 
             <form onSubmit={continueStep} className="space-y-6">
                 {/* Customer Name always shown */}
@@ -312,16 +328,16 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                     placeholder={isCommercial ? "e.g., ACME Ltd or Jane Smith (Site Manager)" : "e.g., Jane Smith"} 
                     required 
                 />
-                {formErrors.customerName && <p className="text-sm text-red-600 -mt-3 mb-1">{formErrors.customerName}</p>}
+                {formErrors.customerName && <p className="text-sm text-red-400 -mt-3 mb-1 bg-red-900/20 border border-red-700 rounded p-2">{formErrors.customerName}</p>}
 
                 {/* Address fields always shown */}
                 <InputField label="Address Line 1" name="addressLine1" value={addressLine1} onChange={handleChange('addressLine1')} placeholder="e.g., 123 High Street" required />
-                {formErrors.addressLine1 && <p className="text-sm text-red-600 -mt-3 mb-1">{formErrors.addressLine1}</p>}
+                {formErrors.addressLine1 && <p className="text-sm text-red-400 -mt-3 mb-1 bg-red-900/20 border border-red-700 rounded p-2">{formErrors.addressLine1}</p>}
                 <InputField label="Address Line 2 (Optional)" name="addressLine2" value={addressLine2} onChange={handleChange('addressLine2')} placeholder="e.g., The Old Mill, Suite B" />
                 <InputField label="Town/City" name="townCity" value={townCity} onChange={handleChange('townCity')} placeholder="e.g., Market Harborough" required />
-                {formErrors.townCity && <p className="text-sm text-red-600 -mt-3 mb-1">{formErrors.townCity}</p>}
+                {formErrors.townCity && <p className="text-sm text-red-400 -mt-3 mb-1 bg-red-900/20 border border-red-700 rounded p-2">{formErrors.townCity}</p>}
                 <InputField label="Postcode" name="postcode" value={postcode} onChange={handleChange('postcode')} placeholder="e.g., BA16 0AA" required />
-                {formErrors.postcode && <p className="text-sm text-red-600 -mt-3 mb-1">{formErrors.postcode}</p>}
+                {formErrors.postcode && <p className="text-sm text-red-400 -mt-3 mb-1 bg-red-900/20 border border-red-700 rounded p-2">{formErrors.postcode}</p>}
 
                 {/* Contact Info: Mobile/Email */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -335,28 +351,42 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                             placeholder={isCommercial ? "e.g., 01234 567890" : "e.g., 07123 456789"} 
                             required 
                         />
-                        {formErrors.mobile && <p className="text-sm text-red-600 -mt-3 mb-1">{formErrors.mobile}</p>}
+                        {formErrors.mobile && <p className="text-sm text-red-400 -mt-3 mb-1 bg-red-900/20 border border-red-700 rounded p-2">{formErrors.mobile}</p>}
                     </div>
                     <div>
                         <InputField label="Email Address" name="email" type="email" value={email} onChange={handleChange('email')} placeholder="e.g., john.doe@example.com" required />
-                        {formErrors.email && <p className="text-sm text-red-600 -mt-3 mb-1">{formErrors.email}</p>}
+                        {formErrors.email && <p className="text-sm text-red-400 -mt-3 mb-1 bg-red-900/20 border border-red-700 rounded p-2">{formErrors.email}</p>}
                     </div>
                 </div>
 
                 {/* Preferred Contact Method - Shown for all types including General Enquiry */}
-                <div className="mb-6">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Preferred Contact Method <span className="text-red-500">*</span></label>
-                    <div className="mt-2 flex items-center space-x-4">
-                        <label className="inline-flex items-center">
-                            <input type="radio" className="form-radio h-4 w-4 text-indigo-600 transition duration-150 ease-in-out" name="preferredContactMethod" value="email" checked={preferredContactMethod === 'email'} onChange={handleContactPreference} />
-                            <span className="ml-2 text-gray-700">Email</span>
+                <div className="mb-8">
+                    <label className="block text-sm font-semibold text-gray-200 mb-3">Preferred Contact Method <span className="text-red-400">*</span></label>
+                    <div className="mt-2 flex items-center space-x-6">
+                        <label className="inline-flex items-center cursor-pointer group">
+                            <input 
+                                type="radio" 
+                                className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 focus:ring-2 transition duration-150 ease-in-out" 
+                                name="preferredContactMethod" 
+                                value="email" 
+                                checked={preferredContactMethod === 'email'} 
+                                onChange={handleContactPreference} 
+                            />
+                            <span className="ml-3 text-gray-200 group-hover:text-blue-300 transition-colors">Email</span>
                         </label>
-                        <label className="inline-flex items-center">
-                            <input type="radio" className="form-radio h-4 w-4 text-indigo-600 transition duration-150 ease-in-out" name="preferredContactMethod" value="mobile" checked={preferredContactMethod === 'mobile'} onChange={handleContactPreference} />
-                            <span className="ml-2 text-gray-700">{isCommercial ? "Contact Number" : "Mobile Phone"}</span>
+                        <label className="inline-flex items-center cursor-pointer group">
+                            <input 
+                                type="radio" 
+                                className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 focus:ring-2 transition duration-150 ease-in-out" 
+                                name="preferredContactMethod" 
+                                value="mobile" 
+                                checked={preferredContactMethod === 'mobile'} 
+                                onChange={handleContactPreference} 
+                            />
+                            <span className="ml-3 text-gray-200 group-hover:text-blue-300 transition-colors">{isCommercial ? "Contact Number" : "Mobile Phone"}</span>
                         </label>
                     </div>
-                    {formErrors.preferredContactMethod && <p className="text-sm text-red-600 mt-1">{formErrors.preferredContactMethod}</p>}
+                    {formErrors.preferredContactMethod && <p className="text-sm text-red-400 mt-2 bg-red-900/20 border border-red-700 rounded p-2">{formErrors.preferredContactMethod}</p>}
                 </div>
 
                 {/* Enhanced Date Selection UI - Only for Standard Residential Bookings and when postcode is entered */}
@@ -680,19 +710,19 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                 )}
 
                 {/* Enhanced Additional Comments Section */}
-                <div className="mt-6 pt-4 border-t">
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="mt-8 pt-6 border-t border-gray-600">
+                    <div className="mb-6">
+                        <label className="block text-lg font-semibold text-gray-200 mb-3">
                             Additional Comments or Special Requests (Optional)
                         </label>
-                        <p className="text-xs text-gray-500 mb-3">
+                        <p className="text-sm text-gray-400 mb-4">
                             Help us provide the best service by sharing any relevant details:
                         </p>
                         
                         {/* Helpful hints based on booking type */}
-                        <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                            <p className="text-xs text-blue-800 font-medium mb-2">💡 Helpful information to include:</p>
-                            <ul className="text-xs text-blue-700 space-y-1">
+                        <div className="mb-4 p-4 bg-blue-900/30 border border-blue-700 rounded-lg">
+                            <p className="text-sm text-blue-300 font-semibold mb-3">💡 Helpful information to include:</p>
+                            <ul className="text-sm text-blue-200 space-y-2">
                                 {isGeneralEnquiry ? (
                                     <>
                                         <li>• Describe your property type and size</li>
@@ -739,11 +769,11 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                             : "Example: Gate code is 1234*. Side gate is usually unlocked. We have 2 small dogs (friendly but excitable). Please avoid parking in marked visitor spaces. Best time is weekday mornings before 2pm."
                             }
                             rows={5}
-                            className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm resize-vertical"
-                            style={{ minHeight: '100px' }}
+                            className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500 resize-vertical"
+                            style={{ minHeight: '120px' }}
                         />
                         
-                        <p className="text-xs text-gray-500 mt-2">
+                        <p className="text-sm text-gray-400 mt-3">
                             The more detail you provide, the better we can prepare for your service and provide an accurate quote.
                         </p>
                     </div>
@@ -751,9 +781,9 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
 
                 {/* Services Requested Section */}
                 {isCommercial && (
-                    <div className="mb-6">
-                        <h3 className="text-lg font-medium text-gray-800 mb-2">Services Required</h3>
-                        <div className="space-y-2">
+                    <div className="mb-8">
+                        <h3 className="text-xl font-semibold text-gray-200 mb-4">Services Required</h3>
+                        <div className="space-y-3">
                             {[
                                 { id: 'windowCleaning', label: 'Window Cleaning' },
                                 { id: 'gutterCleaning', label: 'Gutter Cleaning' },
@@ -762,16 +792,16 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                 { id: 'signageCleaning', label: 'Signage Cleaning' },
                                 { id: 'other', label: 'Other (Please specify)' }
                             ].map(service => (
-                                <div key={service.id} className="flex items-center">
+                                <div key={service.id} className="flex items-center group">
                                     <input
                                         type="checkbox"
                                         id={`commercialService-${service.id}`}
                                         name={`commercialDetails.servicesRequested.${service.id}`}
                                         checked={commercialDetails?.servicesRequested?.[service.id] || false}
                                         onChange={handleChange}
-                                        className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                        className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 transition duration-150 ease-in-out"
                                     />
-                                    <label htmlFor={`commercialService-${service.id}`} className="ml-2 block text-sm text-gray-700">
+                                    <label htmlFor={`commercialService-${service.id}`} className="ml-3 block text-sm text-gray-200 group-hover:text-blue-300 transition-colors cursor-pointer">
                                         {service.label}
                                     </label>
                                 </div>
@@ -786,15 +816,15 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                 />
                             )}
                         </div>
-                        {formErrors.commercialServices && <p className="text-sm text-red-600 mt-1">{formErrors.commercialServices}</p>}
+                        {formErrors.commercialServices && <p className="text-sm text-red-400 mt-2 bg-red-900/20 border border-red-700 rounded p-2">{formErrors.commercialServices}</p>}
                     </div>
                 )}
 
                 {/* Preferred Frequency Section - Conditional on Window Cleaning Service */}
                 {commercialDetails?.servicesRequested?.windowCleaning && (
-                    <div className="mb-6">
-                        <h3 className="text-lg font-medium text-gray-800 mb-2">Preferred Frequency (for Window Cleaning)</h3>
-                        <div className="space-y-2">
+                    <div className="mb-8">
+                        <h3 className="text-xl font-semibold text-gray-200 mb-4">Preferred Frequency (for Window Cleaning)</h3>
+                        <div className="space-y-3">
                             {[
                                 { id: 'weekly', label: 'Weekly' },
                                 { id: 'fortnightly', label: 'Fortnightly (Every 2 Weeks)' },
@@ -805,7 +835,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                 { id: 'one-off', label: 'One-off' },
                                 { id: 'other', label: 'Other (Please specify)' }
                             ].map(freq => (
-                                <div key={freq.id} className="flex items-center">
+                                <div key={freq.id} className="flex items-center group">
                                     <input
                                         type="radio"
                                         id={`commercialFreq-${freq.id}`}
@@ -813,9 +843,9 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                         value={freq.id}
                                         checked={commercialDetails?.frequencyPreference === freq.id}
                                         onChange={handleChange}
-                                        className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                                        className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 focus:ring-2 transition duration-150 ease-in-out"
                                     />
-                                    <label htmlFor={`commercialFreq-${freq.id}`} className="ml-2 block text-sm text-gray-700">
+                                    <label htmlFor={`commercialFreq-${freq.id}`} className="ml-3 block text-sm text-gray-200 group-hover:text-blue-300 transition-colors cursor-pointer">
                                         {freq.label}
                                     </label>
                                 </div>
@@ -834,26 +864,38 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                 )}
 
                 {/* Navigation Buttons */}
-                <div className="mt-8 flex justify-between">
+                <div className="mt-12 flex justify-between items-center">
                     <button
                         type="button"
                         onClick={backStep}
-                        className="px-6 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        className="px-8 py-3 border-2 border-gray-600 rounded-lg text-sm font-semibold text-gray-300 hover:bg-gray-700 hover:border-gray-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
                     >
-                        Back
+                        <span className="flex items-center">
+                            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                            </svg>
+                            Back
+                        </span>
                     </button>
                     <button
                         type="submit"
-                        className="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        className="px-8 py-3 border-2 border-transparent rounded-lg shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
                     >
-                        {isGeneralEnquiry 
-                            ? "Submit Enquiry" 
-                            : isCustomQuote || isCommercial 
-                                ? "Next: Review Enquiry" 
-                                : "Next: Review Booking"}
+                        <span className="flex items-center">
+                            {isGeneralEnquiry 
+                                ? "Submit Enquiry" 
+                                : isCustomQuote || isCommercial 
+                                    ? "Next: Review Enquiry" 
+                                    : "Next: Review Booking"}
+                            <svg className="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                        </span>
                     </button>
                 </div>
             </form>
+                </div>
+            </div>
         </div>
     );
 }
