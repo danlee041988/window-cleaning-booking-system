@@ -12,247 +12,132 @@ const EXTENSION_SURCHARGE_AMOUNT = 5; // New constant for extension surcharge
 
 // Placeholder: Implement this function to map your formData to EmailJS template params
 const mapFormDataToTemplateParams = (formData) => {
-  // Helper to calculate annual value (simplified)
-  const getAnnualValue = (priceStr, freqKey) => {
-    const price = parseFloat(priceStr);
-    if (isNaN(price) || price <= 0 || !freqKey) return 'N/A';
-
-    if (freqKey === '4-weekly') return `£${(price * 13).toFixed(2)}`;
-    if (freqKey === '8-weekly') return `£${(price * 6.5).toFixed(2)}`;
-    if (freqKey === '12-weekly') return `£${(price * (52 / 12)).toFixed(2)}`;
-    if (freqKey === '6-monthly') return `£${(price * 2).toFixed(2)}`;
-    if (freqKey === 'annually' || freqKey === '12-monthly') return `£${(price * 1).toFixed(2)}`;
-    if (freqKey === 'one-off' || freqKey === 'adhoc' || freqKey.toLowerCase().includes('one-off')) return 'One-off Service';
-    return 'Frequency N/A';
-  };
-
   let bookingTypeDisplay = 'Unknown Booking Type';
-  if (formData.isGeneralEnquiry) {
+  const is_standard_residential_booking_bool = (
+    formData.isResidential &&
+    !formData.isCustomQuote &&
+    !formData.isCommercial &&
+    !formData.isGeneralEnquiry
+  );
+
+  if (is_standard_residential_booking_bool) {
+    bookingTypeDisplay = 'Standard Residential Booking';
+  } else if (formData.isGeneralEnquiry) {
     bookingTypeDisplay = 'General Enquiry';
   } else if (formData.isCommercial) {
     bookingTypeDisplay = 'Commercial Enquiry';
   } else if (formData.isCustomQuote && formData.isResidential) {
     bookingTypeDisplay = 'Custom Residential Quote Request';
-  } else if (formData.isResidential) {
-    bookingTypeDisplay = 'Standard Residential Booking';
   }
 
-  const params = {
-    // Common contact details
-    customerName: formData.customerName || '',
-    firstName: formData.customerName?.split(' ')[0] || formData.customerName || '',
-    lastName: formData.customerName?.split(' ').slice(1).join(' ') || '',
-    email: formData.email || '',
-    mobile: formData.mobile || '',
-    address: `${formData.addressLine1 || ''}${formData.addressLine2 ? ', ' + formData.addressLine2 : ''}${formData.townCity ? ', ' + formData.townCity : ''}${formData.postcode ? ', ' + formData.postcode : ''}`,
-    postcode: formData.postcode || '',
-    preferredContactMethod: formData.preferredContactMethod || '',
-    specialInstructions: formData.bookingNotes || 'None', // For existing template field {{specialInstructions}}
-    bookingNotes: formData.bookingNotes || 'None',
-
-    // Booking Type and Subject
-    bookingTypeDisplay: bookingTypeDisplay,
-    emailSubject: `New ${bookingTypeDisplay} from ${formData.customerName || 'Customer'}`,
-
-    // For reCAPTCHA verification by EmailJS if enabled
-    'g-recaptcha-response': formData.recaptchaToken || '',
-
-    // Initialize all potential fields to 'N/A' or empty to avoid template errors
-    // Property Details (legacy)
-    numBedrooms: 'N/A',
-    propertyStyle: 'N/A', // Legacy propertyStyle
-    hasExtension: 'N/A',
-    hasConservatory: 'N/A',
-    isBespokeOrCommercial: 'N/A', // Legacy combined flag
-
-    // Services Booked (legacy table)
-    window: 'No', windowFrequency: 'N/A', windowPrice: 'N/A', windowAnnual: 'N/A',
-    gutter: 'No', gutterFrequency: 'N/A', gutterPrice: 'N/A', gutterAnnual: 'N/A',
-    fascia: 'No', fasciaFrequency: 'N/A', fasciaPrice: 'N/A', fasciaAnnual: 'N/A',
-    conservatoryRoof: 'No', conservatoryRoofFrequency: 'N/A', conservatoryRoofPrice: 'N/A', conservatoryRoofAnnual: 'N/A',
-    solarPanels: 'No', solarPanelFrequency: 'N/A', solarPanelPrice: 'N/A', solarPanelAnnual: 'N/A',
-    
-    // Schedule (legacy)
-    selectedDate: 'N/A',
-    isAsapRequested: 'No',
-
-    // Quote Summary (legacy)
-    total: 'N/A',
-    discount: 'N/A',
-    subTotalBeforeDiscount: 'N/A', // New field for clarity in standard bookings
-
-    // --- Fields for specific sections ---
-    // Standard Residential
-    std_property_type: 'N/A',
-    std_bedrooms: 'N/A',
-    std_selected_frequency: 'N/A', // Main window frequency
-    std_initial_window_price: 'N/A', // Price for window clean component
-    std_conservatory_surcharge: 'N/A',
-    std_extension_surcharge: 'N/A',
-    std_services_gutter_selected: 'No', std_services_gutter_price: 'N/A',
-    std_services_fascia_selected: 'No', std_services_fascia_price: 'N/A',
-    std_services_conservatory_roof_selected: 'No', std_services_conservatory_roof_price: 'N/A',
-    std_services_solar_panels_selected: 'No', std_services_solar_panels_price: 'N/A',
-    
-    // Custom Residential Quote
-    custom_property_style: 'N/A', custom_other_property_style_text: '', custom_exact_bedrooms: 'N/A',
-    custom_approx_windows: 'N/A', custom_access_issues: 'N/A', custom_requested_services_list: 'N/A',
-    custom_other_service_text: '', custom_frequency_preference: 'N/A', custom_other_frequency_text: '',
-    custom_additional_comments: 'N/A',
-
-    // Commercial Enquiry
-    commercial_business_name: 'N/A', commercial_property_type: 'N/A', commercial_approx_size_or_windows: 'N/A',
-    commercial_specific_requirements: 'N/A', commercial_requested_services_list: 'N/A', commercial_other_service_text: '',
-    commercial_frequency_preference: 'N/A', commercial_other_frequency_text: '', commercial_other_notes: 'N/A',
-
-    // General Enquiry
-    general_requested_services_list: 'N/A', general_other_service_text: '', general_requested_frequency: 'N/A',
-    general_enquiry_comments: 'N/A',
+  const formatPrice = (price) => (price !== undefined && price !== null ? price.toFixed(2) : '0.00');
+  
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      // Basic format, adjust if you need a more specific one e.g. using date-fns
+      return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    } catch (e) {
+      return 'N/A';
+    }
   };
 
-  // Populate based on booking type
-  if (formData.isResidential && !formData.isCustomQuote && !formData.isCommercial && !formData.isGeneralEnquiry) {
-    // Standard Residential Booking
-    params.isBespokeOrCommercial = 'No';
-    params.propertyStyle = formData.propertyType || 'N/A'; // legacy
-    params.numBedrooms = formData.bedrooms || 'N/A'; // legacy
-    params.hasExtension = formData.hasExtension ? 'Yes' : 'No';
-    params.hasConservatory = formData.hasConservatory ? 'Yes' : 'No';
+  const params = {
+    // Core Info
+    emailSubject: `New ${bookingTypeDisplay} from ${formData.customerName || 'Customer'}`,
+    customerName: formData.customerName || 'N/A',
+    email: formData.email || 'N/A',
+    mobile: formData.mobile || 'N/A',
+    addressLine1: formData.addressLine1 || '',
+    addressLine2: formData.addressLine2 || '',
+    townCity: formData.townCity || '',
+    postcode: formData.postcode || '',
+    preferredContactMethod: formData.preferredContactMethod || 'N/A',
+    bookingTypeDisplay: bookingTypeDisplay,
+    bookingNotes: formData.bookingNotes || 'N/A',
 
-    params.std_property_type = formData.propertyType || 'N/A';
-    params.std_bedrooms = formData.bedrooms || 'N/A';
-    params.std_selected_frequency = formData.selectedFrequency || 'N/A';
-    
-    // For the "Services Booked" table (legacy fields first)
-    params.window = 'Yes'; // Assuming window cleaning is always included or priced
-    params.windowFrequency = formData.selectedFrequency || 'N/A';
-    // initialWindowPrice from formData already includes frequency adjustments and surcharges for the window part.
-    params.windowPrice = formData.initialWindowPrice?.toFixed(2) || '0.00';
-    params.windowAnnual = getAnnualValue(params.windowPrice, params.windowFrequency);
-    params.std_initial_window_price = params.windowPrice; // More specific name
+    // Boolean flags for template sections
+    is_standard_residential_booking_bool: is_standard_residential_booking_bool,
+    isCustomQuote: formData.isCustomQuote || false,
+    isCommercial: formData.isCommercial || false,
+    isGeneralEnquiry: formData.isGeneralEnquiry || false,
 
-    params.std_conservatory_surcharge = formData.hasConservatory ? (formData.conservatorySurcharge?.toFixed(2) || '0.00') : 'N/A';
-    params.std_extension_surcharge = formData.hasExtension ? (formData.extensionSurcharge?.toFixed(2) || '0.00') : 'N/A';
+    // Standard Residential Booking Details
+    propertyType: 'N/A', // Default
+    bedrooms: 'N/A', // Default
+    selectedFrequency: 'N/A', // Default
+    initialWindowPricetoFixed2: '0.00',
+    selectedWindowService: null, // Default
+    hasConservatory: false, // Default
+    conservatorySurchargetoFixed2: '0.00',
+    hasExtension: false, // Default
+    extensionSurchargetoFixed2: '0.00',
+    additionalServices: { conservatoryRoof: false, fasciaSoffitGutter: false, gutterClearing: false }, // Default
+    subTotalBeforeDiscounttoFixed2: '0.00',
+    windowCleaningDiscounttoFixed2: '0.00',
+    grandTotaltoFixed2: '0.00',
+    selectedDateFormatted: 'N/A', // Default
 
-    if (formData.additionalServices?.gutterClearing) {
-      params.gutter = 'Yes';
-      params.std_services_gutter_selected = 'Yes';
-      params.gutterPrice = formData.gutterClearingPrice?.toFixed(2) || 'N/A';
-      params.std_services_gutter_price = params.gutterPrice;
-      // Assuming gutter frequency is 'As per service' or not specified for standard
-      params.gutterFrequency = 'As per service'; 
-      params.gutterAnnual = getAnnualValue(params.gutterPrice, 'adhoc'); // Or a different default frequency if applicable
-    }
-    if (formData.additionalServices?.fasciaSoffitGutterCleaning) {
-      params.fascia = 'Yes';
-      params.std_services_fascia_selected = 'Yes';
-      params.fasciaPrice = formData.fasciaSoffitGutterCleaningPrice?.toFixed(2) || 'N/A';
-      params.std_services_fascia_price = params.fasciaPrice;
-      params.fasciaFrequency = 'As per service';
-      params.fasciaAnnual = getAnnualValue(params.fasciaPrice, 'adhoc');
-    }
-    if (formData.hasConservatory && formData.additionalServices?.conservatoryRoofCleaning) {
-      params.conservatoryRoof = 'Yes';
-      params.std_services_conservatory_roof_selected = 'Yes';
-      params.conservatoryRoofPrice = formData.conservatoryRoofCleaningPrice?.toFixed(2) || 'N/A';
-      params.std_services_conservatory_roof_price = params.conservatoryRoofPrice;
-      params.conservatoryRoofFrequency = 'As per service';
-      params.conservatoryRoofAnnual = getAnnualValue(params.conservatoryRoofPrice, 'adhoc');
-    }
-    if (formData.additionalServices?.solarPanelCleaning) {
-      params.solarPanels = 'Yes';
-      params.std_services_solar_panels_selected = 'Yes';
-      params.solarPanelPrice = formData.solarPanelCleaningPrice?.toFixed(2) || 'N/A';
-      params.std_services_solar_panels_price = params.solarPanelPrice;
-      params.solarPanelFrequency = 'As per service';
-      params.solarPanelAnnual = getAnnualValue(params.solarPanelPrice, 'adhoc');
-    }
+    // Custom Residential Quote Details
+    customResidentialDetails: formData.isCustomQuote ? {
+        exactBedrooms: formData.customResidentialDetails?.exactBedrooms || 'N/A',
+        approxWindows: formData.customResidentialDetails?.approxWindows || 'N/A',
+        accessIssues: formData.customResidentialDetails?.accessIssues || 'N/A',
+        propertyStyle: formData.customResidentialDetails?.propertyStyle || 'N/A',
+        otherPropertyStyleText: formData.customResidentialDetails?.otherPropertyStyleText || '',
+        servicesRequested: formData.customResidentialDetails?.servicesRequested || {},
+        otherServiceText: formData.customResidentialDetails?.otherServiceText || '',
+        frequencyPreference: formData.customResidentialDetails?.frequencyPreference || 'N/A',
+        otherFrequencyText: formData.customResidentialDetails?.otherFrequencyText || '',
+        otherNotes: formData.customResidentialDetails?.otherNotes || 'N/A',
+        customAdditionalComments: formData.customResidentialDetails?.customAdditionalComments || 'N/A'
+    } : null,
 
-    params.selectedDate = formData.selectedDate === 'ASAP_REQUESTED' ? 'ASAP Requested' : (formData.selectedDate || 'N/A');
-    params.isAsapRequested = formData.isAsapRequested ? 'Yes' : 'No';
-    
-    params.subTotalBeforeDiscount = formData.subTotalBeforeDiscount?.toFixed(2) || '0.00';
-    params.discount = formData.windowCleaningDiscount?.toFixed(2) || '0.00';
-    params.total = formData.grandTotal?.toFixed(2) || '0.00';
+    // Commercial Enquiry Details
+    commercialDetails: formData.isCommercial ? {
+        businessName: formData.commercialDetails?.businessName || 'N/A',
+        propertyType: formData.commercialDetails?.propertyType || 'N/A',
+        approxSizeOrWindows: formData.commercialDetails?.approxSizeOrWindows || 'N/A',
+        servicesRequested: formData.commercialDetails?.servicesRequested || {},
+        otherServiceText: formData.commercialDetails?.otherServiceText || '',
+        frequencyPreference: formData.commercialDetails?.frequencyPreference || 'N/A',
+        otherFrequencyText: formData.commercialDetails?.otherFrequencyText || '',
+        specificRequirements: formData.commercialDetails?.specificRequirements || 'N/A',
+        otherNotes: formData.commercialDetails?.otherNotes || 'N/A'
+    } : null,
 
-  } else if (formData.isResidential && formData.isCustomQuote) {
-    const crd = formData.customResidentialDetails || {};
-    params.isBespokeOrCommercial = 'Yes (Custom Residential)';
-    params.propertyStyle = crd.propertyStyle || 'N/A'; // legacy
-    params.numBedrooms = crd.exactBedrooms || 'N/A'; // legacy
-    
-    params.custom_property_style = crd.propertyStyle || 'N/A';
-    params.custom_other_property_style_text = crd.otherPropertyStyleText || '';
-    params.custom_exact_bedrooms = crd.exactBedrooms || 'N/A';
-    params.custom_approx_windows = crd.approxWindows || 'N/A';
-    params.custom_access_issues = crd.accessIssues || 'None';
-    params.custom_requested_services_list = Object.entries(crd.servicesRequested || {})
-        .filter(([, value]) => value)
-        .map(([key]) => key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()))
-        .join(', ') || 'None specified';
-    params.custom_other_service_text = crd.otherServiceText || '';
-    params.custom_frequency_preference = crd.frequencyPreference || 'N/A';
-    params.custom_other_frequency_text = crd.otherFrequencyText || '';
-    params.custom_additional_comments = crd.customAdditionalComments || 'None';
-    params.total = 'Quote Requested';
-    params.selectedDate = 'N/A - Quote Request';
+    // General Enquiry Details
+    generalEnquiryDetails: formData.isGeneralEnquiry ? {
+        requestedServices: formData.generalEnquiryDetails?.requestedServices || {},
+        otherServiceText: formData.generalEnquiryDetails?.otherServiceText || '',
+        requestedFrequency: formData.generalEnquiryDetails?.requestedFrequency || 'N/A',
+        enquiryComments: formData.generalEnquiryDetails?.enquiryComments || 'N/A'
+    } : null,
 
-  } else if (formData.isCommercial) {
-    const cd = formData.commercialDetails || {};
-    params.isBespokeOrCommercial = 'Yes (Commercial)';
-    params.propertyStyle = 'Commercial'; // legacy
-    params.numBedrooms = 'N/A'; // legacy
+    // reCAPTCHA
+    'g-recaptcha-response': formData.recaptchaToken || ''
+  };
 
-    params.commercial_business_name = cd.businessName || 'N/A';
-    params.commercial_property_type = cd.propertyType || 'N/A';
-    params.commercial_approx_size_or_windows = cd.approxSizeOrWindows || 'N/A';
-    params.commercial_specific_requirements = cd.specificRequirements || 'None';
-    params.commercial_requested_services_list = Object.entries(cd.servicesRequested || {})
-        .filter(([, value]) => value)
-        .map(([key]) => key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()))
-        .join(', ') || 'None specified';
-    params.commercial_other_service_text = cd.otherServiceText || '';
-    params.commercial_frequency_preference = cd.frequencyPreference || 'N/A';
-    params.commercial_other_frequency_text = cd.otherFrequencyText || '';
-    params.commercial_other_notes = cd.otherNotes || 'None';
-    params.total = 'Quote Requested';
-    params.selectedDate = 'N/A - Quote Request';
-
-  } else if (formData.isGeneralEnquiry) {
-    const ged = formData.generalEnquiryDetails || {};
-    params.isBespokeOrCommercial = 'N/A (General Enquiry)';
-    params.propertyStyle = 'General Enquiry'; // legacy
-    params.numBedrooms = 'N/A'; // legacy
-
-    params.general_requested_services_list = Object.entries(ged.requestedServices || {})
-        .filter(([, value]) => value)
-        .map(([key]) => key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()))
-        .join(', ') || 'None specified';
-    params.general_other_service_text = ged.otherServiceText || '';
-    params.general_requested_frequency = ged.requestedFrequency || 'N/A';
-    params.general_enquiry_comments = ged.enquiryComments || 'None';
-    params.total = 'Enquiry Only';
-    params.selectedDate = 'N/A - Enquiry';
+  // Populate standard residential details if applicable
+  if (is_standard_residential_booking_bool) {
+    params.propertyType = formData.propertyType || 'N/A';
+    params.bedrooms = formData.bedrooms || 'N/A';
+    params.selectedFrequency = formData.selectedFrequency || 'N/A';
+    params.initialWindowPricetoFixed2 = formatPrice(formData.initialWindowPrice);
+    params.selectedWindowService = formData.selectedWindowService || null; // Pass the object directly
+    params.hasConservatory = formData.hasConservatory || false;
+    params.conservatorySurchargetoFixed2 = formatPrice(formData.conservatorySurcharge);
+    params.hasExtension = formData.hasExtension || false;
+    params.extensionSurchargetoFixed2 = formatPrice(formData.extensionSurcharge);
+    params.additionalServices = formData.additionalServices || { conservatoryRoof: false, fasciaSoffitGutter: false, gutterClearing: false };
+    params.subTotalBeforeDiscounttoFixed2 = formatPrice(formData.subTotalBeforeDiscount);
+    params.windowCleaningDiscounttoFixed2 = formatPrice(formData.windowCleaningDiscount);
+    params.grandTotaltoFixed2 = formatPrice(formData.grandTotal);
+    params.selectedDateFormatted = formatDate(formData.selectedDate);
   }
   
-  // Clean up legacy service fields if not a standard residential booking
-  if (bookingTypeDisplay !== 'Standard Residential Booking') {
-    const legacyServiceFields = ['window', 'windowFrequency', 'windowPrice', 'windowAnnual', 
-                                 'gutter', 'gutterFrequency', 'gutterPrice', 'gutterAnnual',
-                                 'fascia', 'fasciaFrequency', 'fasciaPrice', 'fasciaAnnual',
-                                 'conservatoryRoof', 'conservatoryRoofFrequency', 'conservatoryRoofPrice', 'conservatoryRoofAnnual',
-                                 'solarPanels', 'solarPanelFrequency', 'solarPanelPrice', 'solarPanelAnnual'];
-    legacyServiceFields.forEach(field => {
-        if (params[field] !== 'Yes' && params[field] !== 'No') { // Don't overwrite Yes/No for boolean flags if already set to N/A
-             params[field] = 'N/A for this booking type';
-        }
-    });
-    params.discount = 'N/A';
-    params.subTotalBeforeDiscount = 'N/A';
-  }
-
-
-  console.log("Mapped EmailJS template params:", params);
+  console.log("Updated templateParams being sent to EmailJS:", JSON.stringify(params, null, 2));
   return params;
 };
 

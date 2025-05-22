@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{{ emailSubject }}}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        h2 {
+            color: #555;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 20px;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section p {
+            margin: 5px 0;
+        }
+        .label {
+            font-weight: bold;
+        }
+        .value {
+            margin-left: 10px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #777;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{{ emailSubject }}}</h1>
+
+        <div class="section">
+            <h2>Customer Information</h2>
+            <p><span class="label">Name:</span> <span class="value">{{{ customerName }}}</span></p>
+            <p><span class="label">Email:</span> <span class="value">{{{ email }}}</span></p>
+            <p><span class="label">Phone:</span> <span class="value">{{{ mobile }}}</span></p>
+            <p><span class="label">Address:</span> <span class="value">{{{ addressLine1 }}}{{#if addressLine2}}, {{{ addressLine2 }}}{{/if}}{{#if townCity}}, {{{ townCity }}}{{/if}}{{#if postcode}}, {{{ postcode }}}{{/if}}</span></p>
+            <p><span class="label">Preferred Contact:</span> <span class="value">{{{ preferredContactMethod }}}</span></p>
+        </div>
+
+        <div class="section">
+            <h2>Booking Type: {{{ bookingTypeDisplay }}}</h2>
+        </div>
+
+        {{#if is_standard_residential_booking_bool}}
+        <div class="section">
+            <h2>Standard Residential Booking Details</h2>
+            <p><span class="label">Property Type:</span> <span class="value">{{{ propertyType }}}</span></p>
+            <p><span class="label">Bedrooms:</span> <span class="value">{{{ bedrooms }}}</span></p>
+            <p><span class="label">Selected Frequency:</span> <span class="value">{{{ selectedFrequency }}}</span></p>
+            <p><span class="label">Initial Window Price:</span> <span class="value">£{{{ initialWindowPricetoFixed2 }}}</span></p>
+            
+            {{#if selectedWindowService}}
+            <p><span class="label">Selected Window Service:</span> <span class="value">{{{ selectedWindowService.name }}} ({{{ selectedWindowService.type }}})</span></p>
+            {{/if}}
+
+            <h3>Additional Details & Services</h3>
+            <p><span class="label">Has Conservatory:</span> <span class="value">{{#if hasConservatory}}Yes{{else}}No{{/if}}</span></p>
+            {{#if hasConservatory}}
+            <p><span class="label">Conservatory Surcharge:</span> <span class="value">£{{{ conservatorySurchargetoFixed2 }}}</span></p>
+            {{/if}}
+            <p><span class="label">Has Extension:</span> <span class="value">{{#if hasExtension}}Yes{{else}}No{{/if}}</span></p>
+            {{#if hasExtension}}
+            <p><span class="label">Extension Surcharge:</span> <span class="value">£{{{ extensionSurchargetoFixed2 }}}</span></p>
+            {{/if}}
+
+            <h4>Selected Additional Services:</h4>
+            <ul>
+                {{#if additionalServices.conservatoryRoof}}<li>Conservatory Roof Cleaning</li>{{/if}}
+                {{#if additionalServices.fasciaSoffitGutter}}<li>Fascia, Soffit & Gutter Cleaning</li>{{/if}}
+                {{#if additionalServices.gutterClearing}}<li>Gutter Clearing</li>{{/if}}
+                {{#unless additionalServices.conservatoryRoof}}{{#unless additionalServices.fasciaSoffitGutter}}{{#unless additionalServices.gutterClearing}}<li>None</li>{{/unless}}{{/unless}}{{/unless}}
+            </ul>
+            
+            <p><span class="label">Subtotal (before discount):</span> <span class="value">£{{{ subTotalBeforeDiscounttoFixed2 }}}</span></p>
+            {{#if windowCleaningDiscount}}
+            <p><span class="label">Window Cleaning Discount:</span> <span class="value">£{{{ windowCleaningDiscounttoFixed2 }}}</span></p>
+            {{/if}}
+            <p><span class="label">Grand Total:</span> <span class="value">£{{{ grandTotaltoFixed2 }}}</span></p>
+            <p><span class="label">Selected Date:</span> <span class="value">{{{ selectedDateFormatted }}}</span></p>
+        </div>
+        {{/if}}
+
+        {{#if isCustomQuote}}
+        <div class="section">
+            <h2>Custom Residential Quote Details</h2>
+            <p><span class="label">Exact Bedrooms (if known):</span> <span class="value">{{{ customResidentialDetails.exactBedrooms }}}</span></p>
+            <p><span class="label">Approximate Windows:</span> <span class="value">{{{ customResidentialDetails.approxWindows }}}</span></p>
+            <p><span class="label">Access Issues:</span> <span class="value">{{{ customResidentialDetails.accessIssues }}}</span></p>
+            <p><span class="label">Property Style:</span> <span class="value">{{{ customResidentialDetails.propertyStyle }}}{{#if customResidentialDetails.otherPropertyStyleText}} ({{{ customResidentialDetails.otherPropertyStyleText }}}){{/if}}</span></p>
+            
+            <h4>Services Requested:</h4>
+            <ul>
+                {{#if customResidentialDetails.servicesRequested.windowCleaning}}<li>Window Cleaning</li>{{/if}}
+                {{#if customResidentialDetails.servicesRequested.gutterCleaning}}<li>Gutter Cleaning</li>{{/if}}
+                {{#if customResidentialDetails.servicesRequested.fasciaSoffitCleaning}}<li>Fascia & Soffit Cleaning</li>{{/if}}
+                {{#if customResidentialDetails.servicesRequested.conservatoryWindowCleaning}}<li>Conservatory Window Cleaning</li>{{/if}}
+                {{#if customResidentialDetails.servicesRequested.conservatoryRoofCleaning}}<li>Conservatory Roof Cleaning</li>{{/if}}
+                {{#if customResidentialDetails.servicesRequested.other}}<li>Other: {{{ customResidentialDetails.otherServiceText }}}</li>{{/if}}
+            </ul>
+            <p><span class="label">Frequency Preference:</span> <span class="value">{{{ customResidentialDetails.frequencyPreference }}}{{#if customResidentialDetails.otherFrequencyText}} ({{{ customResidentialDetails.otherFrequencyText }}}){{/if}}</span></p>
+            <p><span class="label">Other Notes:</span> <span class="value">{{{ customResidentialDetails.otherNotes }}}</span></p>
+            <p><span class="label">Additional Comments:</span> <span class="value">{{{ customResidentialDetails.customAdditionalComments }}}</span></p>
+        </div>
+        {{/if}}
+
+        {{#if isCommercial}}
+        <div class="section">
+            <h2>Commercial Enquiry Details</h2>
+            <p><span class="label">Business Name:</span> <span class="value">{{{ commercialDetails.businessName }}}</span></p>
+            <p><span class="label">Property Type:</span> <span class="value">{{{ commercialDetails.propertyType }}}</span></p>
+            <p><span class="label">Approx. Size/Windows:</span> <span class="value">{{{ commercialDetails.approxSizeOrWindows }}}</span></p>
+            
+            <h4>Services Requested:</h4>
+            <ul>
+                {{#if commercialDetails.servicesRequested.windowCleaning}}<li>Window Cleaning</li>{{/if}}
+                {{#if commercialDetails.servicesRequested.gutterCleaning}}<li>Gutter Cleaning</li>{{/if}}
+                {{#if commercialDetails.servicesRequested.fasciaSoffitCleaning}}<li>Fascia & Soffit Cleaning</li>{{/if}}
+                {{#if commercialDetails.servicesRequested.claddingCleaning}}<li>Cladding Cleaning</li>{{/if}}
+                {{#if commercialDetails.servicesRequested.signageCleaning}}<li>Signage Cleaning</li>{{/if}}
+                {{#if commercialDetails.servicesRequested.other}}<li>Other: {{{ commercialDetails.otherServiceText }}}</li>{{/if}}
+            </ul>
+            <p><span class="label">Frequency Preference:</span> <span class="value">{{{ commercialDetails.frequencyPreference }}}{{#if commercialDetails.otherFrequencyText}} ({{{ commercialDetails.otherFrequencyText }}}){{/if}}</span></p>
+            <p><span class="label">Specific Requirements:</span> <span class="value">{{{ commercialDetails.specificRequirements }}}</span></p>
+            <p><span class="label">Other Notes:</span> <span class="value">{{{ commercialDetails.otherNotes }}}</span></p>
+        </div>
+        {{/if}}
+
+        {{#if isGeneralEnquiry}}
+        <div class="section">
+            <h2>General Enquiry Details</h2>
+            <h4>Services of Interest:</h4>
+            <ul>
+                {{#if generalEnquiryDetails.requestedServices.windowCleaning}}<li>Window Cleaning</li>{{/if}}
+                {{#if generalEnquiryDetails.requestedServices.conservatoryWindows}}<li>Conservatory Window Cleaning</li>{{/if}}
+                {{#if generalEnquiryDetails.requestedServices.conservatoryRoof}}<li>Conservatory Roof Cleaning</li>{{/if}}
+                {{#if generalEnquiryDetails.requestedServices.gutterClearing}}<li>Gutter Clearing</li>{{/if}}
+                {{#if generalEnquiryDetails.requestedServices.fasciaSoffitGutter}}<li>Fascia, Soffit & Gutter Cleaning</li>{{/if}}
+                {{#if generalEnquiryDetails.requestedServices.solarPanels}}<li>Solar Panel Cleaning</li>{{/if}}
+                {{#if generalEnquiryDetails.requestedServices.other}}<li>Other: {{{ generalEnquiryDetails.otherServiceText }}}</li>{{/if}}
+            </ul>
+            <p><span class="label">Requested Frequency:</span> <span class="value">{{{ generalEnquiryDetails.requestedFrequency }}}</span></p>
+            <p><span class="label">Enquiry Comments:</span> <span class="value">{{{ generalEnquiryDetails.enquiryComments }}}</span></p>
+        </div>
+        {{/if}}
+
+        {{#if bookingNotes}}
+        <div class="section">
+            <h2>Additional Booking Notes</h2>
+            <p><span class="value">{{{ bookingNotes }}}</span></p>
+        </div>
+        {{/if}}
+
+        <div class="footer">
+            <p>This is an automated notification. Please do not reply directly to this email.</p>
+        </div>
+    </div>
+</body>
+</html> 

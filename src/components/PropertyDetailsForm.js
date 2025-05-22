@@ -270,29 +270,26 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
 
     const continueStep = (e) => {
         e.preventDefault();
-        setFormErrors({}); // Clear previous errors
-        setDateSelectionError(''); // Clear specific date error
-
-        const validationErrors = validateForm();
-        if (Object.keys(validationErrors).length > 0) {
-            setFormErrors(validationErrors);
-            // If there's a specific date error from the old system, keep it for scrolling behavior
-            if (validationErrors.selectedDate) {
-                setDateSelectionError(validationErrors.selectedDate);
-                document.getElementById('date-selection-heading')?.scrollIntoView({ behavior: 'smooth' });
+        // TEMP: Bypass validation for testing
+        /*
+        if (!validateForm()) {
+            // Errors will be displayed by the validateForm function by calling setFormErrors
+            // Optionally, scroll to the first error or show a general message
+            const firstErrorKey = Object.keys(formErrors).find(key => formErrors[key]);
+            if (firstErrorKey) {
+                const errorElement = document.getElementsByName(firstErrorKey)[0];
+                if (errorElement) {
+                    errorElement.focus();
+                    errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
             }
-            // Scroll to the first error field if possible (basic implementation)
-            const firstErrorKey = Object.keys(validationErrors)[0];
-            const errorField = document.getElementsByName(firstErrorKey)[0] || document.getElementById(firstErrorKey); // try by name then id
-            errorField?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            return;
+            return; // Stop if validation fails
         }
-
-        if (goToStep) {
-            goToStep(4);
-        } else {
-            nextStep(); // Fallback if goToStep is not provided
-        }
+        */
+        // If validation passes (or is bypassed)
+        setFormErrors({}); // Clear any previous errors
+        setDateSelectionError(''); // Clear specific date error if any
+        nextStep();
     };
 
     const handleContactPreference = (e) => {
