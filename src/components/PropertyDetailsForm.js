@@ -357,69 +357,127 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                     {formErrors.preferredContactMethod && <p className="text-sm text-red-600 mt-1">{formErrors.preferredContactMethod}</p>}
                 </div>
 
-                {/* Date Selection UI - Only for Standard Residential Bookings (NOT commercial, custom quote, or general enquiry) */}
+                {/* Enhanced Date Selection UI - Only for Standard Residential Bookings */}
                 {!isCommercial && !isCustomQuote && isResidential && !isGeneralEnquiry && (
                     <div className="mt-6 pt-4 border-t">
-                        <h3 id="date-selection-heading" className="text-xl font-medium text-gray-800 mb-1">Select Date for First Clean <span className="text-red-500">*</span></h3>
-                        <p className="text-xs text-gray-500 mb-3">Available dates are shown for the next 6 weeks based on your postcode.</p>
+                        <h3 id="date-selection-heading" className="text-xl font-medium text-gray-800 mb-2">
+                            Select Date for First Clean <span className="text-red-500">*</span>
+                        </h3>
+                        <p className="text-sm text-gray-600 mb-4">
+                            Choose from available dates or request ASAP service
+                        </p>
                         
-                        {isLoadingDates && <p className="text-blue-600">Loading available dates...</p>}
+                        {/* Loading State */}
+                        {isLoadingDates && (
+                            <div className="flex items-center justify-center p-6 border border-blue-200 rounded-lg bg-blue-50">
+                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600 mr-3"></div>
+                                <span className="text-blue-700 font-medium">Loading available dates...</span>
+                            </div>
+                        )}
                         
-                        {!isLoadingDates && postcodeError && 
-                            <p className="text-red-600 p-3 border border-red-200 rounded-md bg-red-50 text-sm">{postcodeError}</p>
-                        }
+                        {/* Error State */}
+                        {!isLoadingDates && postcodeError && (
+                            <div className="p-4 border border-red-200 rounded-lg bg-red-50">
+                                <div className="flex items-center">
+                                    <div className="flex-shrink-0">
+                                        <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div className="ml-3">
+                                        <p className="text-sm text-red-800">{postcodeError}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         
-                        {dateSelectionError &&  /* This is the old dateSelectionError, handled by scroll in continueStep */
-                            <p className="text-red-600 text-sm mt-1">{dateSelectionError}</p>
-                        }
-                        {formErrors.selectedDate && !dateSelectionError && /* Show general error if not already shown by specific date error */
-                             <p className="text-red-600 text-sm mt-1">{formErrors.selectedDate}</p>
-                        }
+                        {/* Form Validation Errors */}
+                        {dateSelectionError && (
+                            <p className="text-red-600 text-sm mb-3">{dateSelectionError}</p>
+                        )}
+                        {formErrors.selectedDate && !dateSelectionError && (
+                            <p className="text-red-600 text-sm mb-3">{formErrors.selectedDate}</p>
+                        )}
 
-                        {!isLoadingDates && !postcodeError && availableDates.length > 0 && (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mt-2">
-                                {availableDates.map(date => {
-                                    const dateValueStr = formatDateForStorage(date);
-                                    const isSelected = selectedDate === dateValueStr;
-                                    return (
-                                        <button
-                                            type="button"
-                                            key={dateValueStr}
-                                            onClick={() => handleDateSelect(date)}
-                                            className={`p-3 border rounded-lg text-center cursor-pointer transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500
-                                                ${isSelected 
-                                                    ? 'bg-indigo-600 border-indigo-700 text-white shadow-md' 
-                                                    : 'bg-white border-gray-300 text-gray-700 hover:bg-indigo-50 hover:border-indigo-400'}`}
-                                        >
-                                            <span className={`block text-sm font-medium ${isSelected ? 'text-white' : 'text-gray-900'}`}>
-                                                {formatDateForDisplay(date)}
-                                            </span>
-                                        </button>
-                                    );
-                                })}
+                        {/* Main Selection Area */}
+                        {!isLoadingDates && !postcodeError && (
+                            <div className="space-y-4">
+                                {/* Available Dates Section */}
+                                {availableDates.length > 0 ? (
+                                    <div>
+                                        <h4 className="text-sm font-medium text-gray-700 mb-3">Available Dates (Next 6 Weeks)</h4>
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 mb-4">
+                                            {availableDates.map(date => {
+                                                const dateValueStr = formatDateForStorage(date);
+                                                const isSelected = selectedDate === dateValueStr;
+                                                return (
+                                                    <button
+                                                        type="button"
+                                                        key={dateValueStr}
+                                                        onClick={() => handleDateSelect(date)}
+                                                        className={`p-3 border rounded-lg text-center cursor-pointer transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 transform hover:scale-105
+                                                            ${isSelected 
+                                                                ? 'bg-indigo-600 border-indigo-700 text-white shadow-lg scale-105' 
+                                                                : 'bg-white border-gray-300 text-gray-700 hover:bg-indigo-50 hover:border-indigo-300 hover:shadow-md'}`}
+                                                    >
+                                                        <span className={`block text-xs font-medium ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                                                            {formatDateForDisplay(date)}
+                                                        </span>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                        
+                                        {/* Divider */}
+                                        <div className="relative">
+                                            <div className="absolute inset-0 flex items-center">
+                                                <div className="w-full border-t border-gray-300" />
+                                            </div>
+                                            <div className="relative flex justify-center text-sm">
+                                                <span className="px-2 bg-white text-gray-500">or</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (!postcode || postcode.trim().length === 0) ? (
+                                    /* No postcode entered */
+                                    <div className="text-center py-6">
+                                        <div className="mx-auto h-12 w-12 text-gray-400 mb-3">
+                                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3a4 4 0 118 0v4m-4 7v6m0 0l3-3m-3 3l-3-3M5 12h14" />
+                                            </svg>
+                                        </div>
+                                        <p className="text-sm text-gray-600 mb-1">Enter your postcode above</p>
+                                        <p className="text-xs text-gray-500">to see available cleaning dates</p>
+                                    </div>
+                                ) : null}
+                                
+                                {/* ASAP Option - now more compact and integrated */}
+                                <div>
+                                    <h4 className="text-sm font-medium text-gray-700 mb-3">Need service urgently?</h4>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleDateSelect("ASAP")}
+                                        className={`w-full p-4 border-2 rounded-lg text-center cursor-pointer transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 transform hover:scale-[1.02]
+                                                    ${selectedDate === "ASAP"
+                                                        ? 'bg-gradient-to-r from-green-500 to-green-600 border-green-600 text-white shadow-lg scale-[1.02]'
+                                                        : 'bg-white border-green-300 text-gray-700 hover:bg-green-50 hover:border-green-400 hover:shadow-md focus:ring-green-400'}`}
+                                    >
+                                        <div className="flex items-center justify-center">
+                                            <svg className={`h-5 w-5 mr-2 ${selectedDate === "ASAP" ? 'text-white' : 'text-green-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                            </svg>
+                                            <div>
+                                                <span className={`block font-semibold ${selectedDate === "ASAP" ? 'text-white' : 'text-gray-900'}`}>
+                                                    Request First Clean ASAP
+                                                </span>
+                                                <span className={`block text-xs mt-1 ${selectedDate === "ASAP" ? 'text-green-100' : 'text-gray-500'}`}>
+                                                    We'll contact you within 24 hours to arrange the earliest available slot
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </button>
+                                </div>
                             </div>
-                        )}
-                        
-                        {!isLoadingDates && !postcodeError && ( 
-                            <div className="mt-4">
-                                <button
-                                    type="button"
-                                    onClick={() => handleDateSelect("ASAP")}
-                                    className={`w-full p-3 border rounded-lg text-center cursor-pointer transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1
-                                                ${selectedDate === "ASAP"
-                                                    ? 'bg-green-500 border-green-600 text-white shadow-md hover:bg-green-600 focus:ring-green-400'
-                                                    : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200 hover:border-gray-400 focus:ring-indigo-500'}`}
-                                >
-                                    <span className={`block text-sm font-medium ${selectedDate === "ASAP" ? 'text-white' : 'text-gray-900'}`}>
-                                        Request First Clean ASAP
-                                    </span>
-                                    <span className="block text-xs text-gray-500 mt-1">We'll contact you to arrange the soonest possible slot if available.</span>
-                                </button>
-                            </div>
-                        )}
-                        
-                        {!isLoadingDates && !postcodeError && availableDates.length === 0 && (!postcode || postcode.trim().length === 0) && (
-                            <p className="text-gray-500 p-3 border border-gray-200 rounded-md bg-gray-50 text-sm">Please enter your postcode above to see available dates.</p>
                         )}
                     </div>
                 )}
