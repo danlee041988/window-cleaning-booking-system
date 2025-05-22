@@ -1,9 +1,7 @@
 // Step 4: Review & Submit
 import React from 'react';
 import { formatDateForDisplay } from '../utils/scheduleUtils';
-import ReCAPTCHA from "react-google-recaptcha"; // Import ReCAPTCHA
-// import { db } from '../firebaseConfig'; // We'll use this later to submit data
-// import { collection, addDoc } from "firebase/firestore"; 
+import ReCAPTCHA from "react-google-recaptcha"; 
 
 // Helper function to calculate Gutter Clearing Price (mirrored from AdditionalServicesForm or move to utils)
 const calculateGutterClearingPrice = (propertyType, bedrooms) => {
@@ -244,7 +242,7 @@ const ReviewSubmitForm = ({ prevStep, values, handleSubmit, setFormData, isLoadi
                             <ReviewItem 
                                 label="Selected Date"
                                 value={selectedDate === "ASAP" 
-                                        ? "As soon as possible"
+                                        ? "ASAP - We'll contact you to arrange a date"
                                         : selectedDate ? formatDateForDisplay(new Date(selectedDate)) : 'N/A'
                                       }
                             />
@@ -438,7 +436,7 @@ const ReviewSubmitForm = ({ prevStep, values, handleSubmit, setFormData, isLoadi
                                         Please review your details. If everything is correct, complete the security check and click 'Submit Enquiry' to send us your information.
                                     </p>
                                     <p className="text-blue-300 text-sm mt-2 font-medium">
-                                        We will contact you within 24 hours with a detailed quote.
+                                        We will contact you with a detailed quote.
                                     </p>
                                 </div>
                             ) : (

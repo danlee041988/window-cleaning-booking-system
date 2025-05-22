@@ -52,7 +52,7 @@ const TextAreaField = ({ label, name, value, onChange, placeholder, rows = 3 }) 
     </div>
 );
 
-const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setFormData, goToStep, conservatorySurcharge }) => {
+const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setFormData, goToStep }) => {
 
     const { 
         customerName, addressLine1, addressLine2, townCity, postcode, mobile, email, preferredContactMethod,
@@ -388,9 +388,27 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                         <h3 id="date-selection-heading" className="text-2xl font-semibold text-gray-200 mb-3">
                             Select Date for First Clean <span className="text-red-400">*</span>
                         </h3>
-                        <p className="text-sm text-gray-400 mb-6">
+                        <p className="text-sm text-gray-400 mb-4">
                             Choose from available dates or request ASAP service
                         </p>
+                        
+                        {/* Window Accessibility Information */}
+                        <div className="mb-6 p-4 bg-blue-900/20 border border-blue-700 rounded-lg">
+                            <div className="flex items-start">
+                                <svg className="w-5 h-5 text-blue-400 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                </svg>
+                                <div>
+                                    <h4 className="text-blue-300 font-semibold mb-2">Window Accessibility Information</h4>
+                                    <p className="text-blue-200 text-sm leading-relaxed">
+                                        We do our best to reach all windows, however some may be too high or not accessible. 
+                                        We can reach most third story windows but some windows may be inaccessible due to height or structural limitations. 
+                                        If you have concerns about window accessibility or have particularly high windows, 
+                                        please mention this in the additional comments section.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                         
                         {/* Loading State */}
                         {isLoadingDates && (
@@ -485,7 +503,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                                     Request First Clean ASAP
                                                 </span>
                                                 <span className={`block text-sm mt-1 ${selectedDate === "ASAP" ? 'text-green-100' : 'text-gray-400'}`}>
-                                                    We'll contact you within 1 working day to arrange the earliest available slot
+                                                    If you need an ASAP clean, we'll do our best and be in contact with you to arrange a date
                                                 </span>
                                             </div>
                                         </div>
@@ -769,8 +787,8 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                     <>
                                         <li>• Access codes (gate, parking, etc.)</li>
                                         <li>• Pet information</li>
-                                        <li>• Preferred time of day</li>
                                         <li>• Any areas requiring special attention</li>
+                                        <li>• Window accessibility concerns</li>
                                     </>
                                 )}
                             </ul>
@@ -787,7 +805,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                         ? "Example: Office building with 40+ windows across 3 floors. Require monthly cleaning during business hours (9-5). Parking available on-site. Health & safety induction required for all contractors."
                                         : isCustomQuote
                                             ? "Example: Large Victorian property with original sash windows, some requiring ladder access. Previous cleaner mentioned difficulty with rear bay windows. Looking for experienced team for quarterly deep clean."
-                                            : "Example: Gate code is 1234*. Side gate is usually unlocked. We have 2 small dogs (friendly but excitable). Please avoid parking in marked visitor spaces."
+                                            : "Example: Gate code is 1234*. Side gate is usually unlocked. We have 2 small dogs (friendly but excitable). Please avoid parking in marked visitor spaces. Some upper floor windows may be difficult to reach."
                             }
                             rows={5}
                             className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500 resize-vertical"

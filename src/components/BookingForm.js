@@ -409,7 +409,7 @@ function BookingForm() {
                 extensionSurchargeAmount={EXTENSION_SURCHARGE_AMOUNT} // Pass new surcharge amount
              />;
     case 3: // New: Property Details (contact, date for standard, quote specifics for custom/commercial)
-      return <PropertyDetailsForm nextStep={nextStep} prevStep={prevStep} handleChange={genericHandleChange} values={formData} setFormData={setFormData} goToStep={goToStep} /* conservatorySurcharge prop was here, might not be needed if not used directly by PropertyDetailsForm for display, ensure it's passed if needed */ />;
+      return <PropertyDetailsForm nextStep={nextStep} prevStep={prevStep} handleChange={genericHandleChange} values={formData} setFormData={setFormData} goToStep={goToStep} />;
     case 4: 
       return <ReviewSubmitForm 
                 prevStep={prevStep} 
@@ -484,7 +484,7 @@ function BookingForm() {
                     <div className="text-left space-y-3 text-gray-300">
                       <div className="flex items-start">
                         <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-600 text-white text-sm font-bold rounded-full mr-3 mt-0.5 flex-shrink-0">1</span>
-                        <p>We'll review your {getEnquiryOrBookingText(formData.isCommercial || formData.isCustomQuote || formData.isGeneralEnquiry)} within 24 hours</p>
+                        <p>We'll review your {getEnquiryOrBookingText(formData.isCommercial || formData.isCustomQuote || formData.isGeneralEnquiry)}</p>
                       </div>
                       <div className="flex items-start">
                         <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-600 text-white text-sm font-bold rounded-full mr-3 mt-0.5 flex-shrink-0">2</span>
