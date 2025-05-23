@@ -353,9 +353,18 @@ function BookingForm() {
     });
   };
 
-  const nextStep = () => setCurrentStep(prev => prev + 1);
-  const prevStep = () => setCurrentStep(prev => prev - 1);
-  const goToStep = (stepNumber) => setCurrentStep(stepNumber);
+  const nextStep = () => {
+    setCurrentStep(prev => prev + 1);
+    window.scrollTo(0, 0);
+  };
+  const prevStep = () => {
+    setCurrentStep(prev => prev - 1);
+    window.scrollTo(0, 0);
+  };
+  const goToStep = (stepNumber) => {
+    setCurrentStep(stepNumber);
+    window.scrollTo(0, 0);
+  };
 
   // Moved handleSubmit inside BookingForm component
   const handleSubmit = async (formDataToSubmit) => {
