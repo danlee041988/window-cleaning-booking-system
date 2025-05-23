@@ -526,7 +526,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                             label="Number of Bedrooms"
                             name="customResidentialDetails.exactBedrooms"
                             value={values.customResidentialDetails?.exactBedrooms || ''}
-                            onChange={handleChange}
+                            onChange={handleChange('customResidentialDetails.exactBedrooms')}
                             placeholder="e.g., 6, 7, 8+"
                             type="number"
                             required
