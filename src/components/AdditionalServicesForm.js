@@ -513,20 +513,12 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                 <div className="mb-6 p-5 bg-gradient-to-r from-yellow-500 via-red-500 to-pink-500 border-2 border-white rounded-lg shadow-2xl">
                                     <div className="text-center">
                                         <div className="flex items-center justify-center mb-3">
-                                            {/* Using a gift icon for "FREE" */}
-                                            <svg className="w-8 h-8 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4l7 7 7-7M5 12h14"></path>
-                                            </svg>
-                                            <span className="text-2xl font-bold text-white drop-shadow-md">🎉 FREE WINDOW CLEAN OFFER 🎉</span>
+                                            {/* SVG icon removed, relying on emojis in the span below */}
+                                            <span className="text-2xl font-bold text-white">🎉 FREE WINDOW CLEAN OFFER 🎉</span>
                                         </div>
-                                        <p className="text-white text-md font-semibold">
-                                            Select <strong>both</strong> Gutter Clearing (Internal) and Gutter, Fascia & Soffit Cleaning (External) below,
-                                        </p>
-                                        <p className="text-white text-md font-semibold">
-                                            and get your <strong className="underline">entire window cleaning service absolutely FREE!</strong>
-                                        </p>
-                                        <p className="text-yellow-200 text-sm mt-2">
-                                            (This includes your standard window clean, plus any conservatory and extension surcharges!)
+                                        <p className="text-lg font-semibold text-white mb-2">
+                                            Select both Gutter Clearing (Internal) and Gutter, Fascia & Soffit Cleaning (External) below, 
+                                            and get your <span className="underline">entire window cleaning service absolutely FREE!</span>
                                         </p>
                                     </div>
                                 </div>
