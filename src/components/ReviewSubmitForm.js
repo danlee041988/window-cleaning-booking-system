@@ -57,8 +57,8 @@ const generalServiceDisplayLabels = {
     windowCleaning: 'Window Cleaning',
     conservatoryWindows: 'Conservatory Windows Only',
     conservatoryRoof: 'Conservatory Roof Cleaning',
-    gutterClearing: 'Gutter Clearing (Interior)',
-    fasciaSoffitGutter: 'Fascia, Soffit & Gutter Exterior Clean',
+    gutterClearing: 'Gutter Clearing (Internal)',
+    fasciaSoffitGutter: 'Gutter, Fascia & Soffit Cleaning (External)',
     solarPanels: 'Solar Panel Cleaning',
     other: 'Other',
 };
@@ -66,8 +66,8 @@ const generalServiceDisplayLabels = {
 // For mapping commercial service IDs to labels
 const commercialServiceDisplayLabels = {
     windowCleaning: 'Window Cleaning',
-    gutterCleaning: 'Gutter Cleaning',
-    fasciaSoffitCleaning: 'Fascia & Soffit Cleaning',
+    gutterCleaning: 'Gutter Clearing (Internal)',
+    fasciaSoffitCleaning: 'Gutter, Fascia & Soffit Cleaning (External)',
     claddingCleaning: 'Cladding Cleaning',
     signageCleaning: 'Signage Cleaning',
     other: 'Other',
@@ -98,8 +98,8 @@ const customPropertyStyleDisplayLabels = {
 // For mapping custom residential service IDs to labels
 const customResidentialServiceDisplayLabels = {
     windowCleaning: 'Window Cleaning (Exterior)',
-    gutterCleaning: 'Gutter Clearing (Interior)',
-    fasciaSoffitCleaning: 'Fascia & Soffit Cleaning (Exterior)',
+    gutterCleaning: 'Gutter Clearing (Internal)',
+    fasciaSoffitCleaning: 'Gutter, Fascia & Soffit Cleaning (External)',
     conservatoryWindowCleaning: 'Conservatory Window Cleaning (Sides)',
     conservatoryRoofCleaning: 'Conservatory Roof Cleaning',
     other: 'Other',
@@ -389,10 +389,10 @@ const ReviewSubmitForm = ({ prevStep, values, handleSubmit, setFormData, isLoadi
                                 )}
                                 
                                 {gutterClearingSelected && canDisplayGutterServicePrices && (
-                                    <ReviewItem label="Gutter Clearing (Interior)" value={`+ £${gutterClearingReviewPrice.toFixed(2)}`} />
+                                    <ReviewItem label="Gutter Clearing (Internal)" value={`+ £${gutterClearingReviewPrice.toFixed(2)}`} />
                                 )}
                                 {fasciaSoffitGutterSelected && canDisplayGutterServicePrices && (
-                                    <ReviewItem label="Fascia, Soffit & Gutter Exterior Clean" value={`+ £${fasciaSoffitGutterReviewPrice.toFixed(2)}`} />
+                                    <ReviewItem label="Gutter, Fascia & Soffit Cleaning (External)" value={`+ £${fasciaSoffitGutterReviewPrice.toFixed(2)}`} />
                                 )}
                                 
                                 {selectedFixedAddonsToDisplay.map(addon => (

@@ -510,19 +510,23 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
 
                             {/* Special Offer Notice */}
                             {( (initialWindowPrice > 0 || (hasCons && conservatorySurchargeAmount > 0)) && canOfferGutterServices ) && (
-                                <div className="mb-6 p-4 bg-gradient-to-r from-blue-900/40 to-blue-800/40 border border-blue-600 rounded-lg">
+                                <div className="mb-6 p-5 bg-gradient-to-r from-yellow-500 via-red-500 to-pink-500 border-2 border-white rounded-lg shadow-2xl">
                                     <div className="text-center">
-                                        <div className="flex items-center justify-center mb-2">
-                                            <svg className="w-5 h-5 text-blue-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                        <div className="flex items-center justify-center mb-3">
+                                            {/* Using a gift icon for "FREE" */}
+                                            <svg className="w-8 h-8 text-white mr-2 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4l7 7 7-7M5 12h14"></path>
                                             </svg>
-                                            <span className="text-lg font-semibold text-blue-300">Special Bundle Offer</span>
+                                            <span className="text-2xl font-bold text-white drop-shadow-md">🎉 FREE WINDOW CLEAN OFFER 🎉</span>
                                         </div>
-                                        <p className="text-blue-200 text-sm">
-                                            Select <strong>both</strong> gutter services below and get your window cleaning service completely free!
+                                        <p className="text-white text-md font-semibold">
+                                            Select <strong>both</strong> Gutter Clearing (Internal) and Gutter, Fascia & Soffit Cleaning (External) below,
                                         </p>
-                                        <p className="text-blue-300 text-xs mt-1">
-                                            (Including conservatory surcharge if applicable)
+                                        <p className="text-white text-md font-semibold">
+                                            and get your <strong className="underline">entire window cleaning service absolutely FREE!</strong>
+                                        </p>
+                                        <p className="text-yellow-200 text-sm mt-2">
+                                            (This includes your standard window clean, plus any conservatory and extension surcharges!)
                                         </p>
                                     </div>
                                 </div>
@@ -549,8 +553,8 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                                 className="h-5 w-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2" 
                                             />
                                             <div className="ml-4">
-                                                <span className="text-lg font-semibold text-white">Gutter Clearing (Interior)</span>
-                                                <p className="text-sm text-gray-300 mt-1">Clears all leaves, moss, and debris from inside your gutters for proper water flow</p>
+                                                <span className="text-lg font-semibold text-white">Gutter Clearing (Internal)</span>
+                                                <p className="text-sm text-gray-300 mt-1">Removes leaves, moss, and debris from inside your gutters, ensuring proper water drainage.</p>
                                             </div>
                                         </div>
                                         {canOfferGutterServices ? (
@@ -583,8 +587,8 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                                 className="h-5 w-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2" 
                                             />
                                             <div className="ml-4">
-                                                <span className="text-lg font-semibold text-white">Fascia, Soffit & Gutter Exterior Clean</span>
-                                                <p className="text-sm text-gray-300 mt-1">Restores UPVC appearance by removing dirt, grime, and algae for enhanced curb appeal</p>
+                                                <span className="text-lg font-semibold text-white">Gutter, Fascia & Soffit Cleaning (External)</span>
+                                                <p className="text-sm text-gray-300 mt-1">Professional cleaning of the external surfaces of gutters, fascia, and soffits, enhancing the visual appearance of your home from the ground.</p>
                                             </div>
                                         </div>
                                         {canOfferGutterServices ? (
@@ -693,13 +697,13 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
 
                             {(selectedAddons.gutterClearing && canOfferGutterServices) && (
                                 <div className="flex justify-between text-gray-200">
-                                    <span>Gutter Clearing (Interior):</span>
+                                    <span>Gutter Clearing (Internal):</span>
                                     <span className="text-green-300 font-semibold">+ £{gutterClearingPrice.toFixed(2)}</span>
                                 </div>
                             )}
                             {(selectedAddons.fasciaSoffitGutter && canOfferGutterServices) && (
                                 <div className="flex justify-between text-gray-200">
-                                    <span>Fascia, Soffit & Gutter Exterior Clean:</span>
+                                    <span>Gutter, Fascia & Soffit Cleaning (External):</span>
                                     <span className="text-green-300 font-semibold">+ £{fasciaSoffitGutterPrice.toFixed(2)}</span>
                                 </div>
                             )}
