@@ -230,7 +230,10 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                 initialWindowPrice: initialWindowPrice || 0 
             }));
         }
-        nextStep();
+        // setTimeout to ensure state updates are processed before scrolling and navigation
+        setTimeout(() => {
+            nextStep();
+        }, 0);
     };
 
     if (isGeneralEnquiry) {
