@@ -1,25 +1,26 @@
 import React, { useState } from 'react';
+import * as FORM_CONSTANTS from '../constants/formConstants'; // Import constants
 
 // Updated to Semi-Detached and Detached only, with new pricing for Detached
 const windowCleaningOptions = [
   // Priced Residential
   // 2-3 Bed
-  { id: 'sdh23', type: 'Semi-Detached House', bedrooms: '2-3 Bed', basePrice: 20 },
-  { id: 'dh23',  type: 'Detached House',      bedrooms: '2-3 Bed', basePrice: 25 },
+  { id: FORM_CONSTANTS.SERVICE_ID_SDH_2_3_BED, type: 'Semi-Detached House', bedrooms: '2-3 Bed', basePrice: 20 },
+  { id: FORM_CONSTANTS.SERVICE_ID_DH_2_3_BED,  type: 'Detached House',      bedrooms: '2-3 Bed', basePrice: 25 },
   // 4 Bed
-  { id: 'sdh4',  type: 'Semi-Detached House', bedrooms: '4 Bed',   basePrice: 25 },
-  { id: 'dh4',   type: 'Detached House',      bedrooms: '4 Bed',   basePrice: 35 },
+  { id: FORM_CONSTANTS.SERVICE_ID_SDH_4_BED,  type: 'Semi-Detached House', bedrooms: '4 Bed',   basePrice: 25 },
+  { id: FORM_CONSTANTS.SERVICE_ID_DH_4_BED,   type: 'Detached House',      bedrooms: '4 Bed',   basePrice: 35 },
   // 5 Bed
-  { id: 'sdh5',  type: 'Semi-Detached House', bedrooms: '5 Bed',   basePrice: 30 },
-  { id: 'dh5',   type: 'Detached House',      bedrooms: '5 Bed',   basePrice: 40 },
+  { id: FORM_CONSTANTS.SERVICE_ID_SDH_5_BED,  type: 'Semi-Detached House', bedrooms: '5 Bed',   basePrice: 30 },
+  { id: FORM_CONSTANTS.SERVICE_ID_DH_5_BED,   type: 'Detached House',      bedrooms: '5 Bed',   basePrice: 40 },
   // Information Gathering / Custom Quotes
-  { id: 'custom6plus', type: 'Properties', bedrooms: '6+ Beds & Bespoke', basePrice: 0, isCustomQuote: true, isResidential: true },
-  { id: 'commercial',  type: 'Business Property', bedrooms: 'All Types', basePrice: 0, isCommercialQuote: true }
+  { id: FORM_CONSTANTS.SERVICE_ID_CUSTOM_6_PLUS_BEDS, type: 'Properties', bedrooms: '6+ Beds & Bespoke', basePrice: 0, isCustomQuote: true, isResidential: true },
+  { id: FORM_CONSTANTS.SERVICE_ID_COMMERCIAL,  type: 'Business Property', bedrooms: 'All Types', basePrice: 0, isCommercialQuote: true }
 ];
 
 // New "Other Services" option for the main grid
 const otherServicesOption = {
-  id: 'other_services_enquiry',
+  id: FORM_CONSTANTS.SERVICE_ID_OTHER_SERVICES_ENQUIRY,
   type: 'General Enquiry',
   bedrooms: 'Other Services', // Or a more descriptive title like "Gutter, Fascia, etc."
   description: 'Interested in gutter cleaning, fascia & soffit cleaning, conservatory roofs, or other exterior cleaning? Let us know what you need.',
@@ -27,10 +28,10 @@ const otherServicesOption = {
 };
 
 const frequencyOptionsDefinition = [
-  { id: '4-weekly', label: '4 Weekly', adjustment: (price) => price, fullLabel: '4 Weekly' },
-  { id: '8-weekly', label: '8 Weekly', adjustment: (price) => price + 3, fullLabel: '8 Weekly' },
-  { id: '12-weekly', label: '12 Weekly', adjustment: (price) => price + 5, fullLabel: '12 Weekly' },
-  { id: 'adhoc', label: 'One-off', adjustment: (price) => price + 20, fullLabel: 'One-off' },
+  { id: FORM_CONSTANTS.FREQUENCY_ID_4_WEEKLY, label: '4 Weekly', adjustment: (price) => price, fullLabel: '4 Weekly' },
+  { id: FORM_CONSTANTS.FREQUENCY_ID_8_WEEKLY, label: '8 Weekly', adjustment: (price) => price + 3, fullLabel: '8 Weekly' },
+  { id: FORM_CONSTANTS.FREQUENCY_ID_12_WEEKLY, label: '12 Weekly', adjustment: (price) => price + 5, fullLabel: '12 Weekly' },
+  { id: FORM_CONSTANTS.FREQUENCY_ID_ADHOC, label: 'One-off', adjustment: (price) => price + 20, fullLabel: 'One-off' },
 ];
 
 const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
@@ -57,7 +58,7 @@ const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
     let isStandardResidential = !isCustom && !isCommercial;
 
     if (isCustom || isCommercial) {
-      selectedFrequencyId = isCommercial ? 'business_enquiry' : 'custom_quote';
+      selectedFrequencyId = isCommercial ? FORM_CONSTANTS.FREQUENCY_ID_BUSINESS_ENQUIRY : FORM_CONSTANTS.FREQUENCY_ID_CUSTOM_QUOTE;
       selectedFrequencyDetails = { 
         fullLabel: isCommercial ? 'Business Enquiry' : 'Custom Quote', 
         id: selectedFrequencyId 
@@ -66,6 +67,14 @@ const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
     } else {
       calculatedInitialPrice = calculatePriceForFrequency(clickedOption.basePrice, selectedFrequencyId);
     }
+
+    // Reset fields that might be set if user goes back and changes path
+    // Ensure keys in additionalServices match those in initialFormData
+    const resetAdditionalServices = {
+        [FORM_CONSTANTS.ADDON_CONSERVATORY_ROOF]: false,
+        [FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER]: false,
+        [FORM_CONSTANTS.ADDON_GUTTER_CLEARING]: false,
+    };
 
     onFormChange(prevFormData => ({
         ...prevFormData,
@@ -78,9 +87,7 @@ const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
         isCommercial: isCommercial,
         isResidential: clickedOption.isResidential !== undefined ? !!clickedOption.isResidential : isStandardResidential,
         isGeneralEnquiry: false, // Ensure this is false for standard residential path
-        // Reset fields that might be set if user goes back and changes path
-        hasConservatory: false,
-        additionalServices: { conservatoryRoof: false, fasciaSoffitGutter: false, gutterClearing: false },
+        additionalServices: resetAdditionalServices,
         windowCleaningDiscount: 0,
         grandTotal: isStandardResidential ? calculatedInitialPrice : 0, // For standard, grandTotal starts as initialWindowPrice
         subTotalBeforeDiscount: isStandardResidential ? calculatedInitialPrice : 0,
@@ -95,6 +102,11 @@ const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
   };
 
   const handleOtherServices = () => {
+    const resetAdditionalServices = {
+        [FORM_CONSTANTS.ADDON_CONSERVATORY_ROOF]: false,
+        [FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER]: false,
+        [FORM_CONSTANTS.ADDON_GUTTER_CLEARING]: false,
+    };
     onFormChange(prevFormData => ({
         ...prevFormData,
         selectedWindowService: null,
@@ -106,8 +118,7 @@ const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
         isCommercial: false,
         isResidential: false, 
         isGeneralEnquiry: true, // Set the new flag
-        hasConservatory: false,
-        additionalServices: { conservatoryRoof: false, fasciaSoffitGutter: false, gutterClearing: false },
+        additionalServices: resetAdditionalServices,
         windowCleaningDiscount: 0,
         grandTotal: 0,
         subTotalBeforeDiscount: 0,

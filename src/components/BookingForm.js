@@ -1,6 +1,7 @@
 // Main parent component for the multi-step booking form
 import React, { useState } from 'react';
 import emailjs from '@emailjs/browser'; // Added import for emailjs
+import * as FORM_CONSTANTS from '../constants/formConstants'; // Import constants
 import WindowCleaningPricing from './WindowCleaningPricing';
 import PropertyDetailsForm from './PropertyDetailsForm';
 import AdditionalServicesForm from './AdditionalServicesForm';
@@ -27,9 +28,9 @@ const initialFormData = {
     hasConservatory: false,
     hasExtension: false,
     additionalServices: {
-        conservatoryRoof: false,
-        fasciaSoffitGutter: false,
-        gutterClearing: false,
+        [FORM_CONSTANTS.ADDON_CONSERVATORY_ROOF]: false,
+        [FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER]: false,
+        [FORM_CONSTANTS.ADDON_GUTTER_CLEARING]: false,
     },
     gutterClearingServicePrice: 0,
     fasciaSoffitGutterServicePrice: 0,
@@ -60,12 +61,12 @@ const initialFormData = {
         propertyStyle: '',
         otherPropertyStyleText: '',
         servicesRequested: {
-            windowCleaning: false,
-            gutterCleaning: false,
-            fasciaSoffitCleaning: false,
-            conservatoryWindowCleaning: false,
-            conservatoryRoofCleaning: false,
-            other: false,
+            [FORM_CONSTANTS.CUSTOM_RES_SERVICE_WINDOW_CLEANING]: false,
+            [FORM_CONSTANTS.CUSTOM_RES_SERVICE_GUTTER_CLEANING]: false,
+            [FORM_CONSTANTS.CUSTOM_RES_SERVICE_FASCIA_SOFFIT_CLEANING]: false,
+            [FORM_CONSTANTS.CUSTOM_RES_SERVICE_CONSERVATORY_WINDOW_CLEANING]: false,
+            [FORM_CONSTANTS.CUSTOM_RES_SERVICE_CONSERVATORY_ROOF_CLEANING]: false,
+            [FORM_CONSTANTS.CUSTOM_RES_SERVICE_OTHER]: false,
         },
         otherServiceText: '',
         frequencyPreference: '',
@@ -81,12 +82,12 @@ const initialFormData = {
         approxSizeOrWindows: '',
         specificRequirements: '',
         servicesRequested: {
-            windowCleaning: false,
-            gutterCleaning: false,
-            fasciaSoffitCleaning: false,
-            claddingCleaning: false,
-            signageCleaning: false,
-            other: false,
+            [FORM_CONSTANTS.COMM_SERVICE_WINDOW_CLEANING]: false,
+            [FORM_CONSTANTS.COMM_SERVICE_GUTTER_CLEANING]: false,
+            [FORM_CONSTANTS.COMM_SERVICE_FASCIA_SOFFIT_CLEANING]: false,
+            [FORM_CONSTANTS.COMM_SERVICE_CLADDING_CLEANING]: false,
+            [FORM_CONSTANTS.COMM_SERVICE_SIGNAGE_CLEANING]: false,
+            [FORM_CONSTANTS.COMM_SERVICE_OTHER]: false,
         },
         otherServiceText: '',
         frequencyPreference: '',
@@ -96,13 +97,13 @@ const initialFormData = {
     // For General Enquiry
     generalEnquiryDetails: {
         requestedServices: {
-            windowCleaning: false,
-            conservatoryWindows: false,
-            conservatoryRoof: false,
-            gutterClearing: false,
-            fasciaSoffitGutter: false,
-            solarPanels: false,
-            other: false,
+            [FORM_CONSTANTS.GEN_ENQ_SERVICE_WINDOW_CLEANING]: false,
+            [FORM_CONSTANTS.GEN_ENQ_SERVICE_CONSERVATORY_WINDOWS]: false,
+            [FORM_CONSTANTS.ADDON_CONSERVATORY_ROOF]: false,
+            [FORM_CONSTANTS.ADDON_GUTTER_CLEARING]: false,
+            [FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER]: false,
+            [FORM_CONSTANTS.GEN_ENQ_SERVICE_SOLAR_PANELS]: false,
+            [FORM_CONSTANTS.GEN_ENQ_SERVICE_OTHER]: false,
         },
         otherServiceText: '',
         requestedFrequency: '',
@@ -113,8 +114,8 @@ const initialFormData = {
     
     // Quote requests for services requiring physical assessment
     quoteRequests: {
-        solarPanelCleaning: false,
-        conservatoryRoofCleaning: false
+        [FORM_CONSTANTS.QUOTE_REQUEST_SOLAR_PANEL_CLEANING]: false,
+        [FORM_CONSTANTS.QUOTE_REQUEST_CONSERVATORY_ROOF_CLEANING]: false
     }
 };
 
@@ -184,7 +185,7 @@ const mapFormDataToTemplateParams = (formData) => {
     additionalServices: { conservatoryRoof: false, fasciaSoffitGutter: false, gutterClearing: false }, // Default
     hasGutterClearingServiceSelected: false, // Default
     gutterClearingServicePriceToFixed2: '0.00', // Default
-    hasFasciaSoffitGutterServiceSelected: false, // Default
+    hasFasciaSoffitGutterServiceSelected: !!formData.additionalServices?.[FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER], // Corrected key
     fasciaSoffitGutterServicePriceToFixed2: '0.00', // Default
     subTotalBeforeDiscounttoFixed2: '0.00',
     windowCleaningDiscounttoFixed2: '0.00',
@@ -253,10 +254,18 @@ const mapFormDataToTemplateParams = (formData) => {
     params.conservatorySurchargetoFixed2 = formatPrice(formData.conservatorySurcharge);
     params.hasExtension = formData.hasExtension || false;
     params.extensionSurchargetoFixed2 = formatPrice(formData.extensionSurcharge);
-    params.additionalServices = formData.additionalServices || { conservatoryRoof: false, fasciaSoffitGutter: false, gutterClearing: false };
-    params.hasGutterClearingServiceSelected = !!formData.additionalServices?.gutterClearing;
+    // No need to re-assign params.additionalServices here if additionalServicesForTemplate is used by the email template
+    // If the email template *directly* uses a field named additionalServices and expects string keys:
+    // params.additionalServices = { 
+    //     conservatoryRoof: formData.additionalServices?.[FORM_CONSTANTS.ADDON_CONSERVATORY_ROOF] || false,
+    //     fasciaSoffitGutter: formData.additionalServices?.[FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER] || false,
+    //     gutterClearing: formData.additionalServices?.[FORM_CONSTANTS.ADDON_GUTTER_CLEARING] || false
+    // };
+    // The above params.additionalServicesForTemplate should suffice if the template can use that.
+    // The boolean flags below are correctly derived now.
+    params.hasGutterClearingServiceSelected = !!formData.additionalServices?.[FORM_CONSTANTS.ADDON_GUTTER_CLEARING];
     params.gutterClearingServicePriceToFixed2 = formatPrice(formData.gutterClearingServicePrice);
-    params.hasFasciaSoffitGutterServiceSelected = !!formData.additionalServices?.fasciaSoffitGutter;
+    params.hasFasciaSoffitGutterServiceSelected = !!formData.additionalServices?.[FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER];
     params.fasciaSoffitGutterServicePriceToFixed2 = formatPrice(formData.fasciaSoffitGutterServicePrice);
     params.subTotalBeforeDiscounttoFixed2 = formatPrice(formData.subTotalBeforeDiscount);
     params.windowCleaningDiscounttoFixed2 = formatPrice(formData.windowCleaningDiscount);

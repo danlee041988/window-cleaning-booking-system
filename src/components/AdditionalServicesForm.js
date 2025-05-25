@@ -1,34 +1,12 @@
 // Step 2: Additional Services
 import React, { useState, useEffect } from 'react';
-
-// Helper function to calculate Gutter Clearing Price (used for NON-general enquiries)
-const calculateGutterClearingPrice = (propertyType, bedrooms) => {
-    let price = 80; // Default for 2-3 Bed Semi-Detached / Other / or if details unknown
-
-    if (propertyType && bedrooms) {
-        const isDetached = propertyType.toLowerCase().includes('detached');
-        
-        if (bedrooms === '2-3 Bed') {
-            price = isDetached ? 100 : 80;
-        } else if (bedrooms === '4 Bed') {
-            price = isDetached ? 120 : 100; // 100/80 + 20
-        } else if (bedrooms === '5 Bed') {
-            price = isDetached ? 140 : 120; // 120/100 + 20
-        }
-        // For '6+ Beds' or other non-standard, it might require a custom quote or a different logic.
-        // For now, if it doesn't match these, it defaults to the base £80.
-        // Or, we could choose to not offer it/disable if propertyType/bedrooms are not set for standard paths.
-    }
-    return price;
-};
+import { calculateGutterClearingPrice } from '../utils/pricingUtils';
+import * as FORM_CONSTANTS from '../constants/formConstants'; // Import constants
 
 // Define additional service options with their IDs and prices
 // Gutter Clearing is now handled separately due to dynamic pricing
 // Fascia Soffit Gutter is also now dynamic
-const addonServiceDefinitions = [
-    // Empty for now, as both gutter-related services are dynamic
-    // { id: 'conservatoryRoof', label: 'Conservatory Roof Cleaning', price: 75 }, 
-];
+// const addonServiceDefinitions = []; // Removed
 
 // --- Reusable Components (can be moved to a separate file if used elsewhere) ---
 const GeneralServiceCheckbox = ({ label, id, checked, onChange }) => (
@@ -84,21 +62,21 @@ const ServiceCheckbox = ({ label, name, checked, onChange, price, id, disabled =
 
 // Options for General Enquiry
 const generalServiceOptionsList = [
-    { id: 'windowCleaning', label: 'Window Cleaning' },
-    { id: 'conservatoryWindows', label: 'Conservatory Windows Only' },
-    { id: 'conservatoryRoof', label: 'Conservatory Roof Cleaning' },
-    { id: 'gutterClearing', label: 'Gutter Clearing (Interior)' },
-    { id: 'fasciaSoffitGutter', label: 'Fascia, Soffit & Gutter Exterior Clean' },
-    { id: 'solarPanels', label: 'Solar Panel Cleaning' },
-    { id: 'other', label: 'Other (Please specify below)' },
+    { id: FORM_CONSTANTS.GEN_ENQ_SERVICE_WINDOW_CLEANING, label: 'Window Cleaning' },
+    { id: FORM_CONSTANTS.GEN_ENQ_SERVICE_CONSERVATORY_WINDOWS, label: 'Conservatory Windows Only' },
+    { id: FORM_CONSTANTS.ADDON_ID_CONSERVATORY_ROOF, label: 'Conservatory Roof Cleaning' },
+    { id: FORM_CONSTANTS.ADDON_ID_GUTTER_CLEARING, label: 'Gutter Clearing (Internal)' },
+    { id: FORM_CONSTANTS.ADDON_ID_FASCIA_SOFFIT_GUTTER, label: 'Fascia, Soffit & Gutter Exterior Clean' },
+    { id: FORM_CONSTANTS.GEN_ENQ_SERVICE_SOLAR_PANELS, label: 'Solar Panel Cleaning' },
+    { id: FORM_CONSTANTS.GEN_ENQ_SERVICE_OTHER, label: 'Other (Please specify below)' },
 ];
 
 const enquiryFrequencyOptionsList = [
-    { id: 'oneOff', label: 'One-off' },
-    { id: '4weekly', label: '4 Weekly' },
-    { id: '8weekly', label: '8 Weekly' },
-    { id: '12weekly', label: '12 Weekly' },
-    { id: 'asRequired', label: 'As Required / Not Sure' },
+    { id: FORM_CONSTANTS.GEN_ENQ_FREQ_ONE_OFF, label: 'One-off' },
+    { id: FORM_CONSTANTS.GEN_ENQ_FREQ_4_WEEKLY, label: '4 Weekly' },
+    { id: FORM_CONSTANTS.GEN_ENQ_FREQ_8_WEEKLY, label: '8 Weekly' },
+    { id: FORM_CONSTANTS.GEN_ENQ_FREQ_12_WEEKLY, label: '12 Weekly' },
+    { id: FORM_CONSTANTS.GEN_ENQ_FREQ_AS_REQUIRED, label: 'As Required / Not Sure' },
 ];
 
 const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conservatorySurchargeAmount, extensionSurchargeAmount }) => {
@@ -115,7 +93,10 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
     // --- State for Standard Path ---
     const [hasCons, setHasCons] = useState(initialHasConservatory || false);
     const [hasExt, setHasExt] = useState(initialHasExtension || false);
-    const [selectedAddons, setSelectedAddons] = useState(currentSelectedAddons || { gutterClearing: false, fasciaSoffitGutter: false });
+    const [selectedAddons, setSelectedAddons] = useState(currentSelectedAddons || {
+         [FORM_CONSTANTS.ADDON_GUTTER_CLEARING]: false, 
+         [FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER]: false 
+        });
     const [currentWindowPriceWithSurcharges, setCurrentWindowPriceWithSurcharges] = useState(0);
     const [addonServicesTotalPrice, setAddonServicesTotalPrice] = useState(0);
     const [calculatedDiscount, setCalculatedDiscount] = useState(0);
@@ -123,8 +104,13 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
     
     // --- State for General Enquiry Path ---
     const [genEnqServices, setGenEnqServices] = useState(initialGeneralEnquiryDetails?.requestedServices || {
-        windowCleaning: false, conservatoryWindows: false, conservatoryRoof: false, gutterClearing: false,
-        fasciaSoffitGutter: false, solarPanels: false, other: false,
+        [FORM_CONSTANTS.GEN_ENQ_SERVICE_WINDOW_CLEANING]: false, 
+        [FORM_CONSTANTS.GEN_ENQ_SERVICE_CONSERVATORY_WINDOWS]: false, 
+        [FORM_CONSTANTS.ADDON_CONSERVATORY_ROOF]: false, 
+        [FORM_CONSTANTS.ADDON_GUTTER_CLEARING]: false,
+        [FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER]: false, 
+        [FORM_CONSTANTS.GEN_ENQ_SERVICE_SOLAR_PANELS]: false, 
+        [FORM_CONSTANTS.GEN_ENQ_SERVICE_OTHER]: false,
     });
     const [genEnqOtherText, setGenEnqOtherText] = useState(initialGeneralEnquiryDetails?.otherServiceText || '');
     const [genEnqFrequency, setGenEnqFrequency] = useState(initialGeneralEnquiryDetails?.requestedFrequency || '');
@@ -134,6 +120,13 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
     const gutterClearingPrice = !isGeneralEnquiry ? calculateGutterClearingPrice(propertyType, bedrooms) : 0;
     const fasciaSoffitGutterPrice = !isGeneralEnquiry ? gutterClearingPrice + 20 : 0;
     const canOfferGutterServices = !isGeneralEnquiry && (values.isResidential || initialWindowPrice === 0);
+
+    // Moved definitions here to be in component scope
+    const gutterClearSelected = selectedAddons[FORM_CONSTANTS.ADDON_GUTTER_CLEARING] && canOfferGutterServices;
+    const fasciaSoffitSelected = selectedAddons[FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER] && canOfferGutterServices;
+    const windowServiceSelected = initialWindowPrice > 0 || (hasCons && conservatorySurchargeAmount > 0) || (hasExt && extensionSurchargeAmount > 0);
+    const isNotAdhoc = selectedFrequency !== FORM_CONSTANTS.FREQUENCY_ID_ADHOC;
+    const offerConditionsMet = gutterClearSelected && fasciaSoffitSelected && windowServiceSelected && isNotAdhoc;
 
     useEffect(() => {
         if (!isGeneralEnquiry) {
@@ -152,17 +145,12 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
             setCurrentWindowPriceWithSurcharges(windowPriceWithAllSurcharges);
 
             let currentAddonsPrice = 0;
-            if (selectedAddons.gutterClearing && canOfferGutterServices) currentAddonsPrice += gutterClearingPrice;
-            if (selectedAddons.fasciaSoffitGutter && canOfferGutterServices) currentAddonsPrice += fasciaSoffitGutterPrice;
-            addonServiceDefinitions.forEach(service => {
-                if (selectedAddons[service.id]) currentAddonsPrice += service.price;
-            });
+            if (selectedAddons[FORM_CONSTANTS.ADDON_GUTTER_CLEARING] && canOfferGutterServices) currentAddonsPrice += gutterClearingPrice;
+            if (selectedAddons[FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER] && canOfferGutterServices) currentAddonsPrice += fasciaSoffitGutterPrice;
             setAddonServicesTotalPrice(currentAddonsPrice);
 
-            const gutterClearSelected = !!selectedAddons.gutterClearing && canOfferGutterServices;
-            const fasciaSoffitSelected = !!selectedAddons.fasciaSoffitGutter && canOfferGutterServices;
             let discount = 0;
-            if (gutterClearSelected && fasciaSoffitSelected && windowPriceWithAllSurcharges > 0 && selectedFrequency !== 'adhoc') {
+            if (gutterClearSelected && fasciaSoffitSelected && windowPriceWithAllSurcharges > 0 && selectedFrequency !== FORM_CONSTANTS.FREQUENCY_ID_ADHOC) {
                 discount = basePrice;
             }
             setCalculatedDiscount(discount);
@@ -178,7 +166,7 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
     // --- Handlers for Standard Path ---
     const handleExtensionToggle = () => setHasExt(!hasExt);
     const handleStandardAddonToggle = (serviceId) => {
-        if (!canOfferGutterServices && (serviceId === 'gutterClearing' || serviceId === 'fasciaSoffitGutter')) return;
+        if (!canOfferGutterServices && (serviceId === FORM_CONSTANTS.ADDON_GUTTER_CLEARING || serviceId === FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER)) return;
         setSelectedAddons(prev => ({ ...prev, [serviceId]: !prev[serviceId] }));
     };
 
@@ -186,9 +174,8 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
     const handleGenEnqServiceToggle = (serviceId) => {
         setGenEnqServices(prevServices => {
             const newServices = { ...prevServices, [serviceId]: !prevServices[serviceId] };
-            // If window cleaning is deselected, reset its frequency
-            if (serviceId === 'windowCleaning' && !newServices.windowCleaning) {
-                setGenEnqFrequency(''); // Reset frequency state
+            if (serviceId === FORM_CONSTANTS.GEN_ENQ_SERVICE_WINDOW_CLEANING && !newServices[FORM_CONSTANTS.GEN_ENQ_SERVICE_WINDOW_CLEANING]) {
+                setGenEnqFrequency('');
             }
             return newServices;
         });
@@ -197,7 +184,7 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
     const continueStep = (e) => {
         e.preventDefault();
         if (isGeneralEnquiry) {
-            const finalGenEnqFrequency = genEnqServices.windowCleaning ? genEnqFrequency : '';
+            const finalGenEnqFrequency = genEnqServices[FORM_CONSTANTS.GEN_ENQ_SERVICE_WINDOW_CLEANING] ? genEnqFrequency : '';
             setFormData(prevData => ({
                 ...prevData,
                 generalEnquiryDetails: {
@@ -209,7 +196,11 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                 // Reset standard path fields to avoid data confusion
                 hasConservatory: false,
                 hasExtension: false,
-                additionalServices: { gutterClearing: false, fasciaSoffitGutter: false, conservatoryRoof: false }, // Ensure conservatoryRoof is also reset
+                additionalServices: { 
+                    [FORM_CONSTANTS.ADDON_GUTTER_CLEARING]: false, 
+                    [FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER]: false, 
+                    [FORM_CONSTANTS.ADDON_CONSERVATORY_ROOF]: false 
+                },
                 gutterClearingServicePrice: 0, // Reset
                 fasciaSoffitGutterServicePrice: 0, // Reset
                 windowCleaningDiscount: 0, 
@@ -220,8 +211,8 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
         } else {
             const finalSelectedAddons = { ...selectedAddons };
             if (!canOfferGutterServices) {
-                finalSelectedAddons.gutterClearing = false;
-                finalSelectedAddons.fasciaSoffitGutter = false;
+                finalSelectedAddons[FORM_CONSTANTS.ADDON_GUTTER_CLEARING] = false;
+                finalSelectedAddons[FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER] = false;
             }
 
             setFormData(prevData => ({
@@ -231,8 +222,8 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                 conservatorySurcharge: hasCons ? conservatorySurchargeAmount : 0,
                 extensionSurcharge: hasExt ? extensionSurchargeAmount : 0,
                 additionalServices: finalSelectedAddons, 
-                gutterClearingServicePrice: (finalSelectedAddons.gutterClearing && canOfferGutterServices) ? gutterClearingPrice : 0,
-                fasciaSoffitGutterServicePrice: (finalSelectedAddons.fasciaSoffitGutter && canOfferGutterServices) ? fasciaSoffitGutterPrice : 0,
+                gutterClearingServicePrice: (finalSelectedAddons[FORM_CONSTANTS.ADDON_GUTTER_CLEARING] && canOfferGutterServices) ? gutterClearingPrice : 0,
+                fasciaSoffitGutterServicePrice: (finalSelectedAddons[FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER] && canOfferGutterServices) ? fasciaSoffitGutterPrice : 0,
                 windowCleaningDiscount: calculatedDiscount,
                 subTotalBeforeDiscount: currentWindowPriceWithSurcharges + addonServicesTotalPrice, 
                 grandTotal: finalGrandTotal,
@@ -286,7 +277,7 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                             </div>
 
                             {/* Other Service Details */}
-                            {genEnqServices.other && (
+                            {genEnqServices[FORM_CONSTANTS.GEN_ENQ_SERVICE_OTHER] && (
                                 <div>
                                     <label htmlFor="gen-enq-other-text" className="block text-lg font-semibold text-gray-200 mb-3">Please specify 'Other' service details:</label>
                                     <textarea
@@ -301,7 +292,7 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                             )}
 
                             {/* Frequency Selection */}
-                            {genEnqServices.windowCleaning && (
+                            {genEnqServices[FORM_CONSTANTS.GEN_ENQ_SERVICE_WINDOW_CLEANING] && (
                                 <div>
                                     <label htmlFor="gen-enq-frequency" className="block text-lg font-semibold text-gray-200 mb-3">Preferred Window Cleaning Frequency:</label>
                                     <select
@@ -508,17 +499,28 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                 <h3 className="text-2xl font-semibold text-blue-300">Additional Services</h3>
                             </div>
 
-                            {/* Special Offer Notice */}
-                            {( (initialWindowPrice > 0 || (hasCons && conservatorySurchargeAmount > 0)) && canOfferGutterServices ) && (
-                                <div className="mb-6 p-5 bg-gradient-to-r from-yellow-500 via-red-500 to-pink-500 border-2 border-white rounded-lg shadow-2xl">
+                            {/* Special Offer Notice - Updated Styling */}
+                            {canOfferGutterServices && windowServiceSelected && isNotAdhoc && (
+                                <div className={`mb-6 p-5 border-2 rounded-lg shadow-2xl transition-all duration-500 transform hover:scale-[1.02]
+                                    ${offerConditionsMet 
+                                        ? 'bg-gradient-to-br from-green-500 via-emerald-500 to-teal-600 border-green-300' 
+                                        : 'bg-gradient-to-br from-blue-700 via-indigo-600 to-purple-700 border-blue-400'}`}>
                                     <div className="text-center">
                                         <div className="flex items-center justify-center mb-3">
-                                            {/* SVG icon removed, relying on emojis in the span below */}
-                                            <span className="text-2xl font-bold text-white">🎉 FREE WINDOW CLEAN OFFER 🎉</span>
+                                            {offerConditionsMet ? (
+                                                <svg className="w-8 h-8 text-white mr-2 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                            ) : (
+                                                <span className="text-3xl mr-2">🎉</span>
+                                            )}
+                                            <span className="text-2xl font-bold text-white">
+                                                {offerConditionsMet ? 'FREE WINDOW CLEAN APPLIED!' : 'FREE WINDOW CLEAN OFFER'}
+                                            </span>
+                                            {!offerConditionsMet && <span className="text-3xl ml-2">🎉</span>}
                                         </div>
                                         <p className="text-lg font-semibold text-white mb-2">
-                                            Select both Gutter Clearing (Internal) and Gutter, Fascia & Soffit Cleaning (External) below, 
-                                            and get your <span className="underline">entire window cleaning service absolutely FREE!</span>
+                                            {offerConditionsMet
+                                                ? <span className="block text-yellow-200">Your entire window cleaning service price has been discounted!</span>
+                                                : <>Select both Gutter Clearing (Internal) and Gutter, Fascia & Soffit Cleaning (External) below, and get your <span className="underline">entire window cleaning service absolutely FREE!</span></>}
                                         </p>
                                     </div>
                                 </div>
@@ -528,7 +530,7 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                             <div className="space-y-6">
                                 {/* Gutter Clearing */}
                                 <label className={`block p-6 rounded-lg border-2 transition-all duration-200 cursor-pointer ${
-                                    selectedAddons.gutterClearing && canOfferGutterServices
+                                    selectedAddons[FORM_CONSTANTS.ADDON_GUTTER_CLEARING] && canOfferGutterServices
                                         ? 'bg-green-700 border-green-500 shadow-lg transform scale-105' 
                                         : canOfferGutterServices 
                                             ? 'bg-gray-700 border-gray-600 hover:border-green-500 hover:bg-green-800/20' 
@@ -539,8 +541,8 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                             <input 
                                                 type="checkbox" 
                                                 id="addon-gutterClearing"
-                                                checked={!!selectedAddons.gutterClearing && canOfferGutterServices}
-                                                onChange={() => handleStandardAddonToggle('gutterClearing')}
+                                                checked={!!selectedAddons[FORM_CONSTANTS.ADDON_GUTTER_CLEARING] && canOfferGutterServices}
+                                                onChange={() => handleStandardAddonToggle(FORM_CONSTANTS.ADDON_GUTTER_CLEARING)}
                                                 disabled={!canOfferGutterServices}
                                                 className="h-5 w-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2" 
                                             />
@@ -562,7 +564,7 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
 
                                 {/* Fascia Soffit Gutter */}
                                 <label className={`block p-6 rounded-lg border-2 transition-all duration-200 cursor-pointer ${
-                                    selectedAddons.fasciaSoffitGutter && canOfferGutterServices
+                                    selectedAddons[FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER] && canOfferGutterServices
                                         ? 'bg-green-700 border-green-500 shadow-lg transform scale-105' 
                                         : canOfferGutterServices 
                                             ? 'bg-gray-700 border-gray-600 hover:border-green-500 hover:bg-green-800/20' 
@@ -573,8 +575,8 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                             <input 
                                                 type="checkbox" 
                                                 id="addon-fasciaSoffitGutter"
-                                                checked={!!selectedAddons.fasciaSoffitGutter && canOfferGutterServices}
-                                                onChange={() => handleStandardAddonToggle('fasciaSoffitGutter')}
+                                                checked={!!selectedAddons[FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER] && canOfferGutterServices}
+                                                onChange={() => handleStandardAddonToggle(FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER)}
                                                 disabled={!canOfferGutterServices}
                                                 className="h-5 w-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2" 
                                             />
@@ -616,10 +618,10 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                             ...prev,
                                             quoteRequests: {
                                                 ...prev.quoteRequests,
-                                                solarPanelCleaning: e.target.checked
+                                                [FORM_CONSTANTS.QUOTE_REQUEST_SOLAR_PANEL_CLEANING]: e.target.checked
                                             }
                                         }))}
-                                        checked={values.quoteRequests?.solarPanelCleaning || false}
+                                        checked={values.quoteRequests?.[FORM_CONSTANTS.QUOTE_REQUEST_SOLAR_PANEL_CLEANING] || false}
                                     />
                                     <div className="ml-3">
                                         <span className="text-white font-medium">Solar Panel Cleaning</span>
@@ -636,10 +638,10 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                             ...prev,
                                             quoteRequests: {
                                                 ...prev.quoteRequests,
-                                                conservatoryRoofCleaning: e.target.checked
+                                                [FORM_CONSTANTS.QUOTE_REQUEST_CONSERVATORY_ROOF_CLEANING]: e.target.checked
                                             }
                                         }))}
-                                        checked={values.quoteRequests?.conservatoryRoofCleaning || false}
+                                        checked={values.quoteRequests?.[FORM_CONSTANTS.QUOTE_REQUEST_CONSERVATORY_ROOF_CLEANING] || false}
                                     />
                                     <div className="ml-3">
                                         <span className="text-white font-medium">Conservatory Roof Cleaning</span>
@@ -687,24 +689,18 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                 </>
                             )}
 
-                            {(selectedAddons.gutterClearing && canOfferGutterServices) && (
+                            {(selectedAddons[FORM_CONSTANTS.ADDON_GUTTER_CLEARING] && canOfferGutterServices) && (
                                 <div className="flex justify-between text-gray-200">
                                     <span>Gutter Clearing (Internal):</span>
                                     <span className="text-green-300 font-semibold">+ £{gutterClearingPrice.toFixed(2)}</span>
                                 </div>
                             )}
-                            {(selectedAddons.fasciaSoffitGutter && canOfferGutterServices) && (
+                            {(selectedAddons[FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER] && canOfferGutterServices) && (
                                 <div className="flex justify-between text-gray-200">
                                     <span>Gutter, Fascia & Soffit Cleaning (External):</span>
                                     <span className="text-green-300 font-semibold">+ £{fasciaSoffitGutterPrice.toFixed(2)}</span>
                                 </div>
                             )}
-                            {addonServiceDefinitions.map(service => selectedAddons[service.id] && (
-                                <div key={`summary-${service.id}`} className="flex justify-between text-gray-200">
-                                    <span>{service.label}:</span>
-                                    <span className="text-green-300 font-semibold">+ £{service.price.toFixed(2)}</span>
-                                </div>
-                            ))}
                             
                             {addonServicesTotalPrice > 0 && (
                                  <div className="flex justify-between text-lg font-semibold border-b border-gray-500 pb-2 mb-3">

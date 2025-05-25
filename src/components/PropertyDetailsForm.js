@@ -6,18 +6,8 @@ import {
     formatDateForDisplay,
     formatDateForStorage
 } from '../utils/scheduleUtils';
-
-// Helper function to calculate Gutter Clearing Price (mirrored)
-const calculateGutterClearingPrice = (propertyType, bedrooms) => {
-    let price = 80; // Default
-    if (propertyType && bedrooms) {
-        const isDetached = propertyType.toLowerCase().includes('detached');
-        if (bedrooms === '2-3 Bed') price = isDetached ? 100 : 80;
-        else if (bedrooms === '4 Bed') price = isDetached ? 120 : 100;
-        else if (bedrooms === '5 Bed') price = isDetached ? 140 : 120;
-    }
-    return price;
-};
+import { calculateGutterClearingPrice } from '../utils/pricingUtils';
+import * as FORM_CONSTANTS from '../constants/formConstants';
 
 // Reusable Input Field Component
 const InputField = ({ label, name, value, onChange, type = 'text', placeholder, required = false }) => (
@@ -242,7 +232,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
         } else if (isCustomQuote && isResidential) { // Custom Residential Quote
             if (!customResidentialDetails?.exactBedrooms) errors.exactBedrooms = 'Number of Bedrooms is required.';
             if (!customResidentialDetails?.propertyStyle) errors.propertyStyle = 'Property Style is required.';
-            if (customResidentialDetails?.propertyStyle === 'otherCustomProperty' && !customResidentialDetails?.otherPropertyStyleText?.trim()) {
+            if (customResidentialDetails?.propertyStyle === FORM_CONSTANTS.PROP_STYLE_OTHER_CUSTOM && !customResidentialDetails?.otherPropertyStyleText?.trim()) {
                 errors.otherPropertyStyleText = 'Please specify the other property style.';
             }
             // Optionally, require at least one service for custom quotes
@@ -530,6 +520,8 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                             placeholder="e.g., 6, 7, 8+"
                             type="number"
                             required
+                            min="0"
+                            className="hide-number-arrows"
                         />
                         {formErrors.exactBedrooms && <p className="text-sm text-red-400 -mt-3 mb-1 bg-red-900/20 border border-red-700 rounded p-2">{formErrors.exactBedrooms}</p>}
 
@@ -538,12 +530,12 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                             <label className="block text-lg font-semibold text-gray-200 mb-4">Property Style <span className="text-red-400">*</span></label>
                             <div className="space-y-3">
                                 {[
-                                    { id: 'detached', label: 'Detached House (Large/Unique)' },
-                                    { id: 'semiDetachedLarge', label: 'Semi-Detached House (Large/Extended)' },
-                                    { id: 'terracedMulti', label: 'Terraced House (Multiple/Large)' },
-                                    { id: 'bungalowLarge', label: 'Bungalow (Large/Complex)' },
-                                    { id: 'apartmentBlock', label: 'Apartment Block (specify units if known)' },
-                                    { id: 'otherCustomProperty', label: 'Other (Please specify)' }
+                                    { id: FORM_CONSTANTS.PROP_STYLE_DETACHED_LARGE_UNIQUE, label: 'Detached House (Large/Unique)' },
+                                    { id: FORM_CONSTANTS.PROP_STYLE_SEMI_DETACHED_LARGE_EXTENDED, label: 'Semi-Detached House (Large/Extended)' },
+                                    { id: FORM_CONSTANTS.PROP_STYLE_TERRACED_MULTI_LARGE, label: 'Terraced House (Multiple/Large)' },
+                                    { id: FORM_CONSTANTS.PROP_STYLE_BUNGALOW_LARGE_COMPLEX, label: 'Bungalow (Large/Complex)' },
+                                    { id: FORM_CONSTANTS.PROP_STYLE_APARTMENT_BLOCK, label: 'Apartment Block (specify units if known)' },
+                                    { id: FORM_CONSTANTS.PROP_STYLE_OTHER_CUSTOM, label: 'Other (Please specify)' }
                                 ].map(style => (
                                     <div key={style.id} className="flex items-center group">
                                         <input
@@ -560,7 +552,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                         </label>
                                     </div>
                                 ))}
-                                {values.customResidentialDetails?.propertyStyle === 'otherCustomProperty' && (
+                                {values.customResidentialDetails?.propertyStyle === FORM_CONSTANTS.PROP_STYLE_OTHER_CUSTOM && (
                                     <InputField
                                         label="Please specify other property style"
                                         name="customResidentialDetails.otherPropertyStyleText"
@@ -579,12 +571,12 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                             <label className="block text-lg font-semibold text-gray-200 mb-4">Services Required</label>
                             <div className="space-y-3">
                                 {[
-                                    { id: 'windowCleaning', label: 'Window Cleaning (Exterior)' },
-                                    { id: 'gutterCleaning', label: 'Gutter Clearing (Interior)' },
-                                    { id: 'fasciaSoffitCleaning', label: 'Fascia & Soffit Cleaning (Exterior)' },
-                                    { id: 'conservatoryWindowCleaning', label: 'Conservatory Window Cleaning (Sides)' },
-                                    { id: 'conservatoryRoofCleaning', label: 'Conservatory Roof Cleaning' },
-                                    { id: 'other', label: 'Other (Please specify)' }
+                                    { id: FORM_CONSTANTS.CUSTOM_RES_SERVICE_WINDOW_CLEANING, label: 'Window Cleaning (Exterior)' },
+                                    { id: FORM_CONSTANTS.CUSTOM_RES_SERVICE_GUTTER_CLEANING, label: 'Gutter Clearing (Interior)' },
+                                    { id: FORM_CONSTANTS.CUSTOM_RES_SERVICE_FASCIA_SOFFIT_CLEANING, label: 'Fascia & Soffit Cleaning (Exterior)' },
+                                    { id: FORM_CONSTANTS.CUSTOM_RES_SERVICE_CONSERVATORY_WINDOW_CLEANING, label: 'Conservatory Window Cleaning (Sides)' },
+                                    { id: FORM_CONSTANTS.CUSTOM_RES_SERVICE_CONSERVATORY_ROOF_CLEANING, label: 'Conservatory Roof Cleaning' },
+                                    { id: FORM_CONSTANTS.CUSTOM_RES_SERVICE_OTHER, label: 'Other (Please specify)' }
                                 ].map(service => (
                                     <div key={service.id} className="flex items-center group">
                                         <input
@@ -600,7 +592,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                         </label>
                                     </div>
                                 ))}
-                                {values.customResidentialDetails?.servicesRequested?.other && (
+                                {values.customResidentialDetails?.servicesRequested?.[FORM_CONSTANTS.CUSTOM_RES_SERVICE_OTHER] && (
                                     <InputField
                                         label="Please specify other service(s)"
                                         name="customResidentialDetails.otherServiceText"
@@ -614,16 +606,16 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                         </div>
 
                         {/* Preferred Frequency (Conditional on Window Cleaning) */}
-                        {values.customResidentialDetails?.servicesRequested?.windowCleaning && (
+                        {values.customResidentialDetails?.servicesRequested?.[FORM_CONSTANTS.CUSTOM_RES_SERVICE_WINDOW_CLEANING] && (
                             <div className="mb-8">
                                 <label className="block text-lg font-semibold text-gray-200 mb-4">Preferred Window Cleaning Frequency</label>
                                 <div className="space-y-3">
                                     {[
-                                        { id: '4-weekly', label: '4 Weekly' },
-                                        { id: '8-weekly', label: '8 Weekly' },
-                                        { id: '12-weekly', label: '12 Weekly' },
-                                        { id: 'one-off', label: 'One-off Clean' },
-                                        { id: 'other', label: 'Other (Please specify)' }
+                                        { id: FORM_CONSTANTS.CUSTOM_RES_FREQ_4_WEEKLY, label: '4 Weekly' },
+                                        { id: FORM_CONSTANTS.CUSTOM_RES_FREQ_8_WEEKLY, label: '8 Weekly' },
+                                        { id: FORM_CONSTANTS.CUSTOM_RES_FREQ_12_WEEKLY, label: '12 Weekly' },
+                                        { id: FORM_CONSTANTS.CUSTOM_RES_FREQ_ONE_OFF, label: 'One-off Clean' },
+                                        { id: FORM_CONSTANTS.CUSTOM_RES_FREQ_OTHER, label: 'Other (Please specify)' }
                                     ].map(freq => (
                                         <div key={freq.id} className="flex items-center group">
                                             <input
@@ -640,7 +632,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                             </label>
                                         </div>
                                     ))}
-                                    {values.customResidentialDetails?.frequencyPreference === 'other' && (
+                                    {values.customResidentialDetails?.frequencyPreference === FORM_CONSTANTS.CUSTOM_RES_FREQ_OTHER && (
                                         <InputField
                                             label="Please specify other frequency"
                                             name="customResidentialDetails.otherFrequencyText"
@@ -657,9 +649,11 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                             label="Approximate Number of Windows (if known)"
                             name="customResidentialDetails.approxWindows"
                             value={values.customResidentialDetails?.approxWindows || ''}
-                            onChange={handleChange}
+                            onChange={handleChange('customResidentialDetails.approxWindows')}
                             placeholder="e.g., 30+"
                             type="number"
+                            min="0"
+                            className="hide-number-arrows"
                         />
                         <TextAreaField
                             label="Any Access Issues or Specific Requirements?"
@@ -700,14 +694,14 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                     required
                                 >
                                     <option value="">Select your business type</option>
-                                    <option value="office">Office Building</option>
-                                    <option value="retail">Shop/Retail Store</option>
-                                    <option value="restaurant">Restaurant/Café</option>
-                                    <option value="warehouse">Warehouse/Industrial</option>
-                                    <option value="medical">Medical/Dental Practice</option>
-                                    <option value="school">School/Educational</option>
-                                    <option value="hotel">Hotel/Accommodation</option>
-                                    <option value="other">Other</option>
+                                    <option value={FORM_CONSTANTS.COMM_PROP_TYPE_OFFICE}>Office Building</option>
+                                    <option value={FORM_CONSTANTS.COMM_PROP_TYPE_RETAIL}>Shop/Retail Store</option>
+                                    <option value={FORM_CONSTANTS.COMM_PROP_TYPE_RESTAURANT}>Restaurant/Café</option>
+                                    <option value={FORM_CONSTANTS.COMM_PROP_TYPE_WAREHOUSE}>Warehouse/Industrial</option>
+                                    <option value={FORM_CONSTANTS.COMM_PROP_TYPE_MEDICAL}>Medical/Dental Practice</option>
+                                    <option value={FORM_CONSTANTS.COMM_PROP_TYPE_SCHOOL}>School/Educational</option>
+                                    <option value={FORM_CONSTANTS.COMM_PROP_TYPE_HOTEL}>Hotel/Accommodation</option>
+                                    <option value={FORM_CONSTANTS.COMM_PROP_TYPE_OTHER}>Other</option>
                                 </select>
                                 {formErrors.commercialPropertyType && <p className="text-sm text-red-400 mt-2 bg-red-900/20 border border-red-700 rounded p-2">{formErrors.commercialPropertyType}</p>}
                             </div>
@@ -723,11 +717,11 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                     className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500"
                                 >
                                     <option value="">Select approximate size</option>
-                                    <option value="small">Small (up to 20 windows)</option>
-                                    <option value="medium">Medium (20-50 windows)</option>
-                                    <option value="large">Large (50+ windows)</option>
-                                    <option value="multi-storey">Multi-storey building</option>
-                                    <option value="complex">Large complex/multiple buildings</option>
+                                    <option value={FORM_CONSTANTS.COMM_SIZE_SMALL}>Small (up to 20 windows)</option>
+                                    <option value={FORM_CONSTANTS.COMM_SIZE_MEDIUM}>Medium (20-50 windows)</option>
+                                    <option value={FORM_CONSTANTS.COMM_SIZE_LARGE}>Large (50+ windows)</option>
+                                    <option value={FORM_CONSTANTS.COMM_SIZE_MULTI_STOREY}>Multi-storey building</option>
+                                    <option value={FORM_CONSTANTS.COMM_SIZE_COMPLEX}>Large complex/multiple buildings</option>
                                 </select>
                             </div>
                         </div>
@@ -799,12 +793,12 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                             value={isGeneralEnquiry ? values.generalEnquiryDetails?.enquiryComments || '' : values.bookingNotes || ''}
                             onChange={handleChange(isGeneralEnquiry ? "generalEnquiryDetails.enquiryComments" : "bookingNotes")}
                             placeholder={
-                                isGeneralEnquiry 
+                                isGeneralEnquiry
                                     ? "Example: I have a 4-bedroom detached house with conservatory. Interested in monthly window cleaning and occasional gutter clearing. Property has side gate access but 2 friendly dogs in garden. Best contact time is weekday mornings."
                                     : isCommercial
                                         ? "Example: Office building with 40+ windows across 3 floors. Require monthly cleaning during business hours (9-5). Parking available on-site. Health & safety induction required for all contractors."
                                         : isCustomQuote
-                                            ? "Example: Large Victorian property with original sash windows, some requiring ladder access. Previous cleaner mentioned difficulty with rear bay windows. Looking for experienced team for quarterly deep clean."
+                                            ? "Example: Large property with unique window types or access needs. Please describe any specific challenges or requirements."
                                             : "Example: Gate code is 1234*. Side gate is usually unlocked. We have 2 small dogs (friendly but excitable). Please avoid parking in marked visitor spaces. Some upper floor windows may be difficult to reach."
                             }
                             rows={5}

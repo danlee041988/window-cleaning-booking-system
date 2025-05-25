@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Your custom styles below */
+/* You can add your custom styles below this line */
 
 body {
   margin: 0;
@@ -68,4 +68,15 @@ code {
 
 .animate-pop-in {
   animation: popIn 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Hide number input arrows */
+.hide-number-arrows::-webkit-outer-spin-button,
+.hide-number-arrows::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.hide-number-arrows {
+  -moz-appearance: textfield; /* Firefox */
 }

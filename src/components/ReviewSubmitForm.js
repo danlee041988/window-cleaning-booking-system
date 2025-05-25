@@ -2,22 +2,11 @@
 import React from 'react';
 import { formatDateForDisplay } from '../utils/scheduleUtils';
 import ReCAPTCHA from "react-google-recaptcha"; 
+import { calculateGutterClearingPrice } from '../utils/pricingUtils';
+import * as FORM_CONSTANTS from '../constants/formConstants'; // Import constants
 
 // Helper function to calculate Gutter Clearing Price (mirrored from AdditionalServicesForm or move to utils)
-const calculateGutterClearingPrice = (propertyType, bedrooms) => {
-    let price = 80; // Default for 2-3 Bed Semi-Detached / Other / or if details unknown
-    if (propertyType && bedrooms) {
-        const isDetached = propertyType.toLowerCase().includes('detached');
-        if (bedrooms === '2-3 Bed') {
-            price = isDetached ? 100 : 80;
-        } else if (bedrooms === '4 Bed') {
-            price = isDetached ? 120 : 100;
-        } else if (bedrooms === '5 Bed') {
-            price = isDetached ? 140 : 120;
-        }
-    }
-    return price;
-};
+// const calculateGutterClearingPrice = (propertyType, bedrooms) => { ... }; // Removed
 
 const ReviewSection = ({ title, children }) => (
     <div className="mb-8 bg-gradient-to-r from-gray-800 to-gray-700 border border-gray-600 rounded-lg p-6">
@@ -54,72 +43,72 @@ const ReviewItem = ({ label, value, isList = false, highlight = false }) => {
 
 // For mapping general enquiry service IDs to labels
 const generalServiceDisplayLabels = {
-    windowCleaning: 'Window Cleaning',
-    conservatoryWindows: 'Conservatory Windows Only',
-    conservatoryRoof: 'Conservatory Roof Cleaning',
-    gutterClearing: 'Gutter Clearing (Internal)',
-    fasciaSoffitGutter: 'Gutter, Fascia & Soffit Cleaning (External)',
-    solarPanels: 'Solar Panel Cleaning',
-    other: 'Other',
+    [FORM_CONSTANTS.GEN_ENQ_SERVICE_WINDOW_CLEANING]: 'Window Cleaning',
+    [FORM_CONSTANTS.GEN_ENQ_SERVICE_CONSERVATORY_WINDOWS]: 'Conservatory Windows Only',
+    [FORM_CONSTANTS.ADDON_ID_CONSERVATORY_ROOF]: 'Conservatory Roof Cleaning',
+    [FORM_CONSTANTS.ADDON_ID_GUTTER_CLEARING]: 'Gutter Clearing (Internal)',
+    [FORM_CONSTANTS.ADDON_ID_FASCIA_SOFFIT_GUTTER]: 'Gutter, Fascia & Soffit Cleaning (External)',
+    [FORM_CONSTANTS.GEN_ENQ_SERVICE_SOLAR_PANELS]: 'Solar Panel Cleaning',
+    [FORM_CONSTANTS.GEN_ENQ_SERVICE_OTHER]: 'Other',
 };
 
 // For mapping commercial service IDs to labels
 const commercialServiceDisplayLabels = {
-    windowCleaning: 'Window Cleaning',
-    gutterCleaning: 'Gutter Clearing (Internal)',
-    fasciaSoffitCleaning: 'Gutter, Fascia & Soffit Cleaning (External)',
-    claddingCleaning: 'Cladding Cleaning',
-    signageCleaning: 'Signage Cleaning',
-    other: 'Other',
+    [FORM_CONSTANTS.COMM_SERVICE_WINDOW_CLEANING]: 'Window Cleaning',
+    [FORM_CONSTANTS.COMM_SERVICE_GUTTER_CLEANING]: 'Gutter Clearing (Internal)',
+    [FORM_CONSTANTS.COMM_SERVICE_FASCIA_SOFFIT_CLEANING]: 'Gutter, Fascia & Soffit Cleaning (External)',
+    [FORM_CONSTANTS.COMM_SERVICE_CLADDING_CLEANING]: 'Cladding Cleaning',
+    [FORM_CONSTANTS.COMM_SERVICE_SIGNAGE_CLEANING]: 'Signage Cleaning',
+    [FORM_CONSTANTS.COMM_SERVICE_OTHER]: 'Other',
 };
 
 // For mapping commercial frequency IDs to labels
 const commercialFrequencyDisplayLabels = {
-    weekly: 'Weekly',
-    fortnightly: 'Fortnightly (Every 2 Weeks)',
-    monthly: 'Monthly (Every 4 Weeks)',
-    quarterly: 'Quarterly (Every 12 Weeks)',
-    'bi-annually': 'Bi-Annually (Every 6 Months)',
-    annually: 'Annually',
-    'one-off': 'One-off',
-    other: 'Other',
+    [FORM_CONSTANTS.COMM_FREQ_WEEKLY]: 'Weekly',
+    [FORM_CONSTANTS.COMM_FREQ_FORTNIGHTLY]: 'Fortnightly (Every 2 Weeks)',
+    [FORM_CONSTANTS.COMM_FREQ_MONTHLY]: 'Monthly (Every 4 Weeks)',
+    [FORM_CONSTANTS.COMM_FREQ_QUARTERLY]: 'Quarterly (Every 12 Weeks)',
+    [FORM_CONSTANTS.COMM_FREQ_BI_ANNUALLY]: 'Bi-Annually (Every 6 Months)',
+    [FORM_CONSTANTS.COMM_FREQ_ANNUALLY]: 'Annually',
+    [FORM_CONSTANTS.COMM_FREQ_ONE_OFF]: 'One-off',
+    [FORM_CONSTANTS.COMM_FREQ_OTHER]: 'Other',
 };
 
 // For mapping custom residential property style IDs to labels
 const customPropertyStyleDisplayLabels = {
-    detached: 'Detached House (Large/Unique)',
-    semiDetachedLarge: 'Semi-Detached House (Large/Extended)',
-    terracedMulti: 'Terraced House (Multiple/Large)',
-    bungalowLarge: 'Bungalow (Large/Complex)',
-    apartmentBlock: 'Apartment Block',
-    otherCustomProperty: 'Other',
+    [FORM_CONSTANTS.PROP_STYLE_DETACHED_LARGE_UNIQUE]: 'Detached House (Large/Unique)',
+    [FORM_CONSTANTS.PROP_STYLE_SEMI_DETACHED_LARGE_EXTENDED]: 'Semi-Detached House (Large/Extended)',
+    [FORM_CONSTANTS.PROP_STYLE_TERRACED_MULTI_LARGE]: 'Terraced House (Multiple/Large)',
+    [FORM_CONSTANTS.PROP_STYLE_BUNGALOW_LARGE_COMPLEX]: 'Bungalow (Large/Complex)',
+    [FORM_CONSTANTS.PROP_STYLE_APARTMENT_BLOCK]: 'Apartment Block',
+    [FORM_CONSTANTS.PROP_STYLE_OTHER_CUSTOM]: 'Other',
 };
 
 // For mapping custom residential service IDs to labels
 const customResidentialServiceDisplayLabels = {
-    windowCleaning: 'Window Cleaning (Exterior)',
-    gutterCleaning: 'Gutter Clearing (Internal)',
-    fasciaSoffitCleaning: 'Gutter, Fascia & Soffit Cleaning (External)',
-    conservatoryWindowCleaning: 'Conservatory Window Cleaning (Sides)',
-    conservatoryRoofCleaning: 'Conservatory Roof Cleaning',
-    other: 'Other',
+    [FORM_CONSTANTS.CUSTOM_RES_SERVICE_WINDOW_CLEANING]: 'Window Cleaning (Exterior)',
+    [FORM_CONSTANTS.CUSTOM_RES_SERVICE_GUTTER_CLEANING]: 'Gutter Clearing (Internal)',
+    [FORM_CONSTANTS.CUSTOM_RES_SERVICE_FASCIA_SOFFIT_CLEANING]: 'Gutter, Fascia & Soffit Cleaning (External)',
+    [FORM_CONSTANTS.CUSTOM_RES_SERVICE_CONSERVATORY_WINDOW_CLEANING]: 'Conservatory Window Cleaning (Sides)',
+    [FORM_CONSTANTS.CUSTOM_RES_SERVICE_CONSERVATORY_ROOF_CLEANING]: 'Conservatory Roof Cleaning',
+    [FORM_CONSTANTS.CUSTOM_RES_SERVICE_OTHER]: 'Other',
 };
 
-// For mapping custom residential frequency IDs to labels (can reuse/adapt)
+// For mapping custom residential frequency IDs to labels
 const customResidentialFrequencyDisplayLabels = {
-    '4-weekly': '4 Weekly',
-    '8-weekly': '8 Weekly',
-    '12-weekly': '12 Weekly',
-    'one-off': 'One-off Clean',
-    other: 'Other',
+    [FORM_CONSTANTS.CUSTOM_RES_FREQ_4_WEEKLY]: '4 Weekly',
+    [FORM_CONSTANTS.CUSTOM_RES_FREQ_8_WEEKLY]: '8 Weekly',
+    [FORM_CONSTANTS.CUSTOM_RES_FREQ_12_WEEKLY]: '12 Weekly',
+    [FORM_CONSTANTS.CUSTOM_RES_FREQ_ONE_OFF]: 'One-off Clean',
+    [FORM_CONSTANTS.CUSTOM_RES_FREQ_OTHER]: 'Other',
 };
 
 const enquiryFrequencyDisplayLabels = {
-    oneOff: 'One-off',
-    '4weekly': '4 Weekly',
-    '8weekly': '8 Weekly',
-    '12weekly': '12 Weekly',
-    asRequired: 'As Required / Not Sure',
+    [FORM_CONSTANTS.GEN_ENQ_FREQ_ONE_OFF]: 'One-off',
+    [FORM_CONSTANTS.GEN_ENQ_FREQ_4_WEEKLY]: '4 Weekly',
+    [FORM_CONSTANTS.GEN_ENQ_FREQ_8_WEEKLY]: '8 Weekly',
+    [FORM_CONSTANTS.GEN_ENQ_FREQ_12_WEEKLY]: '12 Weekly',
+    [FORM_CONSTANTS.GEN_ENQ_FREQ_AS_REQUIRED]: 'As Required / Not Sure',
 };
 
 const ReviewSubmitForm = ({ prevStep, values, handleSubmit, setFormData, isLoading, submissionError }) => {
@@ -156,19 +145,8 @@ const ReviewSubmitForm = ({ prevStep, values, handleSubmit, setFormData, isLoadi
         handleSubmit(values); // Pass all current form values
     };
 
-    // Define additional service labels for fixed-price addons (if any added in future)
-    const fixedAddonServiceDefinitions = [
-        // Example: { id: 'conservatoryRoof', label: 'Conservatory Roof Cleaning', price: 75 },
-    ];
-
-    // Get display info for selected fixed-price addons
-    const selectedFixedAddonsToDisplay = fixedAddonServiceDefinitions
-        .filter(def => additionalServices && additionalServices[def.id])
-        .map(def => ({ name: def.label, price: def.price }));
-
-    // Calculate dynamic prices for gutter-related services if selected
-    const gutterClearingSelected = additionalServices && additionalServices.gutterClearing;
-    const fasciaSoffitGutterSelected = additionalServices && additionalServices.fasciaSoffitGutter;
+    const gutterClearingSelected = additionalServices && additionalServices[FORM_CONSTANTS.ADDON_GUTTER_CLEARING];
+    const fasciaSoffitGutterSelected = additionalServices && additionalServices[FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER];
 
     let gutterClearingReviewPrice = 0;
     let fasciaSoffitGutterReviewPrice = 0;
@@ -297,7 +275,7 @@ const ReviewSubmitForm = ({ prevStep, values, handleSubmit, setFormData, isLoadi
                                 value={customPropertyStyleDisplayLabels[customResidentialDetails.propertyStyle] || customResidentialDetails.propertyStyle}
                                 highlight={true}
                             />
-                            {customResidentialDetails.propertyStyle === 'otherCustomProperty' && customResidentialDetails.otherPropertyStyleText && (
+                            {customResidentialDetails.propertyStyle === FORM_CONSTANTS.PROP_STYLE_OTHER_CUSTOM && customResidentialDetails.otherPropertyStyleText && (
                                 <ReviewItem label="Other Property Style Specified" value={customResidentialDetails.otherPropertyStyleText} />
                             )}
                             <ReviewItem label="Number of Bedrooms" value={customResidentialDetails.exactBedrooms} highlight={true} /> 
@@ -305,17 +283,17 @@ const ReviewSubmitForm = ({ prevStep, values, handleSubmit, setFormData, isLoadi
                             {customResidentialServicesDisplay.length > 0 && (
                                 <ReviewItem label="Services Requested" value={customResidentialServicesDisplay} isList={true} highlight={true} />
                             )}
-                            {customResidentialDetails.servicesRequested?.other && customResidentialDetails.otherServiceText && (
+                            {customResidentialDetails.servicesRequested?.[FORM_CONSTANTS.CUSTOM_RES_SERVICE_OTHER] && customResidentialDetails.otherServiceText && (
                                 <ReviewItem label="Other Service Specified" value={customResidentialDetails.otherServiceText} />
                             )}
 
-                            {customResidentialDetails.servicesRequested?.windowCleaning && (
+                            {customResidentialDetails.servicesRequested?.[FORM_CONSTANTS.CUSTOM_RES_SERVICE_WINDOW_CLEANING] && (
                                 <>
                                     <ReviewItem 
                                         label="Preferred Window Cleaning Frequency" 
                                         value={customResidentialFrequencyDisplayLabels[customResidentialDetails.frequencyPreference] || customResidentialDetails.frequencyPreference} 
                                     />
-                                    {customResidentialDetails.frequencyPreference === 'other' && customResidentialDetails.otherFrequencyText && (
+                                    {customResidentialDetails.frequencyPreference === FORM_CONSTANTS.CUSTOM_RES_FREQ_OTHER && customResidentialDetails.otherFrequencyText && (
                                         <ReviewItem label="Other Frequency Specified" value={customResidentialDetails.otherFrequencyText} />
                                     )}
                                 </>
@@ -339,7 +317,7 @@ const ReviewSubmitForm = ({ prevStep, values, handleSubmit, setFormData, isLoadi
                             {commercialServicesDisplay.length > 0 && (
                                 <ReviewItem label="Services Requested" value={commercialServicesDisplay} isList={true} highlight={true} />
                             )}
-                            {commercialDetails.servicesRequested?.other && commercialDetails.otherServiceText && (
+                            {commercialDetails.servicesRequested?.[FORM_CONSTANTS.COMM_SERVICE_OTHER] && commercialDetails.otherServiceText && (
                                 <ReviewItem label="Other Service Specified" value={commercialDetails.otherServiceText} />
                             )}
                             
@@ -347,7 +325,7 @@ const ReviewSubmitForm = ({ prevStep, values, handleSubmit, setFormData, isLoadi
                                 label="Preferred Frequency" 
                                 value={commercialFrequencyDisplayLabels[commercialDetails.frequencyPreference] || commercialDetails.frequencyPreference} 
                             />
-                            {commercialDetails.frequencyPreference === 'other' && commercialDetails.otherFrequencyText && (
+                            {commercialDetails.frequencyPreference === FORM_CONSTANTS.COMM_FREQ_OTHER && commercialDetails.otherFrequencyText && (
                                 <ReviewItem label="Other Frequency Specified" value={commercialDetails.otherFrequencyText} />
                             )}
                             
@@ -357,13 +335,13 @@ const ReviewSubmitForm = ({ prevStep, values, handleSubmit, setFormData, isLoadi
                     )}
 
                     {/* Quote Requests */}
-                    {values.quoteRequests && (values.quoteRequests.solarPanelCleaning || values.quoteRequests.conservatoryRoofCleaning) && (
+                    {values.quoteRequests && (values.quoteRequests[FORM_CONSTANTS.QUOTE_REQUEST_SOLAR_PANEL_CLEANING] || values.quoteRequests[FORM_CONSTANTS.QUOTE_REQUEST_CONSERVATORY_ROOF_CLEANING]) && (
                         <ReviewSection title="Quote Requests">
                             <p className="text-gray-300 mb-4">You have requested quotes for the following services (requires physical assessment):</p>
-                            {values.quoteRequests.solarPanelCleaning && (
+                            {values.quoteRequests[FORM_CONSTANTS.QUOTE_REQUEST_SOLAR_PANEL_CLEANING] && (
                                 <ReviewItem label="Solar Panel Cleaning" value="Quote requested" />
                             )}
-                            {values.quoteRequests.conservatoryRoofCleaning && (
+                            {values.quoteRequests[FORM_CONSTANTS.QUOTE_REQUEST_CONSERVATORY_ROOF_CLEANING] && (
                                 <ReviewItem label="Conservatory Roof Cleaning" value="Quote requested" />
                             )}
                         </ReviewSection>
@@ -394,10 +372,6 @@ const ReviewSubmitForm = ({ prevStep, values, handleSubmit, setFormData, isLoadi
                                 {fasciaSoffitGutterSelected && canDisplayGutterServicePrices && (
                                     <ReviewItem label="Gutter, Fascia & Soffit Cleaning (External)" value={`+ £${fasciaSoffitGutterReviewPrice.toFixed(2)}`} />
                                 )}
-                                
-                                {selectedFixedAddonsToDisplay.map(addon => (
-                                    <ReviewItem key={addon.name} label={addon.name} value={`+ £${addon.price.toFixed(2)}`} />
-                                ))}
                                 
                                 {windowCleaningDiscount > 0 && (
                                     <div className="mt-4 pt-4 border-t border-gray-600">
