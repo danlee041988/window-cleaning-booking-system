@@ -58,13 +58,13 @@ export const areaCapacityLimits = {
     highDemand: 10, // For areas with more crew availability
     limited: 4, // For areas with limited crew
     // Area-specific overrides
-    'BS40': 10,
-    'BS26': 6,
-    'BS27': 6,
-    'BA5': 4,
-    'BA6': 4,
-    'BA16': 6,
-    'BS28': 6
+    'BS40': 10, // Weston-super-Mare (high demand)
+    'BS26': 6,  // Axbridge
+    'BS27': 6,  // Cheddar
+    'BA5': 4,   // Wells
+    'BA6': 4,   // Glastonbury (also every Friday)
+    'BA16': 6,  // Street (every Friday)
+    'BS28': 6   // Wedmore
 };
 
 // Helper function to check if a date is a bank holiday
@@ -214,122 +214,141 @@ export const generateScheduleDates = (startDateStr, options = {}) => {
     return dates;
 };
 
-// Schedule data for different areas
+// Schedule data for different areas - matches exact business schedule
 export const scheduleData = [
+    // NORTH - Week 1
     {
         postcodes: ['BS40', 'BS48', 'BS49', 'BS22', 'BS23', 'BS24', 'BS21'],
         area: 'Weston Backwell Blagdon Yatton Clevedon',
-        startDate: '13 May',
+        startDate: '13 May', // Monday
         capacity: areaCapacityLimits['BS40'] || areaCapacityLimits.default
     },
     {
         postcodes: ['BS25', 'BS29'],
         area: 'Banwell Winscombe',
-        startDate: '14 May',
+        startDate: '14 May', // Tuesday
         capacity: areaCapacityLimits.default
     },
     {
         postcodes: ['BS26'],
         area: 'Axbridge',
-        startDate: '15 May',
+        startDate: '15 May', // Wednesday
         capacity: areaCapacityLimits['BS26'] || areaCapacityLimits.default
     },
     {
         postcodes: ['BS26', 'BS27'],
         area: 'Axbridge / Cheddar',
-        startDate: '16 May',
+        startDate: '16 May', // Thursday
         capacity: areaCapacityLimits['BS26'] || areaCapacityLimits.default
     },
     {
         postcodes: ['BS27'],
         area: 'Cheddar',
-        startDate: '17 May',
+        startDate: '17 May', // Friday
         capacity: areaCapacityLimits['BS27'] || areaCapacityLimits.default
     },
+    
+    // EAST - Week 2
     {
         postcodes: ['BA7', 'BA9', 'BA10', 'BA11', 'BA8'],
         area: 'Wincanton Bruton Castle Cary Frome Templecombe',
-        startDate: '20 May',
+        startDate: '20 May', // Monday
         capacity: areaCapacityLimits.default
     },
     {
         postcodes: ['BS39', 'BA3', 'BA4'],
         area: 'Paulton Radstock Shepton',
-        startDate: '21 May',
+        startDate: '21 May', // Tuesday
         capacity: areaCapacityLimits.default
+    },
+    {
+        postcodes: ['BA5', 'BA4'],
+        area: 'Shepton Wells',
+        startDate: '22 May', // Wednesday
+        capacity: areaCapacityLimits['BA5'] || areaCapacityLimits.default
     },
     {
         postcodes: ['BA5'],
         area: 'Wells',
-        startDate: '24 May',
+        startDate: '23 May', // Thursday
         capacity: areaCapacityLimits['BA5'] || areaCapacityLimits.default
     },
     {
+        postcodes: ['BA5'],
+        area: 'Wells',
+        startDate: '24 May', // Friday
+        capacity: areaCapacityLimits['BA5'] || areaCapacityLimits.default
+    },
+    
+    // SOUTH - Week 3
+    {
         postcodes: ['TA18', 'TA19', 'TA20', 'BA22', 'TA17', 'TA12', 'TA13', 'TA14', 'DT9'],
-        area: 'Yeovil Illminster Chard Crewkerne etc',
-        startDate: '27 May',
+        area: 'Yeovil Illminster Chard Crewkerne Ilchester Stoke-Sub-Hamdon Martock Sherbourne',
+        startDate: '27 May', // Monday
         capacity: areaCapacityLimits.default
     },
     {
         postcodes: ['TA10', 'TA11'],
         area: 'Langport Somerton',
-        startDate: '28 May',
+        startDate: '28 May', // Tuesday
         capacity: areaCapacityLimits.default
     },
     {
         postcodes: ['TA10', 'TA11'],
         area: 'Langport Somerton',
-        startDate: '29 May',
+        startDate: '29 May', // Wednesday
         capacity: areaCapacityLimits.default
     },
     {
         postcodes: ['BA6'],
-        area: 'Glastonbury (non-Meare)',
-        startDate: '30 May',
+        area: 'Glastonbury',
+        startDate: '30 May', // Thursday
         capacity: areaCapacityLimits['BA6'] || areaCapacityLimits.default
     },
     {
         postcodes: ['BA6'],
-        area: 'Glastonbury (non-Meare)',
-        startDate: '31 May',
+        area: 'Glastonbury',
+        startDate: '31 May', // Friday
         capacity: areaCapacityLimits['BA6'] || areaCapacityLimits.default
     },
+    
+    // WEST - Week 4
     {
         postcodes: ['TA7', 'TA6', 'TA2', 'TA3', 'TA9', 'TA8', 'TA1'],
         area: 'Bridgwater Taunton Mark Highbridge',
-        startDate: '03 Jun',
+        startDate: '03 Jun', // Monday
         capacity: areaCapacityLimits.default
     },
     {
         postcodes: ['BS28'],
         area: 'Wedmore',
-        startDate: '04 Jun',
+        startDate: '04 Jun', // Tuesday
         capacity: areaCapacityLimits['BS28'] || areaCapacityLimits.default
     },
     {
         postcodes: ['BS28'],
         area: 'Wedmore',
-        startDate: '05 Jun',
+        startDate: '05 Jun', // Wednesday
         capacity: areaCapacityLimits['BS28'] || areaCapacityLimits.default
     },
     {
         postcodes: ['BS28', 'BA6-MEARE'],
-        area: 'Wedmore / Meare',
-        startDate: '06 Jun',
+        area: 'Wedmore Meare',
+        startDate: '06 Jun', // Thursday
         capacity: areaCapacityLimits['BS28'] || areaCapacityLimits.default
     },
     {
         postcodes: ['BA16'],
         area: 'Street',
-        startDate: '07 Jun',
+        startDate: '07 Jun', // Friday
         capacity: areaCapacityLimits['BA16'] || areaCapacityLimits.default
     }
 ];
 
 // Special handling for certain postcodes
 export const specialPostcodeRules = {
-    // BA5, BA6, BA16, BS28 areas are only serviced on Fridays
-    fridayOnly: ['BA5', 'BA6', 'BA16', 'BS28']
+    // BA6 and BA16 are available every Friday (in addition to their scheduled days)
+    fridayOnly: ['BA6', 'BA16']
 };
 
 // Booking types
