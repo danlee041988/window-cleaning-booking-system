@@ -1,0 +1,30 @@
+npm warn exec The following package was not found and will be installed: react-scripts@5.0.1
+npm warn ERESOLVE overriding peer dependency
+npm warn While resolving: eslint-config-react-app@7.0.1
+npm warn Found: eslint@undefined
+npm warn node_modules/eslint
+npm warn
+npm warn Could not resolve dependency:
+npm warn peer eslint@"^8.0.0" from eslint-config-react-app@7.0.1
+npm warn node_modules/eslint-config-react-app
+npm warn   eslint-config-react-app@"^7.0.1" from react-scripts@5.0.1
+npm warn   node_modules/react-scripts
+npm warn ERESOLVE overriding peer dependency
+npm warn While resolving: eslint-plugin-flowtype@8.0.3
+npm warn Found: @babel/plugin-syntax-flow@undefined
+npm warn node_modules/@babel/plugin-syntax-flow
+npm warn
+npm warn Could not resolve dependency:
+npm warn peer @babel/plugin-syntax-flow@"^7.14.5" from eslint-plugin-flowtype@8.0.3
+npm warn node_modules/eslint-plugin-flowtype
+npm warn   eslint-plugin-flowtype@"^8.0.3" from eslint-config-react-app@7.0.1
+npm warn   node_modules/eslint-config-react-app
+npm error code EEXIST
+npm error syscall mkdir
+npm error path /Users/danlee/.npm/_cacache/content-v2/sha512/5d/b0
+npm error errno EEXIST
+npm error Invalid response body while trying to fetch https://registry.npmjs.org/eslint: EACCES: permission denied, mkdir '/Users/danlee/.npm/_cacache/content-v2/sha512/5d/b0'
+npm error File exists: /Users/danlee/.npm/_cacache/content-v2/sha512/5d/b0
+npm error Remove the existing file and try again, or run npm
+npm error with --force to overwrite files recklessly.
+npm error A complete log of this run can be found in: /Users/danlee/.npm/_logs/2025-05-28T15_57_02_461Z-debug-0.log

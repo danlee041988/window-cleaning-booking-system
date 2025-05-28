@@ -1,23 +1,22 @@
 import React, { useState } from 'react';
 import * as FORM_CONSTANTS from '../constants/formConstants'; // Import constants
-import Tooltip from './common/Tooltip';
-import { getFieldHints } from '../utils/smartDefaults';
 
-// Updated to Semi-Detached and Detached only, with new pricing for Detached
+// Updated property options with new structure and pricing
 const windowCleaningOptions = [
-  // Priced Residential
-  // 2-3 Bed
-  { id: FORM_CONSTANTS.SERVICE_ID_SDH_2_3_BED, type: 'Semi-Detached House', bedrooms: '2-3 Bed', basePrice: 20 },
-  { id: FORM_CONSTANTS.SERVICE_ID_DH_2_3_BED,  type: 'Detached House',      bedrooms: '2-3 Bed', basePrice: 25 },
-  // 4 Bed
-  { id: FORM_CONSTANTS.SERVICE_ID_SDH_4_BED,  type: 'Semi-Detached House', bedrooms: '4 Bed',   basePrice: 25 },
-  { id: FORM_CONSTANTS.SERVICE_ID_DH_4_BED,   type: 'Detached House',      bedrooms: '4 Bed',   basePrice: 35 },
-  // 5 Bed
-  { id: FORM_CONSTANTS.SERVICE_ID_SDH_5_BED,  type: 'Semi-Detached House', bedrooms: '5 Bed',   basePrice: 30 },
-  { id: FORM_CONSTANTS.SERVICE_ID_DH_5_BED,   type: 'Detached House',      bedrooms: '5 Bed',   basePrice: 40 },
+  // 1-2 Bed Properties (no type distinction)
+  { id: FORM_CONSTANTS.SERVICE_ID_1_2_BED, type: '1-2 Bedroom', bedrooms: '1-2 Bed', basePrice: 20 },
+  // 3 Bed Properties
+  { id: FORM_CONSTANTS.SERVICE_ID_SDH_2_3_BED, type: 'Semi-Detached', bedrooms: '3 Bed', basePrice: 25 },
+  { id: FORM_CONSTANTS.SERVICE_ID_DH_2_3_BED,  type: 'Detached',      bedrooms: '3 Bed', basePrice: 30 },
+  // 4 Bed Properties  
+  { id: FORM_CONSTANTS.SERVICE_ID_SDH_4_BED,  type: 'Semi-Detached', bedrooms: '4 Bed',   basePrice: 30 },
+  { id: FORM_CONSTANTS.SERVICE_ID_DH_4_BED,   type: 'Detached',      bedrooms: '4 Bed',   basePrice: 35 },
+  // 5 Bed Properties
+  { id: FORM_CONSTANTS.SERVICE_ID_SDH_5_BED,  type: 'Semi-Detached', bedrooms: '5 Bed',   basePrice: 35 },
+  { id: FORM_CONSTANTS.SERVICE_ID_DH_5_BED,   type: 'Detached',      bedrooms: '5 Bed',   basePrice: 40 },
   // Information Gathering / Custom Quotes
   { id: FORM_CONSTANTS.SERVICE_ID_CUSTOM_6_PLUS_BEDS, type: 'Properties', bedrooms: '6+ Beds & Bespoke', basePrice: 0, isCustomQuote: true, isResidential: true },
-  { id: FORM_CONSTANTS.SERVICE_ID_COMMERCIAL,  type: 'Business Property', bedrooms: 'All Types', basePrice: 0, isCommercialQuote: true }
+  { id: FORM_CONSTANTS.SERVICE_ID_COMMERCIAL,  type: 'Commercial Property', bedrooms: 'All Types', basePrice: 0, isCommercialQuote: true }
 ];
 
 // New "Other Services" option for the main grid
@@ -36,7 +35,7 @@ const frequencyOptionsDefinition = [
   { id: FORM_CONSTANTS.FREQUENCY_ID_ADHOC, label: 'One-off', adjustment: (price) => price + 20, fullLabel: 'One-off' },
 ];
 
-const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
+const WindowCleaningPricing = ({ goToStep, onFormChange }) => {
   const [globalSelection, setGlobalSelection] = useState({
     optionId: null,
     frequencyId: null,
@@ -211,42 +210,28 @@ const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
                 key={option.id} 
                 className={`group relative p-6 rounded-2xl shadow-xl flex flex-col text-center transition-all duration-500 hover:shadow-2xl hover:scale-105 h-full overflow-hidden
                             ${isCommercialCard 
-                              ? 'bg-gradient-to-br from-white to-indigo-50 border-2 border-indigo-200 hover:border-indigo-400' 
-                              : 'bg-gradient-to-br from-white to-amber-50 border-2 border-amber-200 hover:border-amber-400'}`}
+                              ? 'bg-gradient-to-br from-white to-blue-50 border-2 border-blue-200 hover:border-blue-400' 
+                              : 'bg-gradient-to-br from-white to-blue-50 border-2 border-blue-200 hover:border-blue-400'}`}
               >
                 {/* Business badge only for commercial */}
                 {isCommercialCard && (
-                  <div className="absolute top-4 right-4 px-4 py-2 rounded-full text-xs font-bold shadow-lg bg-gradient-to-r from-indigo-600 to-purple-700 text-white">
-                    BUSINESS
+                  <div className="absolute top-4 right-4 px-4 py-2 rounded-full text-xs font-bold shadow-lg bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+                    COMMERCIAL
                   </div>
                 )}
                 
                 {/* Icon */}
                 <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 mx-auto shadow-lg
                                 ${isCommercialCard 
-                                  ? 'bg-gradient-to-br from-indigo-600 to-purple-800' 
-                                  : 'bg-gradient-to-br from-amber-500 to-orange-600'}`}>
+                                  ? 'bg-gradient-to-br from-blue-600 to-blue-800' 
+                                  : 'bg-gradient-to-br from-blue-600 to-blue-800'}`}>
                   {isCommercialCard ? (
                     <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M19 3H5c-1 0-2 1-2 2v14c0 1 1 2 2 2h14c1 0 2-1 2-2V5c0-1-1-2-2-2z"/>
-                      <rect x="6" y="6" width="2.5" height="2.5" fill="currentColor" opacity="0.3"/>
-                      <rect x="9.5" y="6" width="2.5" height="2.5" fill="currentColor" opacity="0.3"/>
-                      <rect x="13" y="6" width="2.5" height="2.5" fill="currentColor" opacity="0.3"/>
-                      <rect x="16.5" y="6" width="1.5" height="2.5" fill="currentColor" opacity="0.3"/>
-                      <rect x="6" y="9.5" width="2.5" height="2.5" fill="currentColor" opacity="0.3"/>
-                      <rect x="9.5" y="9.5" width="2.5" height="2.5" fill="currentColor" opacity="0.3"/>
-                      <rect x="13" y="9.5" width="2.5" height="2.5" fill="currentColor" opacity="0.3"/>
-                      <rect x="16.5" y="9.5" width="1.5" height="2.5" fill="currentColor" opacity="0.3"/>
-                      <rect x="6" y="13" width="2.5" height="2.5" fill="currentColor" opacity="0.3"/>
-                      <rect x="9.5" y="13" width="2.5" height="2.5" fill="currentColor" opacity="0.3"/>
-                      <rect x="13" y="13" width="2.5" height="2.5" fill="currentColor" opacity="0.3"/>
-                      <rect x="16.5" y="13" width="1.5" height="2.5" fill="currentColor" opacity="0.3"/>
-                      <rect x="6" y="16.5" width="12" height="1.5" fill="currentColor" opacity="0.5"/>
+                      <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/>
                     </svg>
                   ) : (
                     <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-.14 0-.27.01-.4.04a2.008 2.008 0 00-1.44 1.19c-.1.23-.16.49-.16.77v14c0 .27.06.54.16.78.23.48.73.85 1.37.94.13.03.27.04.4.04h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM10 3c0-.55.45-1 1-1s1 .45 1 1-.45 1-1 1-1-.45-1-1zm9 16H5V6h2v1c0 .55.45 1 1 1h8c.55 0 1-.45 1-1V6h2v13z"/>
-                      <path d="M12 9l-1.5 3L9 9l1.5-3L12 9z"/>
+                      <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
                     </svg>
                   )}
                 </div>
@@ -265,8 +250,8 @@ const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
                   onClick={() => handleSelectOption(option)}
                   className={`w-full text-white font-bold py-5 px-6 rounded-xl transition-all duration-300 mt-auto text-lg transform hover:scale-105 shadow-lg hover:shadow-xl border-2
                               ${isCommercialCard 
-                                ? 'bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 border-indigo-500' 
-                                : 'bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-700 hover:to-orange-800 border-amber-500'}`}
+                                ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 border-blue-500' 
+                                : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 border-blue-500'}`}
                 >
                   <span className="flex items-center justify-center">
                     {isCommercialCard ? (
@@ -299,16 +284,26 @@ const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
                 <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 mx-auto transition-all duration-300 shadow-lg
                                 ${globalSelection.optionId === option.id ? 'bg-gradient-to-br from-blue-500 to-blue-700' : 'bg-gradient-to-br from-slate-600 to-slate-800'}`}>
                   {/* Simple bed icons showing bedroom count */}
-                  {option.bedrooms === '2-3 Bed' ? (
+                  {option.bedrooms === '1-2 Bed' ? (
                     <div className="flex items-center justify-center space-x-1">
-                      {/* 2-3 beds in a line */}
-                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
-                      </svg>
+                      {/* 1-2 beds */}
                       <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
                       </svg>
                       <svg className="w-5 h-5 text-white opacity-60" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
+                      </svg>
+                    </div>
+                  ) : option.bedrooms === '3 Bed' ? (
+                    <div className="flex items-center justify-center space-x-1">
+                      {/* 3 beds in a line */}
+                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
+                      </svg>
+                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
+                      </svg>
+                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
                       </svg>
                     </div>
@@ -357,16 +352,11 @@ const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
                     </div>
                   ) : option.bedrooms === '6+ Beds & Bespoke' ? (
                     <div className="flex items-center justify-center">
-                      {/* Large luxury home icon for 6+ beds */}
+                      {/* Diamond shape for 6+ beds luxury properties */}
                       <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z"/>
-                        <path d="M16 6h2v2h-2V6z" opacity="0.7"/>
-                        <path d="M18 8h2v2h-2V8z" opacity="0.7"/>
-                        <circle cx="12" cy="16" r="1" fill="white" opacity="0.8"/>
-                        <rect x="7" y="14" width="1.5" height="3" fill="white" opacity="0.6"/>
-                        <rect x="9.5" y="14" width="1.5" height="3" fill="white" opacity="0.6"/>
-                        <rect x="13" y="14" width="1.5" height="3" fill="white" opacity="0.6"/>
-                        <rect x="15.5" y="14" width="1.5" height="3" fill="white" opacity="0.6"/>
+                        <path d="M12 2l5 5 5 5-5 5-5 5-5-5-5-5 5-5z"/>
+                        <path d="M12 7v10M7 12h10" stroke="white" strokeWidth="1" strokeOpacity="0.5"/>
+                        <circle cx="12" cy="12" r="3" fill="white" fillOpacity="0.3"/>
                       </svg>
                     </div>
                   ) : (
@@ -394,7 +384,7 @@ const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
                 </div>
                 <h3 className={`text-2xl font-bold mb-2 h-12 transition-colors duration-300
                                 ${globalSelection.optionId === option.id ? 'text-blue-700' : 'text-gray-800'}`}>
-                  {`${option.bedrooms} ${option.type}`}
+                  {option.bedrooms === '1-2 Bed' ? '1-2 Bedroom Property' : `${option.bedrooms} ${option.type}`}
                 </h3>
               </div>
               

@@ -1,6 +1,7 @@
 // src/constants/formConstants.js
 
 // Property Types & Service IDs (from WindowCleaningPricing.js)
+export const SERVICE_ID_1_2_BED = 'property12bed';
 export const SERVICE_ID_SDH_2_3_BED = 'sdh23';
 export const SERVICE_ID_DH_2_3_BED = 'dh23';
 export const SERVICE_ID_SDH_4_BED = 'sdh4';

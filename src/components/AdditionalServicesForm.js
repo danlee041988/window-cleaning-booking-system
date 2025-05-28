@@ -65,8 +65,8 @@ const generalServiceOptionsList = [
     { id: FORM_CONSTANTS.GEN_ENQ_SERVICE_WINDOW_CLEANING, label: 'Window Cleaning' },
     { id: FORM_CONSTANTS.GEN_ENQ_SERVICE_CONSERVATORY_WINDOWS, label: 'Conservatory Windows Only' },
     { id: FORM_CONSTANTS.ADDON_ID_CONSERVATORY_ROOF, label: 'Conservatory Roof Cleaning' },
-    { id: FORM_CONSTANTS.ADDON_ID_GUTTER_CLEARING, label: 'Gutter Clearing (Internal)' },
-    { id: FORM_CONSTANTS.ADDON_ID_FASCIA_SOFFIT_GUTTER, label: 'Fascia, Soffit & Gutter Exterior Clean' },
+    { id: FORM_CONSTANTS.ADDON_ID_GUTTER_CLEARING, label: 'Internal Gutter Clearing' },
+    { id: FORM_CONSTANTS.ADDON_ID_FASCIA_SOFFIT_GUTTER, label: 'Fascia & Soffit Cleaning' },
     { id: FORM_CONSTANTS.GEN_ENQ_SERVICE_SOLAR_PANELS, label: 'Solar Panel Cleaning' },
     { id: FORM_CONSTANTS.GEN_ENQ_SERVICE_OTHER, label: 'Other (Please specify below)' },
 ];
@@ -337,7 +337,7 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                     id="genEnqComments"
                                     value={genEnqComments}
                                     onChange={(e) => setGenEnqComments(e.target.value)}
-                                    placeholder="Example: I have a 3-bedroom semi-detached house on a main road, so windows get quite dirty. Interested in regular window cleaning every 6-8 weeks and one-off gutter clearing. Property has side access but gate is locked - happy to provide key. Best contacted via mobile during weekday evenings."
+                                    placeholder="Example: I have a 3-bedroom semi-detached house on a main road, so windows get quite dirty. Interested in regular window cleaning every 4 or 8 weeks and one-off gutter clearing. Property has side access but gate is locked - happy to provide key. Best contacted via mobile during weekday evenings."
                                     rows={5}
                                     className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500 resize-vertical"
                                     style={{ minHeight: '120px' }}
@@ -523,7 +523,7 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                         <p className="text-lg font-semibold text-white mb-2">
                                             {offerConditionsMet
                                                 ? <span className="block text-yellow-200">Your entire window cleaning service price has been discounted!</span>
-                                                : <>Select both Gutter Clearing (Internal) and Gutter, Fascia & Soffit Cleaning (External) below, and get your <span className="underline">entire window cleaning service absolutely FREE!</span></>}
+                                                : <>Select both Internal Gutter Clearing and Fascia & Soffit Cleaning below, and get your <span className="underline">entire window cleaning service absolutely FREE!</span></>}
                                         </p>
                                     </div>
                                 </div>
@@ -550,8 +550,8 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                                 className="h-5 w-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2" 
                                             />
                                             <div className="ml-4">
-                                                <span className="text-lg font-semibold text-white">Gutter Clearing (Internal)</span>
-                                                <p className="text-sm text-gray-300 mt-1">Removes leaves, moss, and debris from inside your gutters, ensuring proper water drainage.</p>
+                                                <span className="text-lg font-semibold text-white">Internal Gutter Clearing</span>
+                                                <p className="text-sm text-gray-300 mt-1">Removes leaves, moss, and debris from inside your gutters to ensure proper water drainage and prevent blockages.</p>
                                             </div>
                                         </div>
                                         {canOfferGutterServices ? (
@@ -584,8 +584,8 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                                 className="h-5 w-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2" 
                                             />
                                             <div className="ml-4">
-                                                <span className="text-lg font-semibold text-white">Gutter, Fascia & Soffit Cleaning (External)</span>
-                                                <p className="text-sm text-gray-300 mt-1">Professional cleaning of the external surfaces of gutters, fascia, and soffits, enhancing the visual appearance of your home from the ground.</p>
+                                                <span className="text-lg font-semibold text-white">Fascia & Soffit Cleaning</span>
+                                                <p className="text-sm text-gray-300 mt-1">Professional cleaning of the external surfaces of fascia boards and soffits. This service does NOT include clearing debris from inside the gutters - select Internal Gutter Clearing above for that service.</p>
                                             </div>
                                         </div>
                                         {canOfferGutterServices ? (
@@ -598,14 +598,40 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                         <p className="text-sm text-gray-500 mt-2">Linked to property details from Step 1</p>
                                     )}
                                 </label>
+                                
+                                {/* Conservatory Roof Cleaning - Only show if conservatory is selected */}
+                                {hasCons && (
+                                    <label className={`block p-6 rounded-lg border-2 transition-all duration-200 cursor-pointer ${
+                                        selectedAddons[FORM_CONSTANTS.ADDON_CONSERVATORY_ROOF]
+                                            ? 'bg-green-700 border-green-500 shadow-lg transform scale-105' 
+                                            : 'bg-gray-700 border-gray-600 hover:border-green-500 hover:bg-green-800/20'
+                                    }`}>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="addon-conservatoryRoof"
+                                                    checked={!!selectedAddons[FORM_CONSTANTS.ADDON_CONSERVATORY_ROOF]}
+                                                    onChange={() => handleStandardAddonToggle(FORM_CONSTANTS.ADDON_CONSERVATORY_ROOF)}
+                                                    className="h-5 w-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2" 
+                                                />
+                                                <div className="ml-4">
+                                                    <span className="text-lg font-semibold text-white">Conservatory Roof Cleaning</span>
+                                                    <p className="text-sm text-gray-300 mt-1">Professional cleaning of your conservatory roof to remove algae, moss, and dirt buildup.</p>
+                                                </div>
+                                            </div>
+                                            <span className="text-sm text-gray-400">Quote on inspection</span>
+                                        </div>
+                                    </label>
+                                )}
                             </div>
                         </div>
 
                         {/* Quote Request Services */}
                         <div className="bg-gradient-to-r from-gray-800 to-gray-700 border border-gray-600 rounded-lg p-6">
                             <div className="flex items-center mb-4">
-                                <div className="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
-                                <h3 className="text-xl font-semibold text-purple-300">Request Physical Quote</h3>
+                                <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                                <h3 className="text-xl font-semibold text-blue-300">Request Physical Quote</h3>
                             </div>
                             <p className="text-gray-400 text-sm mb-6">
                                 The following services require an in-person assessment for accurate pricing. We'll include a quote for any selected services in our response.
@@ -616,7 +642,7 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                 <label className="flex items-start p-4 bg-gray-700/50 border border-gray-600 rounded-lg cursor-pointer hover:bg-gray-700/70 transition-colors">
                                     <input 
                                         type="checkbox" 
-                                        className="h-5 w-5 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500 focus:ring-2 mt-0.5" 
+                                        className="h-5 w-5 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 mt-0.5" 
                                         onChange={(e) => setFormData(prev => ({
                                             ...prev,
                                             quoteRequests: {
@@ -629,26 +655,6 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                     <div className="ml-3">
                                         <span className="text-white font-medium">Solar Panel Cleaning</span>
                                         <p className="text-gray-400 text-sm mt-1">Professional cleaning to maintain optimal solar panel efficiency</p>
-                                    </div>
-                                </label>
-
-                                {/* Conservatory Roof Cleaning Quote */}
-                                <label className="flex items-start p-4 bg-gray-700/50 border border-gray-600 rounded-lg cursor-pointer hover:bg-gray-700/70 transition-colors">
-                                    <input 
-                                        type="checkbox" 
-                                        className="h-5 w-5 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500 focus:ring-2 mt-0.5" 
-                                        onChange={(e) => setFormData(prev => ({
-                                            ...prev,
-                                            quoteRequests: {
-                                                ...prev.quoteRequests,
-                                                [FORM_CONSTANTS.QUOTE_REQUEST_CONSERVATORY_ROOF_CLEANING]: e.target.checked
-                                            }
-                                        }))}
-                                        checked={values.quoteRequests?.[FORM_CONSTANTS.QUOTE_REQUEST_CONSERVATORY_ROOF_CLEANING] || false}
-                                    />
-                                    <div className="ml-3">
-                                        <span className="text-white font-medium">Conservatory Roof Cleaning</span>
-                                        <p className="text-gray-400 text-sm mt-1">Exterior cleaning of glass or polycarbonate conservatory roofing</p>
                                     </div>
                                 </label>
                             </div>

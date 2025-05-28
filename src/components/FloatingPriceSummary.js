@@ -16,10 +16,10 @@ const FloatingPriceSummary = ({
   const [isMinimized, setIsMinimized] = useState(false);
   const [showWidget, setShowWidget] = useState(false);
 
-  // Only show widget after step 1 when we have pricing
+  // Always show widget once we have any pricing info
   useEffect(() => {
-    setShowWidget(currentStep >= 2 && (grandTotal > 0 || windowPrice > 0));
-  }, [currentStep, grandTotal, windowPrice]);
+    setShowWidget(grandTotal > 0 || windowPrice > 0);
+  }, [grandTotal, windowPrice]);
 
   if (!isVisible || !showWidget) return null;
 
@@ -78,7 +78,7 @@ const FloatingPriceSummary = ({
           <div className="px-4 pb-4 border-t border-gray-700">
               <div className="mt-3 space-y-2 text-xs">
                 {/* Regular Services Section */}
-                <div className="text-xs font-semibold text-blue-300 mb-2">Regular Window Cleaning:</div>
+                <div className="text-xs font-semibold text-gray-400 mb-2">Regular Window Cleaning:</div>
                 
                 {/* Window Cleaning */}
                 <div className="flex justify-between">
