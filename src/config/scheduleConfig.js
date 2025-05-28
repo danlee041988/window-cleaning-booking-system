@@ -114,6 +114,51 @@ export const getDaysInMonth = (year, month) => {
     return daysInMonth[month - 1];
 };
 
+// Helper function to generate Friday-only dates for special postcodes
+export const generateFridayOnlyDates = (options = {}) => {
+    const dates = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Find next Friday from today
+    let currentDate = new Date(today);
+    const daysUntilFriday = (5 - currentDate.getDay() + 7) % 7;
+    if (daysUntilFriday === 0 && currentDate <= today) {
+        currentDate.setDate(currentDate.getDate() + 7); // Next Friday if today is Friday
+    } else {
+        currentDate.setDate(currentDate.getDate() + daysUntilFriday);
+    }
+    
+    // Generate Friday dates for the next 6 weeks
+    const endDate = new Date(today);
+    endDate.setDate(endDate.getDate() + (6 * 7));
+    
+    while (currentDate <= endDate) {
+        // Skip bank holidays unless emergency booking
+        if (!options.includeHolidays) {
+            if (!isBankHoliday(currentDate) && !isInHolidayPeriod(currentDate)) {
+                dates.push({
+                    date: `${currentDate.getDate().toString().padStart(2, '0')} ${months[currentDate.getMonth()]}`,
+                    fullDate: new Date(currentDate),
+                    year: currentDate.getFullYear()
+                });
+            }
+        } else {
+            // Include all Friday dates for emergency bookings
+            dates.push({
+                date: `${currentDate.getDate().toString().padStart(2, '0')} ${months[currentDate.getMonth()]}`,
+                fullDate: new Date(currentDate),
+                year: currentDate.getFullYear()
+            });
+        }
+        
+        // Move to next Friday (7 days later)
+        currentDate.setDate(currentDate.getDate() + 7);
+    }
+    
+    return dates;
+};
+
 // Helper function to generate dates for the next 12 months with holiday exclusions
 export const generateScheduleDates = (startDateStr, options = {}) => {
     const dates = [];
@@ -135,9 +180,9 @@ export const generateScheduleDates = (startDateStr, options = {}) => {
         currentDate.setDate(currentDate.getDate() + 28);
     }
     
-    // Generate dates for the next 12 months
+    // Generate dates for the next 6 weeks
     const endDate = new Date(today);
-    endDate.setMonth(endDate.getMonth() + 12);
+    endDate.setDate(endDate.getDate() + (6 * 7));
     
     while (currentDate <= endDate) {
         // Skip bank holidays and holiday periods unless emergency booking
@@ -299,30 +344,66 @@ export const getAvailableDatesWithCapacity = (postcodes, bookingType = bookingTy
     const results = [];
     const includeHolidays = bookingType === bookingTypes.EMERGENCY;
     
-    // Find matching schedule entries
-    const matchingEntries = scheduleData.filter(entry =>
-        entry.postcodes.some(pc => postcodes.some(userPc => userPc.startsWith(pc)))
+    // Check if any postcode requires Friday-only scheduling
+    const hasFridayOnlyPostcode = postcodes.some(pc => 
+        specialPostcodeRules.fridayOnly.some(fridayPC => pc.startsWith(fridayPC))
     );
     
-    matchingEntries.forEach(entry => {
-        const dates = generateScheduleDates(entry.startDate, { includeHolidays });
-        dates.forEach(dateInfo => {
+    if (hasFridayOnlyPostcode) {
+        // Generate Friday-only dates for BA6 and BA16
+        const fridayDates = generateFridayOnlyDates({ includeHolidays });
+        
+        // Find the relevant area info for capacity
+        const matchingEntry = scheduleData.find(entry =>
+            entry.postcodes.some(pc => postcodes.some(userPc => userPc.startsWith(pc)))
+        );
+        
+        const capacity = matchingEntry ? matchingEntry.capacity : areaCapacityLimits.default;
+        const area = matchingEntry ? matchingEntry.area : 'Friday Service Area';
+        
+        fridayDates.forEach(dateInfo => {
             // Mock booking count - in real app, this would come from database
-            const currentBookings = Math.floor(Math.random() * entry.capacity);
-            const remainingCapacity = entry.capacity - currentBookings;
+            const currentBookings = Math.floor(Math.random() * capacity);
+            const remainingCapacity = capacity - currentBookings;
             
             results.push({
                 ...dateInfo,
-                area: entry.area,
-                capacity: entry.capacity,
+                area,
+                capacity,
                 currentBookings,
                 remainingCapacity,
                 status: remainingCapacity === 0 ? 'full' : 
                         remainingCapacity <= 2 ? 'limited' : 'available',
-                bookingType
+                bookingType,
+                specialRule: 'Friday Only'
             });
         });
-    });
+    } else {
+        // Regular scheduling for other postcodes
+        const matchingEntries = scheduleData.filter(entry =>
+            entry.postcodes.some(pc => postcodes.some(userPc => userPc.startsWith(pc)))
+        );
+        
+        matchingEntries.forEach(entry => {
+            const dates = generateScheduleDates(entry.startDate, { includeHolidays });
+            dates.forEach(dateInfo => {
+                // Mock booking count - in real app, this would come from database
+                const currentBookings = Math.floor(Math.random() * entry.capacity);
+                const remainingCapacity = entry.capacity - currentBookings;
+                
+                results.push({
+                    ...dateInfo,
+                    area: entry.area,
+                    capacity: entry.capacity,
+                    currentBookings,
+                    remainingCapacity,
+                    status: remainingCapacity === 0 ? 'full' : 
+                            remainingCapacity <= 2 ? 'limited' : 'available',
+                    bookingType
+                });
+            });
+        });
+    }
     
     // Sort by date
     results.sort((a, b) => a.fullDate - b.fullDate);

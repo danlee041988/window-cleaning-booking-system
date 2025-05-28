@@ -15,7 +15,6 @@ const FloatingPriceSummary = ({
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [showWidget, setShowWidget] = useState(false);
-  const [showBreakdown, setShowBreakdown] = useState(false);
 
   // Only show widget after step 1 when we have pricing
   useEffect(() => {
@@ -61,21 +60,10 @@ const FloatingPriceSummary = ({
               </p>
             </div>
 
-            {/* Breakdown Toggle */}
-            <button
-              onClick={() => setShowBreakdown(!showBreakdown)}
-              className="w-full mt-3 text-xs text-blue-400 hover:text-blue-300 transition-colors flex items-center justify-center"
-            >
-              {showBreakdown ? 'Hide' : 'Show'} breakdown
-              <svg className={`w-3 h-3 ml-1 transform transition-transform ${showBreakdown ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </button>
           </div>
 
           {/* Price Breakdown */}
-          {showBreakdown && (
-            <div className="px-4 pb-4 border-t border-gray-700">
+          <div className="px-4 pb-4 border-t border-gray-700">
               <div className="mt-3 space-y-2 text-xs">
                 {/* Window Cleaning */}
                 <div className="flex justify-between">
@@ -130,7 +118,6 @@ const FloatingPriceSummary = ({
                 </div>
               </div>
             </div>
-          )}
         </div>
 
         {/* Minimized View */}
