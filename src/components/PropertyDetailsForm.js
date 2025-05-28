@@ -1,30 +1,55 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-    scheduleData,
-    getNextOccurrence,
-    findFirstWorkingDayFrom,
-    formatDateForDisplay,
     formatDateForStorage
 } from '../utils/scheduleUtils';
 import { calculateGutterClearingPrice } from '../utils/pricingUtils';
 import * as FORM_CONSTANTS from '../constants/formConstants';
+import Tooltip from './common/Tooltip';
+import ValidationFeedback from './common/ValidationFeedback';
+import LoadingButton from './common/LoadingButton';
+import { getFieldHints, getErrorMessages } from '../utils/smartDefaults';
+import ScheduleSelection from './steps/ScheduleSelection';
 
-// Reusable Input Field Component
-const InputField = ({ label, name, value, onChange, type = 'text', placeholder, required = false }) => (
-    <div className="mb-6">
-        <label htmlFor={name} className="block text-sm font-semibold text-gray-200 mb-2">{label}{required && <span className="text-red-400">*</span>}</label>
-        <input
-            type={type}
-            name={name}
-            id={name}
-            value={value}
-            onChange={onChange}
-            placeholder={placeholder}
-            required={required}
-            className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500"
-        />
-    </div>
-);
+// Enhanced Input Field Component with validation and tooltips
+const InputField = ({ label, name, value, onChange, type = 'text', placeholder, required = false, error, touched, hint, onBlur }) => {
+    const fieldHints = getFieldHints();
+    const showHint = hint || fieldHints[name];
+    
+    return (
+        <div className="mb-6">
+            <div className="flex items-center mb-2">
+                <label htmlFor={name} className="block text-sm font-semibold text-gray-200">
+                    {label}{required && <span className="text-red-400">*</span>}
+                </label>
+                {showHint && (
+                    <Tooltip content={showHint} position="top">
+                        <svg className="w-4 h-4 ml-2 text-gray-400 hover:text-gray-300 cursor-help" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                        </svg>
+                    </Tooltip>
+                )}
+            </div>
+            <input
+                type={type}
+                name={name}
+                id={name}
+                value={value}
+                onChange={onChange}
+                onBlur={onBlur}
+                placeholder={placeholder}
+                required={required}
+                className={`w-full px-4 py-3 bg-gray-700 border rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-all duration-200 hover:border-gray-500 ${
+                    error && touched 
+                        ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                        : value && touched && !error
+                        ? 'border-green-500 focus:ring-green-500 focus:border-green-500'
+                        : 'border-gray-600 focus:ring-blue-500 focus:border-blue-500'
+                }`}
+            />
+            <ValidationFeedback field={name} value={value} error={error} touched={touched} />
+        </div>
+    );
+};
 
 // Reusable Textarea Field Component
 const TextAreaField = ({ label, name, value, onChange, placeholder, rows = 3 }) => (
@@ -43,6 +68,45 @@ const TextAreaField = ({ label, name, value, onChange, placeholder, rows = 3 }) 
 );
 
 const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setFormData, goToStep }) => {
+    // Add field blur handler for validation
+    const handleFieldBlur = (fieldName) => {
+        setTouchedFields(prev => ({ ...prev, [fieldName]: true }));
+        validateField(fieldName);
+    };
+    
+    // Real-time field validation
+    const validateField = (fieldName) => {
+        const value = values[fieldName] || '';
+        let error = '';
+        
+        switch(fieldName) {
+            case 'customerName':
+                if (!value) error = errorMessages.customerName?.required;
+                else if (!/^[a-zA-Z\s'-]+$/.test(value)) error = errorMessages.customerName?.invalid;
+                break;
+            case 'email':
+                if (!value) error = errorMessages.email?.required;
+                else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) error = errorMessages.email?.invalid;
+                break;
+            case 'mobile':
+                const cleanPhone = value.replace(/\s/g, '');
+                if (!value) error = errorMessages.mobile?.required;
+                else if (!/^(?:(?:\+44)|(?:0))(?:\d{10})$/.test(cleanPhone)) error = errorMessages.mobile?.invalid;
+                break;
+            case 'postcode':
+                if (!value) error = errorMessages.postcode?.required;
+                else if (!/^[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}$/i.test(value.trim())) error = errorMessages.postcode?.invalid;
+                break;
+            case 'addressLine1':
+                if (!value) error = errorMessages.addressLine1?.required;
+                break;
+            default:
+                break;
+        }
+        
+        setFormErrors(prev => ({ ...prev, [fieldName]: error }));
+        return !error;
+    };
 
     const { 
         customerName, addressLine1, addressLine2, townCity, postcode, mobile, email, preferredContactMethod,
@@ -55,134 +119,20 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
         customResidentialDetails
     } = values;
 
-    const [availableDates, setAvailableDates] = useState([]);
-    const [isLoadingDates, setIsLoadingDates] = useState(false);
-    const [postcodeError, setPostcodeError] = useState('');
     const [dateSelectionError, setDateSelectionError] = useState('');
     const [formErrors, setFormErrors] = useState({});
-
-    useEffect(() => {
-        // Only run date calculation for standard residential bookings that are NOT general enquiries
-        const isResidentialStandardBooking = !isCommercial && !isCustomQuote && isResidential && !isGeneralEnquiry;
-
-        if (isResidentialStandardBooking) {
-            const trimmedPostcode = postcode ? postcode.trim() : "";
-            if (trimmedPostcode.length >= 3) { // Wait for at least 3 characters before processing
-                // Add a small delay to avoid triggering on every keystroke
-                const timer = setTimeout(() => {
-                    calculateAndSetAvailableDates();
-                }, 300);
-                return () => clearTimeout(timer);
-            } else {
-                // Less than 3 characters, clear everything but don't show errors
-                setAvailableDates([]);
-                setPostcodeError('');
-                setIsLoadingDates(false);
-            }
-        } else {
-            // Not a standard residential booking, clear dates and errors
-            setAvailableDates([]);
-            setPostcodeError('');
-            setIsLoadingDates(false);
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [postcode, addressLine1, isCommercial, isCustomQuote, isResidential, isGeneralEnquiry]); // addressLine1 for Meare logic
-
-    const calculateAndSetAvailableDates = () => {
-        const rawPostcode = postcode.trim().toUpperCase();
-
-        if (rawPostcode.length < 3) { // Wait for at least 3 characters
-            setIsLoadingDates(false);
-            setAvailableDates([]);
-            setPostcodeError('');
-            return;
-        }
-
-        setIsLoadingDates(true);
-        setAvailableDates([]); // Clear previous dates
-        setPostcodeError('');   // Clear previous postcode error
-
-        try {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const tomorrow = new Date(today);
-            tomorrow.setDate(today.getDate() + 1);
-            const sixWeeksFromNow = new Date(today);
-            sixWeeksFromNow.setDate(today.getDate() + 42); // 6 weeks
-
-            const isMeare = rawPostcode.startsWith('BA6') && addressLine1.toLowerCase().includes('meare');
-            
-            let matchingScheduleEntries = [];
-
-            if (isMeare) {
-                const meareEntry = scheduleData.find(entry => entry.postcodes.includes('BA6-MEARE'));
-                if (meareEntry) {
-                    matchingScheduleEntries.push(meareEntry);
-                }
-            } else {
-                matchingScheduleEntries = scheduleData.filter(entry =>
-                    entry.postcodes.some(prefix => rawPostcode.startsWith(prefix) && prefix !== 'BA6-MEARE')
-                );
-            }
-
-
-
-            if (matchingScheduleEntries.length > 0) {
-                const allValidDates = [];
-                matchingScheduleEntries.forEach(scheduleEntry => {
-                    const datesToProcess = scheduleEntry.dates;
-                    
-                    datesToProcess.forEach(dateStr => {
-                        let nextOccurrenceDate = getNextOccurrence(dateStr, scheduleEntry.recurrence);
-                        
-                        if (!nextOccurrenceDate || isNaN(nextOccurrenceDate.getTime())) {
-                            return; 
-                        }
-
-                        let adjustedDate = findFirstWorkingDayFrom(nextOccurrenceDate);
-                        
-                        // Ensure comparison dates are fresh for each check to avoid issues with object mutation if any
-                        const currentTomorrow = new Date(); currentTomorrow.setHours(0,0,0,0); currentTomorrow.setDate(new Date().getDate()+1);
-                        const currentSixWeeksFromNow = new Date(); currentSixWeeksFromNow.setHours(0,0,0,0); currentSixWeeksFromNow.setDate(new Date().getDate()+42);
-
-                        if (adjustedDate >= currentTomorrow && adjustedDate <= currentSixWeeksFromNow) {
-                            allValidDates.push(adjustedDate);
-                        }
-                    });
-                });
-
-                const uniqueSortedDates = [...new Set(allValidDates.map(d => d.getTime()))]
-                    .map(time => new Date(time))
-                    .sort((a, b) => a - b);
-                
-                setAvailableDates(uniqueSortedDates);
-
-                if (uniqueSortedDates.length === 0) {
-                    setPostcodeError('No scheduled dates found in the next 6 weeks for your postcode area.');
-                } else {
-                    setPostcodeError(''); // Clear error if dates are found
-                }
-            } else { // No matchingScheduleEntries found
-                setAvailableDates([]); // Ensure dates are cleared
-                if (rawPostcode.length >= 4) { // Only show "not covered" error for more complete postcodes
-                    setPostcodeError('Sorry, we may not cover your specific postcode area. Please contact us.');
-                } else {
-                    setPostcodeError('Please enter more of your postcode to check for available dates.');
-                }
-            }
-        } catch (error) {
-            console.error("Error calculating dates:", error);
-            setPostcodeError("An error occurred while calculating dates.");
-            setAvailableDates([]); // Ensure dates are cleared on error
-        } finally {
-            setIsLoadingDates(false);
-        }
-    };
+    const [touchedFields, setTouchedFields] = useState({});
+    
+    const errorMessages = getErrorMessages();
 
     const handleDateSelect = (dateOrASAP) => {
         if (dateOrASAP === "ASAP") {
             setFormData(prev => ({ ...prev, selectedDate: "ASAP" }));
+        } else if (typeof dateOrASAP === 'string') {
+            // Already formatted as YYYY-MM-DD from ScheduleSelection component
+            setFormData(prev => ({ ...prev, selectedDate: dateOrASAP }));
         } else {
+            // Legacy format - Date object
             const dateValue = formatDateForStorage(dateOrASAP);
             setFormData(prev => ({ ...prev, selectedDate: dateValue }));
         }
@@ -400,30 +350,6 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                             </div>
                         </div>
                         
-                        {/* Loading State */}
-                        {isLoadingDates && (
-                            <div className="flex items-center justify-center p-6 border border-blue-700 rounded-lg bg-blue-900/30">
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-400 mr-3"></div>
-                                <span className="text-blue-300 font-medium">Loading available dates...</span>
-                            </div>
-                        )}
-                        
-                        {/* Error State */}
-                        {!isLoadingDates && postcodeError && (
-                            <div className="p-4 border border-red-700 rounded-lg bg-red-900/30">
-                                <div className="flex items-center">
-                                    <div className="flex-shrink-0">
-                                        <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
-                                    <div className="ml-3">
-                                        <p className="text-sm text-red-300">{postcodeError}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                        
                         {/* Form Validation Errors */}
                         {dateSelectionError && (
                             <p className="text-red-400 text-sm mb-3 bg-red-900/20 border border-red-700 rounded p-2">{dateSelectionError}</p>
@@ -432,75 +358,14 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                             <p className="text-red-400 text-sm mb-3 bg-red-900/20 border border-red-700 rounded p-2">{formErrors.selectedDate}</p>
                         )}
 
-                        {/* Main Selection Area */}
-                        {!isLoadingDates && !postcodeError && (
-                            <div className="space-y-6">
-                                {/* Available Dates Section */}
-                                {availableDates.length > 0 ? (
-                                    <div>
-                                        <h4 className="text-lg font-semibold text-gray-200 mb-4">Available Dates (Next 6 Weeks)</h4>
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
-                                            {availableDates.map(date => {
-                                                const dateValueStr = formatDateForStorage(date);
-                                                const isSelected = selectedDate === dateValueStr;
-                                                return (
-                                                    <button
-                                                        type="button"
-                                                        key={dateValueStr}
-                                                        onClick={() => handleDateSelect(date)}
-                                                        className={`p-4 border-2 rounded-lg text-center cursor-pointer transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 transform hover:scale-105
-                                                            ${isSelected 
-                                                                ? 'bg-gradient-to-r from-blue-600 to-blue-700 border-blue-600 text-white shadow-lg scale-105' 
-                                                                : 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600 hover:border-blue-500 hover:shadow-md'}`}
-                                                    >
-                                                        <span className={`block text-sm font-semibold ${isSelected ? 'text-white' : 'text-gray-200'}`}>
-                                                            {formatDateForDisplay(date)}
-                                                        </span>
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-                                        
-                                        {/* Divider */}
-                                        <div className="relative">
-                                            <div className="absolute inset-0 flex items-center">
-                                                <div className="w-full border-t border-gray-600" />
-                                            </div>
-                                            <div className="relative flex justify-center text-sm">
-                                                <span className="px-4 bg-gray-800 text-gray-400">or</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                                                 ) : null}
-                                
-                                {/* ASAP Option - now more compact and integrated */}
-                                <div>
-                                    <h4 className="text-lg font-semibold text-gray-200 mb-4">Need service urgently?</h4>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleDateSelect("ASAP")}
-                                        className={`w-full p-6 border-2 rounded-lg text-center cursor-pointer transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 transform hover:scale-[1.02]
-                                                    ${selectedDate === "ASAP"
-                                                        ? 'bg-gradient-to-r from-green-600 to-green-700 border-green-600 text-white shadow-lg scale-[1.02]'
-                                                        : 'bg-gray-700 border-green-500 text-gray-200 hover:bg-green-800/20 hover:border-green-400 hover:shadow-md'}`}
-                                    >
-                                        <div className="flex items-center justify-center">
-                                            <svg className={`h-6 w-6 mr-3 ${selectedDate === "ASAP" ? 'text-white' : 'text-green-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                            </svg>
-                                            <div>
-                                                <span className={`block text-lg font-semibold ${selectedDate === "ASAP" ? 'text-white' : 'text-gray-200'}`}>
-                                                    Request First Clean ASAP
-                                                </span>
-                                                <span className={`block text-sm mt-1 ${selectedDate === "ASAP" ? 'text-green-100' : 'text-gray-400'}`}>
-                                                    If you need an ASAP clean, we'll do our best and be in contact with you to arrange a date
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </button>
-                                </div>
-                            </div>
-                        )}
+                        {/* New Schedule Selection Component */}
+                        <ScheduleSelection
+                            postcode={postcode}
+                            selectedDate={selectedDate}
+                            onDateSelect={handleDateSelect}
+                            isEmergency={false}
+                            showCalendarView={true}
+                        />
                     </div>
                 )}
 

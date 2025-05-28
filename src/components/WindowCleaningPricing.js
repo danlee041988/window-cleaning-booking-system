@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import * as FORM_CONSTANTS from '../constants/formConstants'; // Import constants
+import Tooltip from './common/Tooltip';
+import { getFieldHints } from '../utils/smartDefaults';
 
 // Updated to Semi-Detached and Detached only, with new pricing for Detached
 const windowCleaningOptions = [

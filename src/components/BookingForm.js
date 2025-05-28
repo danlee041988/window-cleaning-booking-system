@@ -6,6 +6,9 @@ import WindowCleaningPricing from './WindowCleaningPricing';
 import PropertyDetailsForm from './PropertyDetailsForm';
 import AdditionalServicesForm from './AdditionalServicesForm';
 import ReviewSubmitForm from './ReviewSubmitForm';
+import SimpleProgressBar from './SimpleProgressBar';
+import FloatingPriceSummary from './FloatingPriceSummary';
+import useFormPersistence from '../hooks/useFormPersistence';
 
 // Define the conservatory surcharge globally or pass as prop if it can vary
 const CONSERVATORY_SURCHARGE = 5;
@@ -119,8 +122,8 @@ const initialFormData = {
     }
 };
 
-// Placeholder: Implement this function to map your formData to EmailJS template params
-const mapFormDataToTemplateParams = (formData) => {
+// Export for use in improved component
+export const mapFormDataToTemplateParams = (formData) => {
   let bookingTypeDisplay = 'Unknown Booking Type';
   const is_standard_residential_booking_bool = (
     formData.isResidential &&
@@ -337,6 +340,9 @@ function BookingForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [submissionError, setSubmissionError] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  
+  // Add form persistence to prevent data loss
+  const { clearSavedData } = useFormPersistence(formData, setFormData);
 
   // Generic handleChange for simple inputs, used by PropertyDetailsForm
   const genericHandleChange = (input) => (e) => {
@@ -402,6 +408,7 @@ function BookingForm() {
       await emailjs.send(serviceId, templateId, templateParams, userId);
       setIsSubmitted(true);
       setCurrentStep(5); // Assuming 5 is your thank you/confirmation step
+      clearSavedData(); // Clear the saved form data after successful submission
     } catch (error) {
       console.error('Email FAILED...', error);
       // Determine if it was a quote/enquiry or a booking for the error message
@@ -414,9 +421,34 @@ function BookingForm() {
 
   // Render steps based on currentStep
   // Pass CONSERVATORY_SURCHARGE to AdditionalServicesForm
-  switch (currentStep) {
-    case 1:
-      return <WindowCleaningPricing goToStep={goToStep} onFormChange={setFormData} values={formData} />;
+  return (
+    <>
+      {/* Add progress bar for steps 1-4 */}
+      {currentStep <= 4 && (
+        <div className="container mx-auto px-6 py-4">
+          <SimpleProgressBar currentStep={currentStep} totalSteps={4} />
+        </div>
+      )}
+      
+      {/* Add floating price summary with all pricing data */}
+      <FloatingPriceSummary 
+        grandTotal={formData.grandTotal}
+        windowPrice={formData.initialWindowPrice}
+        conservatorySurcharge={formData.conservatorySurcharge}
+        extensionSurcharge={formData.extensionSurcharge}
+        additionalServices={formData.additionalServices}
+        gutterClearingPrice={formData.gutterClearingServicePrice}
+        fasciaSoffitPrice={formData.fasciaSoffitGutterServicePrice}
+        discount={formData.windowCleaningDiscount}
+        currentStep={currentStep}
+        isVisible={currentStep >= 2 && currentStep <= 4}
+      />
+      
+      {/* Render current step */}
+      {(() => {
+        switch (currentStep) {
+          case 1:
+            return <WindowCleaningPricing goToStep={goToStep} onFormChange={setFormData} values={formData} />;
     case 2: // New: Additional Services (standard residential path only)
       return <AdditionalServicesForm 
                 nextStep={nextStep} 
@@ -586,7 +618,10 @@ function BookingForm() {
       );
     default:
       return <WindowCleaningPricing goToStep={goToStep} onFormChange={setFormData} values={formData} />;
-  }
+        }
+      })()}
+    </>
+  );
 }
 
 export default BookingForm;
