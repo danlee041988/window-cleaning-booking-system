@@ -84,11 +84,8 @@ const ScheduleSelection = ({
                                         }`}
                                     >
                                         <div className="text-center">
-                                            <div className="font-semibold text-lg mb-2">
+                                            <div className="font-semibold text-lg">
                                                 {formatDateForDisplay(date.fullDate)}
-                                            </div>
-                                            <div className="text-sm">
-                                                <span className="text-blue-300 font-medium">{date.area}</span>
                                             </div>
                                         </div>
                                     </button>

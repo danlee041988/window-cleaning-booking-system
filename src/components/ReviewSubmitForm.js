@@ -379,7 +379,7 @@ const ReviewSubmitForm = ({ prevStep, values, handleSubmit, setFormData, isLoadi
                                     </div>
                                 )}
                                 
-                                <div className="mt-6 pt-6 border-t-2 border-blue-600 bg-gradient-to-r from-blue-900/40 to-blue-800/40 p-4 rounded-lg">
+                                <div className="mt-6 pt-6 border-t-2 border-gray-600 p-4 rounded-lg">
                                     <ReviewItem label="Total Before Discount" value={`£${((initialWindowPrice || 0) + (conservatorySurcharge || 0) + (extensionSurcharge || 0) + gutterClearingReviewPrice + fasciaSoffitGutterReviewPrice).toFixed(2)}`} />
                                     {windowCleaningDiscount > 0 && 
                                         <ReviewItem label="Discount Applied" value={`- £${windowCleaningDiscount.toFixed(2)}`} />

@@ -7,7 +7,6 @@ import PropertyDetailsForm from './PropertyDetailsForm';
 import AdditionalServicesForm from './AdditionalServicesForm';
 import ReviewSubmitForm from './ReviewSubmitForm';
 import SimpleProgressBar from './SimpleProgressBar';
-import FloatingPriceSummary from './FloatingPriceSummary';
 import useFormPersistence from '../hooks/useFormPersistence';
 
 // Define the conservatory surcharge globally or pass as prop if it can vary
@@ -500,19 +499,6 @@ function BookingForm() {
         </div>
       )}
       
-      {/* Add floating price summary with all pricing data */}
-      <FloatingPriceSummary 
-        grandTotal={formData.grandTotal}
-        windowPrice={formData.initialWindowPrice}
-        conservatorySurcharge={formData.conservatorySurcharge}
-        extensionSurcharge={formData.extensionSurcharge}
-        additionalServices={formData.additionalServices}
-        gutterClearingPrice={formData.gutterClearingServicePrice}
-        fasciaSoffitPrice={formData.fasciaSoffitGutterServicePrice}
-        discount={formData.windowCleaningDiscount}
-        currentStep={currentStep}
-        isVisible={true}
-      />
       
       {/* Render current step */}
       {(() => {
