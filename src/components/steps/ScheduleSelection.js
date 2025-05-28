@@ -14,25 +14,27 @@ const ScheduleSelection = ({
     // Always use list view only
 
     useEffect(() => {
-        if (postcode && postcode.length >= 3) {
-            loadAvailableDates();
-        }
+        const loadDates = async () => {
+            if (postcode && postcode.length >= 3) {
+                setIsLoading(true);
+                try {
+                    // Simulate API call delay
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    
+                    const dates = getAvailableDatesWithCapacity([postcode]);
+                    setAvailableDates(dates);
+                } catch (error) {
+                    console.error('Error loading dates:', error);
+                    setAvailableDates([]);
+                } finally {
+                    setIsLoading(false);
+                }
+            }
+        };
+        
+        loadDates();
     }, [postcode]);
 
-    const loadAvailableDates = async () => {
-        setIsLoading(true);
-        try {
-            // Simulate API call delay
-            await new Promise(resolve => setTimeout(resolve, 300));
-            
-            const dates = getAvailableDatesWithCapacity([postcode]);
-            setAvailableDates(dates);
-        } catch (error) {
-            console.error('Error loading dates:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     const getDateColor = (isSelected) => {
         if (isSelected) {
