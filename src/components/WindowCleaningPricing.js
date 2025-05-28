@@ -210,8 +210,8 @@ const WindowCleaningPricing = ({ goToStep, onFormChange }) => {
                 key={option.id} 
                 className={`group relative p-6 rounded-2xl shadow-xl flex flex-col text-center transition-all duration-500 hover:shadow-2xl hover:scale-105 h-full overflow-hidden
                             ${isCommercialCard 
-                              ? 'bg-gradient-to-br from-white to-blue-50 border-2 border-blue-200 hover:border-blue-400' 
-                              : 'bg-gradient-to-br from-white to-blue-50 border-2 border-blue-200 hover:border-blue-400'}`}
+                              ? 'bg-gradient-to-br from-white to-gray-50 border-2 border-gray-300 hover:border-gray-500' 
+                              : 'bg-gradient-to-br from-white to-amber-50 border-2 border-amber-200 hover:border-amber-400'}`}
               >
                 {/* Business badge only for commercial */}
                 {isCommercialCard && (
@@ -223,8 +223,8 @@ const WindowCleaningPricing = ({ goToStep, onFormChange }) => {
                 {/* Icon */}
                 <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 mx-auto shadow-lg
                                 ${isCommercialCard 
-                                  ? 'bg-gradient-to-br from-blue-600 to-blue-800' 
-                                  : 'bg-gradient-to-br from-blue-600 to-blue-800'}`}>
+                                  ? 'bg-gradient-to-br from-gray-600 to-gray-800' 
+                                  : 'bg-gradient-to-br from-amber-500 to-orange-600'}`}>
                   {isCommercialCard ? (
                     <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/>
@@ -250,8 +250,8 @@ const WindowCleaningPricing = ({ goToStep, onFormChange }) => {
                   onClick={() => handleSelectOption(option)}
                   className={`w-full text-white font-bold py-5 px-6 rounded-xl transition-all duration-300 mt-auto text-lg transform hover:scale-105 shadow-lg hover:shadow-xl border-2
                               ${isCommercialCard 
-                                ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 border-blue-500' 
-                                : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 border-blue-500'}`}
+                                ? 'bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 border-gray-500' 
+                                : 'bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-700 hover:to-orange-800 border-amber-500'}`}
                 >
                   <span className="flex items-center justify-center">
                     {isCommercialCard ? (
@@ -264,7 +264,7 @@ const WindowCleaningPricing = ({ goToStep, onFormChange }) => {
                       </svg>
                     )}
                     <span className="font-black">
-                      {isCommercialCard ? 'Get Business Quote' : 'Get a Custom Quote'}
+                      {isCommercialCard ? 'Get Commercial Quotation' : 'Get a Custom Quote'}
                     </span>
                   </span>
                 </button>

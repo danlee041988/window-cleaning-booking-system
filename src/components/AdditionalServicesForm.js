@@ -115,6 +115,7 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
     const [genEnqOtherText, setGenEnqOtherText] = useState(initialGeneralEnquiryDetails?.otherServiceText || '');
     const [genEnqFrequency, setGenEnqFrequency] = useState(initialGeneralEnquiryDetails?.requestedFrequency || '');
     const [genEnqComments, setGenEnqComments] = useState(initialGeneralEnquiryDetails?.enquiryComments || '');
+    const [genEnqCustomerStatus, setGenEnqCustomerStatus] = useState(initialGeneralEnquiryDetails?.customerStatus || '');
 
     // Dynamic prices for standard path
     const gutterClearingPrice = !isGeneralEnquiry ? calculateGutterClearingPrice(propertyType, bedrooms) : 0;
@@ -192,6 +193,7 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                     otherServiceText: genEnqOtherText,
                     requestedFrequency: finalGenEnqFrequency,
                     enquiryComments: genEnqComments,
+                    customerStatus: genEnqCustomerStatus,
                 },
                 // Reset standard path fields to avoid data confusion
                 hasConservatory: false,
@@ -324,12 +326,12 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                 <div className="mb-4 p-4 bg-blue-900/30 border border-blue-700 rounded-lg">
                                     <p className="text-sm text-blue-300 font-semibold mb-3">💡 Helpful information to include:</p>
                                     <ul className="text-sm text-blue-200 space-y-2">
-                                        <li>• Property details (type, size, number of windows)</li>
+                                        <li>• Which services you're interested in</li>
                                         <li>• Access arrangements (gates, parking, keys)</li>
-                                        <li>• Preferred contact method</li>
+                                        <li>• Preferred contact times and method</li>
                                         <li>• Any urgent requirements or deadlines</li>
-                                        <li>• Previous cleaning experiences or preferences</li>
-                                        <li>• Budget considerations or price expectations</li>
+                                        <li>• Special requirements or concerns</li>
+                                        <li>• Questions about our services</li>
                                     </ul>
                                 </div>
 
@@ -337,7 +339,7 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                     id="genEnqComments"
                                     value={genEnqComments}
                                     onChange={(e) => setGenEnqComments(e.target.value)}
-                                    placeholder="Example: I have a 3-bedroom semi-detached house on a main road, so windows get quite dirty. Interested in regular window cleaning every 4 or 8 weeks and one-off gutter clearing. Property has side access but gate is locked - happy to provide key. Best contacted via mobile during weekday evenings."
+                                    placeholder="Example: I'm looking for regular window cleaning services and would like to know about your availability in my area. I also need a one-off gutter clearing service. Please include any special requirements or access information here."
                                     rows={5}
                                     className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500 resize-vertical"
                                     style={{ minHeight: '120px' }}
@@ -346,6 +348,40 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                 <p className="text-sm text-gray-400 mt-3">
                                     This helps us provide the best service response possible.
                                 </p>
+                            </div>
+
+                            {/* Customer Status */}
+                            <div>
+                                <h3 className="text-lg font-semibold text-gray-200 mb-4">Are you an existing customer?</h3>
+                                <div className="space-y-3">
+                                    <label className="flex items-center p-4 bg-gray-700 border border-gray-600 rounded-lg hover:bg-gray-600 hover:border-blue-500 cursor-pointer transition-all duration-200 group">
+                                        <input 
+                                            type="radio" 
+                                            name="customerStatus" 
+                                            value="existing"
+                                            checked={genEnqCustomerStatus === 'existing'}
+                                            onChange={(e) => setGenEnqCustomerStatus(e.target.value)}
+                                            className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 focus:ring-2"
+                                        />
+                                        <span className="ml-3 text-gray-200 font-medium group-hover:text-blue-300 transition-colors">
+                                            Yes, I'm an existing customer
+                                        </span>
+                                    </label>
+                                    
+                                    <label className="flex items-center p-4 bg-gray-700 border border-gray-600 rounded-lg hover:bg-gray-600 hover:border-blue-500 cursor-pointer transition-all duration-200 group">
+                                        <input 
+                                            type="radio" 
+                                            name="customerStatus" 
+                                            value="new"
+                                            checked={genEnqCustomerStatus === 'new'}
+                                            onChange={(e) => setGenEnqCustomerStatus(e.target.value)}
+                                            className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 focus:ring-2"
+                                        />
+                                        <span className="ml-3 text-gray-200 font-medium group-hover:text-blue-300 transition-colors">
+                                            No, I'm a new customer
+                                        </span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
 
@@ -598,32 +634,6 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                         <p className="text-sm text-gray-500 mt-2">Linked to property details from Step 1</p>
                                     )}
                                 </label>
-                                
-                                {/* Conservatory Roof Cleaning - Only show if conservatory is selected */}
-                                {hasCons && (
-                                    <label className={`block p-6 rounded-lg border-2 transition-all duration-200 cursor-pointer ${
-                                        selectedAddons[FORM_CONSTANTS.ADDON_CONSERVATORY_ROOF]
-                                            ? 'bg-green-700 border-green-500 shadow-lg transform scale-105' 
-                                            : 'bg-gray-700 border-gray-600 hover:border-green-500 hover:bg-green-800/20'
-                                    }`}>
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="addon-conservatoryRoof"
-                                                    checked={!!selectedAddons[FORM_CONSTANTS.ADDON_CONSERVATORY_ROOF]}
-                                                    onChange={() => handleStandardAddonToggle(FORM_CONSTANTS.ADDON_CONSERVATORY_ROOF)}
-                                                    className="h-5 w-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2" 
-                                                />
-                                                <div className="ml-4">
-                                                    <span className="text-lg font-semibold text-white">Conservatory Roof Cleaning</span>
-                                                    <p className="text-sm text-gray-300 mt-1">Professional cleaning of your conservatory roof to remove algae, moss, and dirt buildup.</p>
-                                                </div>
-                                            </div>
-                                            <span className="text-sm text-gray-400">Quote on inspection</span>
-                                        </div>
-                                    </label>
-                                )}
                             </div>
                         </div>
 
@@ -657,6 +667,28 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                         <p className="text-gray-400 text-sm mt-1">Professional cleaning to maintain optimal solar panel efficiency</p>
                                     </div>
                                 </label>
+                                
+                                {/* Conservatory Roof Cleaning Quote - Only show if conservatory is selected */}
+                                {hasCons && (
+                                    <label className="flex items-start p-4 bg-gray-700/50 border border-gray-600 rounded-lg cursor-pointer hover:bg-gray-700/70 transition-colors">
+                                        <input 
+                                            type="checkbox" 
+                                            className="h-5 w-5 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 mt-0.5" 
+                                            onChange={(e) => setFormData(prev => ({
+                                                ...prev,
+                                                quoteRequests: {
+                                                    ...prev.quoteRequests,
+                                                    [FORM_CONSTANTS.QUOTE_REQUEST_CONSERVATORY_ROOF_CLEANING]: e.target.checked
+                                                }
+                                            }))}
+                                            checked={values.quoteRequests?.[FORM_CONSTANTS.QUOTE_REQUEST_CONSERVATORY_ROOF_CLEANING] || false}
+                                        />
+                                        <div className="ml-3">
+                                            <span className="text-white font-medium">Conservatory Roof Cleaning</span>
+                                            <p className="text-gray-400 text-sm mt-1">Professional cleaning of your conservatory roof to remove algae, moss, and dirt buildup</p>
+                                        </div>
+                                    </label>
+                                )}
                             </div>
                         </div>
                     </div>

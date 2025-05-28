@@ -347,7 +347,12 @@ function BookingForm() {
   // Generic handleChange for simple inputs, used by PropertyDetailsForm
   const genericHandleChange = (input) => (e) => {
     const { name, value, type, checked } = e.target;
-    const inputValue = type === 'checkbox' ? checked : value;
+    let inputValue = type === 'checkbox' ? checked : value;
+    
+    // Uppercase postcode for proper matching with schedule data
+    if (input === 'postcode' && typeof inputValue === 'string') {
+        inputValue = inputValue.toUpperCase().trim();
+    }
 
     setFormData(prevFormData => {
         const keys = input.split('.');
@@ -441,7 +446,7 @@ function BookingForm() {
         fasciaSoffitPrice={formData.fasciaSoffitGutterServicePrice}
         discount={formData.windowCleaningDiscount}
         currentStep={currentStep}
-        isVisible={currentStep >= 2 && currentStep <= 4}
+        isVisible={true}
       />
       
       {/* Render current step */}
