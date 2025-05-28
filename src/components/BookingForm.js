@@ -84,6 +84,31 @@ const initialFormData = {
         propertyType: '',
         approxSizeOrWindows: '',
         specificRequirements: '',
+        
+        // New services structure with individual services
+        services: {
+            windowCleaning: false,
+            gutterClearing: false,
+            fasciaSoffit: false,
+            solarPanels: false,
+            pressureWashing: false,
+            other: false
+        },
+        
+        // Individual frequencies for each service
+        frequencies: {
+            windowCleaning: '',
+            gutterClearing: '',
+            fasciaSoffit: '',
+            solarPanels: '',
+            pressureWashing: '',
+            other: ''
+        },
+        
+        // Details for other services
+        otherServiceDetails: '',
+        
+        // Legacy fields for backward compatibility
         servicesRequested: {
             [FORM_CONSTANTS.COMM_SERVICE_WINDOW_CLEANING]: false,
             [FORM_CONSTANTS.COMM_SERVICE_GUTTER_CLEANING]: false,
@@ -110,7 +135,8 @@ const initialFormData = {
         },
         otherServiceText: '',
         requestedFrequency: '',
-        enquiryComments: ''
+        enquiryComments: '',
+        customerStatus: ''
     },
     bookingNotes: '',
     recaptchaToken: '',
@@ -220,11 +246,49 @@ export const mapFormDataToTemplateParams = (formData) => {
         businessName: formData.commercialDetails?.businessName || 'N/A',
         propertyType: formData.commercialDetails?.propertyType || 'N/A',
         approxSizeOrWindows: formData.commercialDetails?.approxSizeOrWindows || 'N/A',
+        
+        // Updated services structure with individual service flags and frequencies
+        services: formData.commercialDetails?.services || {},
+        frequencies: formData.commercialDetails?.frequencies || {},
+        otherServiceDetails: formData.commercialDetails?.otherServiceDetails || '',
+        
+        // Format selected services for email display
+        servicesRequestedFormatted: (() => {
+            const services = formData.commercialDetails?.services || {};
+            const frequencies = formData.commercialDetails?.frequencies || {};
+            const selectedServices = [];
+            
+            if (services.windowCleaning) {
+                selectedServices.push(`Window Cleaning${frequencies.windowCleaning ? ` (${frequencies.windowCleaning})` : ''}`);
+            }
+            if (services.gutterClearing) {
+                selectedServices.push(`Internal Gutter Clearing${frequencies.gutterClearing ? ` (${frequencies.gutterClearing})` : ''}`);
+            }
+            if (services.fasciaSoffit) {
+                selectedServices.push(`Fascia & Soffit Cleaning${frequencies.fasciaSoffit ? ` (${frequencies.fasciaSoffit})` : ''}`);
+            }
+            if (services.solarPanels) {
+                selectedServices.push(`Solar Panel Cleaning${frequencies.solarPanels ? ` (${frequencies.solarPanels})` : ''}`);
+            }
+            if (services.pressureWashing) {
+                selectedServices.push(`Pressure Washing${frequencies.pressureWashing ? ` (${frequencies.pressureWashing})` : ''}`);
+            }
+            if (services.other) {
+                const otherDetails = formData.commercialDetails?.otherServiceDetails || 'Other services';
+                const otherFreq = frequencies.other || '';
+                selectedServices.push(`${otherDetails}${otherFreq ? ` (${otherFreq})` : ''}`);
+            }
+            
+            return selectedServices.length > 0 ? selectedServices.join(', ') : 'None selected';
+        })(),
+        
+        specificRequirements: formData.commercialDetails?.specificRequirements || 'N/A',
+        
+        // Legacy fields for backward compatibility
         servicesRequested: formData.commercialDetails?.servicesRequested || {},
         otherServiceText: formData.commercialDetails?.otherServiceText || '',
         frequencyPreference: formData.commercialDetails?.frequencyPreference || 'N/A',
         otherFrequencyText: formData.commercialDetails?.otherFrequencyText || '',
-        specificRequirements: formData.commercialDetails?.specificRequirements || 'N/A',
         otherNotes: formData.commercialDetails?.otherNotes || 'N/A'
     } : null,
 
@@ -233,7 +297,8 @@ export const mapFormDataToTemplateParams = (formData) => {
         requestedServices: formData.generalEnquiryDetails?.requestedServices || {},
         otherServiceText: formData.generalEnquiryDetails?.otherServiceText || '',
         requestedFrequency: formData.generalEnquiryDetails?.requestedFrequency || 'N/A',
-        enquiryComments: formData.generalEnquiryDetails?.enquiryComments || 'N/A'
+        enquiryComments: formData.generalEnquiryDetails?.enquiryComments || 'N/A',
+        customerStatus: formData.generalEnquiryDetails?.customerStatus || 'N/A'
     } : null,
 
     // reCAPTCHA
