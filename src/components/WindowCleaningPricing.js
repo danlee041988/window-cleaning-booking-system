@@ -213,12 +213,6 @@ const WindowCleaningPricing = ({ goToStep, onFormChange }) => {
                               ? 'bg-gradient-to-br from-white to-gray-50 border-2 border-gray-300 hover:border-gray-500' 
                               : 'bg-gradient-to-br from-white to-amber-50 border-2 border-amber-200 hover:border-amber-400'}`}
               >
-                {/* Business badge only for commercial */}
-                {isCommercialCard && (
-                  <div className="absolute top-4 right-4 px-4 py-2 rounded-full text-xs font-bold shadow-lg bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-                    COMMERCIAL
-                  </div>
-                )}
                 
                 {/* Icon */}
                 <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 mx-auto shadow-lg
