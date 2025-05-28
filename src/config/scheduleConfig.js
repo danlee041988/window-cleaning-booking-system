@@ -1,5 +1,5 @@
 // Schedule configuration for window cleaning service areas
-// Last updated: May 2025
+// Last updated: May 2025 // Effective for current year operations
 
 export const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -160,7 +160,7 @@ export const generateFridayOnlyDates = (options = {}) => {
 };
 
 // Helper function to generate dates for the next 12 months with holiday exclusions
-export const generateScheduleDates = (startDateStr, options = {}) => {
+export const generateScheduleDates = (startDateStr, targetDayOfWeek, options = {}) => {
     const dates = [];
     const parts = startDateStr.split(' ');
     if (parts.length !== 2) return dates;
@@ -185,21 +185,18 @@ export const generateScheduleDates = (startDateStr, options = {}) => {
     endDate.setDate(endDate.getDate() + (6 * 7));
     
     while (currentDate <= endDate) {
-        // Skip bank holidays and holiday periods unless emergency booking
-        if (!options.includeHolidays) {
-            if (!isBankHoliday(currentDate) && !isInHolidayPeriod(currentDate)) {
-                // Check if it's a weekend
-                const dayOfWeek = currentDate.getDay();
-                if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Not Sunday or Saturday
-                    dates.push({
-                        date: `${currentDate.getDate().toString().padStart(2, '0')} ${months[currentDate.getMonth()]}`,
-                        fullDate: new Date(currentDate),
-                        year: currentDate.getFullYear()
-                    });
+        let suitableDate = false;
+        if (currentDate.getDay() === targetDayOfWeek) {
+            if (options.includeHolidays) { // For emergency bookings, skip holiday checks
+                suitableDate = true;
+            } else { // For standard/priority bookings, check holidays
+                if (!isBankHoliday(currentDate) && !isInHolidayPeriod(currentDate)) {
+                    suitableDate = true;
                 }
             }
-        } else {
-            // Include all dates for emergency bookings
+        }
+
+        if (suitableDate) {
             dates.push({
                 date: `${currentDate.getDate().toString().padStart(2, '0')} ${months[currentDate.getMonth()]}`,
                 fullDate: new Date(currentDate),
@@ -220,31 +217,36 @@ export const scheduleData = [
     {
         postcodes: ['BS40', 'BS48', 'BS49', 'BS22', 'BS23', 'BS24', 'BS21'],
         area: 'Weston Backwell Blagdon Yatton Clevedon',
-        startDate: '02 Jun', // Monday
+        startDate: '06 Jan', // Monday (corresponds to Jan 6, 2025)
+        targetDayOfWeek: 1, // Monday
         capacity: areaCapacityLimits['BS40'] || areaCapacityLimits.default
     },
     {
         postcodes: ['BS25', 'BS29'],
         area: 'Banwell Winscombe',
-        startDate: '03 Jun', // Tuesday
+        startDate: '07 Jan', // Tuesday (corresponds to Jan 7, 2025)
+        targetDayOfWeek: 2, // Tuesday
         capacity: areaCapacityLimits.default
     },
     {
         postcodes: ['BS26'],
         area: 'Axbridge',
-        startDate: '04 Jun', // Wednesday
+        startDate: '08 Jan', // Wednesday (corresponds to Jan 8, 2025)
+        targetDayOfWeek: 3, // Wednesday
         capacity: areaCapacityLimits['BS26'] || areaCapacityLimits.default
     },
     {
         postcodes: ['BS26', 'BS27'],
         area: 'Axbridge / Cheddar',
-        startDate: '05 Jun', // Thursday
+        startDate: '09 Jan', // Thursday (corresponds to Jan 9, 2025)
+        targetDayOfWeek: 4, // Thursday
         capacity: areaCapacityLimits['BS26'] || areaCapacityLimits.default
     },
     {
         postcodes: ['BS27'],
         area: 'Cheddar',
-        startDate: '06 Jun', // Friday
+        startDate: '10 Jan', // Friday (corresponds to Jan 10, 2025)
+        targetDayOfWeek: 5, // Friday
         capacity: areaCapacityLimits['BS27'] || areaCapacityLimits.default
     },
     
@@ -252,31 +254,36 @@ export const scheduleData = [
     {
         postcodes: ['BA7', 'BA9', 'BA10', 'BA11', 'BA8'],
         area: 'Wincanton Bruton Castle Cary Frome Templecombe',
-        startDate: '09 Jun', // Monday
+        startDate: '13 Jan', // Monday (corresponds to Jan 13, 2025)
+        targetDayOfWeek: 1, // Monday
         capacity: areaCapacityLimits.default
     },
     {
         postcodes: ['BS39', 'BA3', 'BA4'],
         area: 'Paulton Radstock Shepton',
-        startDate: '10 Jun', // Tuesday
+        startDate: '14 Jan', // Tuesday (corresponds to Jan 14, 2025)
+        targetDayOfWeek: 2, // Tuesday
         capacity: areaCapacityLimits.default
     },
     {
         postcodes: ['BA5', 'BA4'],
         area: 'Shepton Wells',
-        startDate: '11 Jun', // Wednesday
+        startDate: '15 Jan', // Wednesday (corresponds to Jan 15, 2025)
+        targetDayOfWeek: 3, // Wednesday
         capacity: areaCapacityLimits['BA5'] || areaCapacityLimits.default
     },
     {
         postcodes: ['BA5'],
         area: 'Wells',
-        startDate: '12 Jun', // Thursday
+        startDate: '16 Jan', // Thursday (corresponds to Jan 16, 2025)
+        targetDayOfWeek: 4, // Thursday
         capacity: areaCapacityLimits['BA5'] || areaCapacityLimits.default
     },
     {
         postcodes: ['BA5'],
         area: 'Wells',
-        startDate: '13 Jun', // Friday
+        startDate: '17 Jan', // Friday (corresponds to Jan 17, 2025)
+        targetDayOfWeek: 5, // Friday
         capacity: areaCapacityLimits['BA5'] || areaCapacityLimits.default
     },
     
@@ -284,31 +291,36 @@ export const scheduleData = [
     {
         postcodes: ['TA18', 'TA19', 'TA20', 'BA22', 'TA17', 'TA12', 'TA13', 'TA14', 'DT9'],
         area: 'Yeovil Illminster Chard Crewkerne Ilchester Stoke-Sub-Hamdon Martock Sherbourne',
-        startDate: '16 Jun', // Monday
+        startDate: '20 Jan', // Monday (corresponds to Jan 20, 2025)
+        targetDayOfWeek: 1, // Monday
         capacity: areaCapacityLimits.default
     },
     {
         postcodes: ['TA10', 'TA11'],
         area: 'Langport Somerton',
-        startDate: '17 Jun', // Tuesday
+        startDate: '21 Jan', // Tuesday (corresponds to Jan 21, 2025)
+        targetDayOfWeek: 2, // Tuesday
         capacity: areaCapacityLimits.default
     },
     {
         postcodes: ['TA10', 'TA11'],
         area: 'Langport Somerton',
-        startDate: '18 Jun', // Wednesday
+        startDate: '22 Jan', // Wednesday (corresponds to Jan 22, 2025)
+        targetDayOfWeek: 3, // Wednesday
         capacity: areaCapacityLimits.default
     },
     {
         postcodes: ['BA6'],
         area: 'Glastonbury',
-        startDate: '19 Jun', // Thursday
+        startDate: '23 Jan', // Thursday (corresponds to Jan 23, 2025)
+        targetDayOfWeek: 4, // Thursday
         capacity: areaCapacityLimits['BA6'] || areaCapacityLimits.default
     },
     {
         postcodes: ['BA6'],
         area: 'Glastonbury',
-        startDate: '20 Jun', // Friday
+        startDate: '24 Jan', // Friday (corresponds to Jan 24, 2025)
+        targetDayOfWeek: 5, // Friday
         capacity: areaCapacityLimits['BA6'] || areaCapacityLimits.default
     },
     
@@ -316,31 +328,36 @@ export const scheduleData = [
     {
         postcodes: ['TA7', 'TA6', 'TA2', 'TA3', 'TA9', 'TA8', 'TA1'],
         area: 'Bridgwater Taunton Mark Highbridge',
-        startDate: '23 Jun', // Monday
+        startDate: '27 Jan', // Monday (corresponds to Jan 27, 2025)
+        targetDayOfWeek: 1, // Monday
         capacity: areaCapacityLimits.default
     },
     {
         postcodes: ['BS28'],
         area: 'Wedmore',
-        startDate: '24 Jun', // Tuesday
+        startDate: '28 Jan', // Tuesday (corresponds to Jan 28, 2025)
+        targetDayOfWeek: 2, // Tuesday
         capacity: areaCapacityLimits['BS28'] || areaCapacityLimits.default
     },
     {
         postcodes: ['BS28'],
         area: 'Wedmore',
-        startDate: '25 Jun', // Wednesday
+        startDate: '29 Jan', // Wednesday (corresponds to Jan 29, 2025)
+        targetDayOfWeek: 3, // Wednesday
         capacity: areaCapacityLimits['BS28'] || areaCapacityLimits.default
     },
     {
         postcodes: ['BS28', 'BA6-MEARE'],
         area: 'Wedmore Meare',
-        startDate: '26 Jun', // Thursday
+        startDate: '30 Jan', // Thursday (corresponds to Jan 30, 2025)
+        targetDayOfWeek: 4, // Thursday
         capacity: areaCapacityLimits['BS28'] || areaCapacityLimits.default
     },
     {
         postcodes: ['BA16'],
         area: 'Street',
-        startDate: '27 Jun', // Friday
+        startDate: '31 Jan', // Friday (corresponds to Jan 31, 2025)
+        targetDayOfWeek: 5, // Friday
         capacity: areaCapacityLimits['BA16'] || areaCapacityLimits.default
     }
 ];
@@ -404,7 +421,7 @@ export const getAvailableDatesWithCapacity = (postcodes, bookingType = bookingTy
         );
         
         matchingEntries.forEach(entry => {
-            const dates = generateScheduleDates(entry.startDate, { includeHolidays });
+            const dates = generateScheduleDates(entry.startDate, entry.targetDayOfWeek, { includeHolidays });
             dates.forEach(dateInfo => {
                 // Mock booking count - in real app, this would come from database
                 const currentBookings = Math.floor(Math.random() * entry.capacity);
