@@ -375,7 +375,7 @@ export const bookingTypes = {
     EMERGENCY: 'emergency'
 };
 
-// Get available dates with capacity information
+// Get available dates (simplified - no capacity tracking)
 export const getAvailableDatesWithCapacity = (postcodes, bookingType = bookingTypes.STANDARD) => {
     const results = [];
     const includeHolidays = bookingType === bookingTypes.EMERGENCY;
@@ -389,27 +389,17 @@ export const getAvailableDatesWithCapacity = (postcodes, bookingType = bookingTy
         // Generate Friday-only dates for BA6 and BA16
         const fridayDates = generateFridayOnlyDates({ includeHolidays });
         
-        // Find the relevant area info for capacity
+        // Find the relevant area info
         const matchingEntry = scheduleData.find(entry =>
             entry.postcodes.some(pc => postcodes.some(userPc => userPc.startsWith(pc)))
         );
         
-        const capacity = matchingEntry ? matchingEntry.capacity : areaCapacityLimits.default;
         const area = matchingEntry ? matchingEntry.area : 'Friday Service Area';
         
         fridayDates.forEach(dateInfo => {
-            // Mock booking count - in real app, this would come from database
-            const currentBookings = Math.floor(Math.random() * capacity);
-            const remainingCapacity = capacity - currentBookings;
-            
             results.push({
                 ...dateInfo,
                 area,
-                capacity,
-                currentBookings,
-                remainingCapacity,
-                status: remainingCapacity === 0 ? 'full' : 
-                        remainingCapacity <= 2 ? 'limited' : 'available',
                 bookingType,
                 specialRule: 'Friday Only'
             });
@@ -423,18 +413,9 @@ export const getAvailableDatesWithCapacity = (postcodes, bookingType = bookingTy
         matchingEntries.forEach(entry => {
             const dates = generateScheduleDates(entry.startDate, entry.targetDayOfWeek, { includeHolidays });
             dates.forEach(dateInfo => {
-                // Mock booking count - in real app, this would come from database
-                const currentBookings = Math.floor(Math.random() * entry.capacity);
-                const remainingCapacity = entry.capacity - currentBookings;
-                
                 results.push({
                     ...dateInfo,
                     area: entry.area,
-                    capacity: entry.capacity,
-                    currentBookings,
-                    remainingCapacity,
-                    status: remainingCapacity === 0 ? 'full' : 
-                            remainingCapacity <= 2 ? 'limited' : 'available',
                     bookingType
                 });
             });

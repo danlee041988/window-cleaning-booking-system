@@ -34,31 +34,13 @@ const ScheduleSelection = ({
         }
     };
 
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'available':
-                return 'bg-green-600 hover:bg-green-700 text-white';
-            case 'limited':
-                return 'bg-blue-600 hover:bg-blue-700 text-white';
-            case 'full':
-                return 'bg-red-600 text-white cursor-not-allowed opacity-60';
-            default:
-                return 'bg-gray-600 text-gray-300';
+    const getDateColor = (isSelected) => {
+        if (isSelected) {
+            return 'bg-green-600 hover:bg-green-700 text-white border-green-500 ring-2 ring-green-500';
         }
+        return 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600';
     };
 
-    const getStatusIcon = (status) => {
-        switch (status) {
-            case 'available':
-                return '✓';
-            case 'limited':
-                return '!';
-            case 'full':
-                return '✗';
-            default:
-                return '';
-        }
-    };
 
     const formatDateForDisplay = (date) => {
         return date.toLocaleDateString('en-GB', { 
@@ -96,33 +78,18 @@ const ScheduleSelection = ({
                                     <button
                                         key={dateStr}
                                         type="button"
-                                        onClick={() => date.status !== 'full' && onDateSelect(dateStr)}
-                                        disabled={date.status === 'full'}
-                                        className={`p-4 rounded-lg border-2 transition-all duration-200 ${
-                                            isSelected 
-                                                ? 'border-blue-500 ring-2 ring-blue-500 ' + getStatusColor(date.status)
-                                                : 'border-gray-600 ' + getStatusColor(date.status)
-                                        } ${date.status !== 'full' ? 'hover:scale-105' : ''}`}
+                                        onClick={() => onDateSelect(dateStr)}
+                                        className={`p-4 rounded-lg border-2 transition-all duration-200 hover:scale-105 ${
+                                            getDateColor(isSelected)
+                                        }`}
                                     >
-                                        <div className="flex justify-between items-start mb-2">
-                                            <span className="font-semibold">
+                                        <div className="text-center">
+                                            <div className="font-semibold text-lg mb-2">
                                                 {formatDateForDisplay(date.fullDate)}
-                                            </span>
-                                            <span className="text-2xl">{getStatusIcon(date.status)}</span>
-                                        </div>
-                                        <div className="text-sm">
-                                            <div className="mb-2">
+                                            </div>
+                                            <div className="text-sm">
                                                 <span className="text-blue-300 font-medium">{date.area}</span>
                                             </div>
-                                            <div className="flex justify-between">
-                                                <span>Capacity:</span>
-                                                <span>{date.remainingCapacity}/{date.capacity}</span>
-                                            </div>
-                                            {date.status === 'limited' && (
-                                                <div className="mt-1 text-yellow-200">
-                                                    Only {date.remainingCapacity} spots left!
-                                                </div>
-                                            )}
                                         </div>
                                     </button>
                                 );
