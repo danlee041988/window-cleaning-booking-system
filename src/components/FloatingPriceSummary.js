@@ -25,11 +25,11 @@ const FloatingPriceSummary = ({
 
   return (
     <div className={`fixed bottom-4 right-4 z-40 transition-all duration-300 ${
-      isMinimized ? 'w-16' : 'w-64'
+      isMinimized ? 'w-32' : 'w-64'
     }`}>
       <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg shadow-2xl border border-gray-700 overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-3 bg-gray-900/50 border-b border-gray-700">
+        <div className={`flex items-center justify-between p-3 bg-gray-900/50 border-b border-gray-700 ${isMinimized ? 'justify-center' : ''}`}>
           <h3 className={`text-sm font-semibold text-gray-300 ${isMinimized ? 'hidden' : ''}`}>
             Current Total
           </h3>
@@ -151,10 +151,20 @@ const FloatingPriceSummary = ({
 
         {/* Minimized View */}
         {isMinimized && (
-          <div className="p-3 text-center">
-            <p className="text-lg font-bold text-green-400">
-              £{grandTotal.toFixed(2)}
-            </p>
+          <div className="p-4 text-center">
+            <div className="space-y-1">
+              <p className="text-2xl font-bold text-green-400">
+                £{grandTotal.toFixed(2)}
+              </p>
+              <p className="text-xs text-gray-400">
+                First clean total
+              </p>
+              {(gutterClearingPrice > 0 || fasciaSoffitPrice > 0) && (
+                <p className="text-xs text-blue-400">
+                  Then £{(windowPrice + conservatorySurcharge + extensionSurcharge - discount).toFixed(2)}/clean
+                </p>
+              )}
+            </div>
           </div>
         )}
       </div>
