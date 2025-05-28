@@ -1,6 +1,14 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import BookingForm from './components/BookingForm.js';
+
+// Admin components
+import { AuthProvider } from './hooks/useAuth';
+import ProtectedRoute from './components/admin/ProtectedRoute';
+import LoginForm from './components/admin/LoginForm';
+import Layout from './components/admin/Layout';
+import Dashboard from './components/admin/Dashboard';
 
 // Error boundary component
 class ErrorBoundary extends React.Component {
@@ -47,11 +55,36 @@ class ErrorBoundary extends React.Component {
 function App() {
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
-        <main className="w-full">
-          <BookingForm />
-        </main>
-      </div>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            {/* Main booking form route */}
+            <Route path="/" element={
+              <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
+                <main className="w-full">
+                  <BookingForm />
+                </main>
+              </div>
+            } />
+            
+            {/* Admin login route */}
+            <Route path="/admin/login" element={<LoginForm />} />
+            
+            {/* Protected admin routes */}
+            <Route path="/admin" element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Navigate to="/admin/dashboard" replace />} />
+              <Route path="dashboard" element={<Dashboard />} />
+            </Route>
+            
+            {/* Redirect any unknown admin routes to login */}
+            <Route path="/admin/*" element={<Navigate to="/admin/login" replace />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
     </ErrorBoundary>
   );
 }
