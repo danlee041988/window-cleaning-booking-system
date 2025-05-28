@@ -228,8 +228,20 @@ const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
                                   : 'bg-gradient-to-br from-amber-500 to-orange-600'}`}>
                   {isCommercialCard ? (
                     <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/>
-                      <path d="M15 12h1v1h-1v-1zm0 2h1v1h-1v-1z"/>
+                      <path d="M19 3H5c-1 0-2 1-2 2v14c0 1 1 2 2 2h14c1 0 2-1 2-2V5c0-1-1-2-2-2z"/>
+                      <rect x="6" y="6" width="2.5" height="2.5" fill="currentColor" opacity="0.3"/>
+                      <rect x="9.5" y="6" width="2.5" height="2.5" fill="currentColor" opacity="0.3"/>
+                      <rect x="13" y="6" width="2.5" height="2.5" fill="currentColor" opacity="0.3"/>
+                      <rect x="16.5" y="6" width="1.5" height="2.5" fill="currentColor" opacity="0.3"/>
+                      <rect x="6" y="9.5" width="2.5" height="2.5" fill="currentColor" opacity="0.3"/>
+                      <rect x="9.5" y="9.5" width="2.5" height="2.5" fill="currentColor" opacity="0.3"/>
+                      <rect x="13" y="9.5" width="2.5" height="2.5" fill="currentColor" opacity="0.3"/>
+                      <rect x="16.5" y="9.5" width="1.5" height="2.5" fill="currentColor" opacity="0.3"/>
+                      <rect x="6" y="13" width="2.5" height="2.5" fill="currentColor" opacity="0.3"/>
+                      <rect x="9.5" y="13" width="2.5" height="2.5" fill="currentColor" opacity="0.3"/>
+                      <rect x="13" y="13" width="2.5" height="2.5" fill="currentColor" opacity="0.3"/>
+                      <rect x="16.5" y="13" width="1.5" height="2.5" fill="currentColor" opacity="0.3"/>
+                      <rect x="6" y="16.5" width="12" height="1.5" fill="currentColor" opacity="0.5"/>
                     </svg>
                   ) : (
                     <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -345,30 +357,17 @@ const WindowCleaningPricing = ({ goToStep, onFormChange, values }) => {
                     </div>
                   ) : option.bedrooms === '6+ Beds & Bespoke' ? (
                     <div className="flex items-center justify-center">
-                      {/* 6+ beds represented with plus sign */}
-                      <div className="flex items-center space-x-1">
-                        <div className="grid grid-cols-3 gap-1">
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
-                          </svg>
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
-                          </svg>
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
-                          </svg>
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
-                          </svg>
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
-                          </svg>
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
-                          </svg>
-                        </div>
-                        <span className="text-white text-xl font-bold">+</span>
-                      </div>
+                      {/* Large luxury home icon for 6+ beds */}
+                      <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z"/>
+                        <path d="M16 6h2v2h-2V6z" opacity="0.7"/>
+                        <path d="M18 8h2v2h-2V8z" opacity="0.7"/>
+                        <circle cx="12" cy="16" r="1" fill="white" opacity="0.8"/>
+                        <rect x="7" y="14" width="1.5" height="3" fill="white" opacity="0.6"/>
+                        <rect x="9.5" y="14" width="1.5" height="3" fill="white" opacity="0.6"/>
+                        <rect x="13" y="14" width="1.5" height="3" fill="white" opacity="0.6"/>
+                        <rect x="15.5" y="14" width="1.5" height="3" fill="white" opacity="0.6"/>
+                      </svg>
                     </div>
                   ) : (
                     <div className="flex items-center justify-center space-x-1">

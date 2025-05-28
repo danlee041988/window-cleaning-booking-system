@@ -383,10 +383,8 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                             value={values.customResidentialDetails?.exactBedrooms || ''}
                             onChange={handleChange('customResidentialDetails.exactBedrooms')}
                             placeholder="e.g., 6, 7, 8+"
-                            type="number"
+                            type="text"
                             required
-                            min="0"
-                            className="hide-number-arrows"
                         />
                         {formErrors.exactBedrooms && <p className="text-sm text-red-400 -mt-3 mb-1 bg-red-900/20 border border-red-700 rounded p-2">{formErrors.exactBedrooms}</p>}
 
@@ -433,10 +431,10 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
 
                         {/* Services Requested */}
                         <div className="mb-8">
-                            <label className="block text-lg font-semibold text-gray-200 mb-4">Services Required</label>
+                            <label className="block text-lg font-semibold text-gray-200 mb-4">Services Required <span className="text-sm text-gray-400">(Select all that apply)</span></label>
                             <div className="space-y-3">
                                 {[
-                                    { id: FORM_CONSTANTS.CUSTOM_RES_SERVICE_WINDOW_CLEANING, label: 'Window Cleaning (Exterior)' },
+                                    { id: FORM_CONSTANTS.CUSTOM_RES_SERVICE_WINDOW_CLEANING, label: 'Window Cleaning (Exterior) - Regular frequency options available' },
                                     { id: FORM_CONSTANTS.CUSTOM_RES_SERVICE_GUTTER_CLEANING, label: 'Gutter Clearing (Interior)' },
                                     { id: FORM_CONSTANTS.CUSTOM_RES_SERVICE_FASCIA_SOFFIT_CLEANING, label: 'Fascia & Soffit Cleaning (Exterior)' },
                                     { id: FORM_CONSTANTS.CUSTOM_RES_SERVICE_CONSERVATORY_WINDOW_CLEANING, label: 'Conservatory Window Cleaning (Sides)' },
@@ -516,23 +514,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                             value={values.customResidentialDetails?.approxWindows || ''}
                             onChange={handleChange('customResidentialDetails.approxWindows')}
                             placeholder="e.g., 30+"
-                            type="number"
-                            min="0"
-                            className="hide-number-arrows"
-                        />
-                        <TextAreaField
-                            label="Any Access Issues or Specific Requirements?"
-                            name="customResidentialDetails.accessIssues"
-                            value={values.customResidentialDetails?.accessIssues || ''}
-                            onChange={handleChange}
-                            placeholder="e.g., Very high windows, locked gates, pets in garden"
-                        />
-                        <TextAreaField
-                            label="Other Notes for Quote"
-                            name="customResidentialDetails.otherNotes"
-                            value={values.customResidentialDetails?.otherNotes || ''}
-                            onChange={handleChange}
-                            placeholder="Anything else specific to your property or needs?"
+                            type="text"
                         />
 
                     </div>
