@@ -443,7 +443,7 @@ export const mapFormDataToTemplateParams = (formData) => {
     
     // Commercial Services - Individual boolean flags
     commercialWindowCleaning: formData.isCommercial ? !!(formData.commercialDetails?.services?.windowCleaning || formData.commercialDetails?.servicesRequested?.windowCleaning) : false,
-    commercialGutterClearing: formData.isCommercial ? !!(formData.commercialDetails?.services?.gutterClearing || formData.commercialDetails?.servicesRequested?.gutterCleaning) : false,
+    commercialGutterClearing: formData.isCommercial ? !!(formData.commercialDetails?.services?.gutterClearing || formData.commercialDetails?.servicesRequested?.gutterClearing) : false,
     commercialFasciaSoffit: formData.isCommercial ? !!(formData.commercialDetails?.services?.fasciaSoffit || formData.commercialDetails?.servicesRequested?.fasciaSoffitCleaning) : false,
     commercialSolarPanels: formData.isCommercial ? !!(formData.commercialDetails?.services?.solarPanels) : false,
     commercialPressureWashing: formData.isCommercial ? !!(formData.commercialDetails?.services?.pressureWashing) : false,
@@ -689,6 +689,7 @@ function BookingForm() {
     console.log('User ID:', userId);
     console.log('Form Data:', formDataToSubmit);
     console.log('Template Params being sent:', templateParams);
+    console.log('Specific recaptchaToken being sent:', formDataToSubmit.recaptchaToken);
     console.log('Customer Name:', templateParams.customer_name);
     console.log('Customer Email:', templateParams.customer_email);
     console.log('=================================');
