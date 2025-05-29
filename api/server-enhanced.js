@@ -165,18 +165,29 @@ app.post('/api/auth/login', authLimiter, [
   const { username, password } = req.body;
 
   try {
+    // Debug logging
+    console.log('Login attempt for username:', username);
+    console.log('JWT_SECRET available:', !!process.env.JWT_SECRET);
+    
     const user = await prisma.user.findUnique({
       where: { username },
       select: { id: true, username: true, email: true, passwordHash: true, role: true, isActive: true }
     });
 
     if (!user || !user.isActive) {
+      console.log('User not found or inactive:', { found: !!user, active: user?.isActive });
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
     }
 
     const isValidPassword = await bcrypt.compare(password, user.passwordHash);
     if (!isValidPassword) {
+      console.log('Invalid password for user:', username);
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET not configured');
+      return res.status(500).json({ success: false, error: 'Authentication configuration error' });
     }
 
     // Generate tokens
