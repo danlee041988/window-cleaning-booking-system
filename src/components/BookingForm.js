@@ -1,6 +1,5 @@
 // Main parent component for the multi-step booking form
 import React, { useState } from 'react';
-import emailjs from '@emailjs/browser'; // Added import for emailjs
 import * as FORM_CONSTANTS from '../constants/formConstants'; // Import constants
 import WindowCleaningPricing from './WindowCleaningPricing';
 import PropertyDetailsForm from './PropertyDetailsForm';
@@ -663,7 +662,7 @@ function BookingForm() {
     window.scrollTo(0, 0);
   };
 
-  // Moved handleSubmit inside BookingForm component
+  // Enhanced handleSubmit to store in database + send email
   const handleSubmit = async (formDataToSubmit) => {
     if (!formDataToSubmit.recaptchaToken) { 
       setSubmissionError("Please complete the reCAPTCHA verification.");
@@ -673,42 +672,45 @@ function BookingForm() {
     setIsLoading(true);
     setSubmissionError(null);
 
-    const serviceId = process.env.REACT_APP_EMAILJS_SERVICE_ID;
-    const templateId = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
-    const userId = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
-
-    if (!serviceId || !templateId || !userId) {
-      console.error("EmailJS environment variables are not set correctly. Ensure SERVICE_ID, TEMPLATE_ID, and PUBLIC_KEY (formerly USER_ID) are defined.");
-      setSubmissionError("Email configuration error. Please contact support.");
-      setIsLoading(false);
-      return;
-    }
+    // Prepare data for backend API (includes database storage + email sending)
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
     
-    // Use comprehensive version
-    const templateParams = mapFormDataToTemplateParamsSimple(formDataToSubmit);
-    console.log('=== EmailJS Debug Information ===');
-    console.log('Service ID:', serviceId);
-    console.log('Template ID:', templateId);
-    console.log('User ID:', userId);
+    console.log('=== Backend API Submission ===');
+    console.log('API URL:', apiUrl);
     console.log('Form Data:', formDataToSubmit);
-    console.log('Template Params being sent:', templateParams);
-    console.log('Specific recaptchaToken being sent:', formDataToSubmit.recaptchaToken);
-    console.log('g-recaptcha-response in templateParams:', templateParams['g-recaptcha-response']);
-    console.log('Customer Name:', templateParams.customer_name);
-    console.log('Customer Email:', templateParams.customer_email);
     console.log('=================================');
 
     try {
-      const response = await emailjs.send(serviceId, templateId, templateParams, userId);
-      console.log('EmailJS Success Response:', response);
+      const response = await fetch(`${apiUrl}/api/submit-booking`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formDataToSubmit)
+      });
+
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.error || result.errors?.join(', ') || 'Submission failed');
+      }
+
+      console.log('Backend Success Response:', result);
+      console.log('Booking Reference:', result.bookingReference);
+      console.log('Lead ID:', result.leadId);
+      
+      // Store booking reference for confirmation
+      setFormData(prev => ({ ...prev, bookingReference: result.bookingReference, leadId: result.leadId }));
+      
       setIsSubmitted(true);
       setCurrentStep(5); // Assuming 5 is your thank you/confirmation step
       clearSavedData(); // Clear the saved form data after successful submission
+      
     } catch (error) {
-      console.error('Email FAILED...', error);
+      console.error('Booking submission FAILED...', error);
       // Determine if it was a quote/enquiry or a booking for the error message
       const typeOfSubmission = formDataToSubmit.isCommercial || formDataToSubmit.isCustomQuote || formDataToSubmit.isGeneralEnquiry;
-      setSubmissionError(`An error occurred while submitting your ${getEnquiryOrBookingText(typeOfSubmission)}. Please try again or contact us directly.`);
+      setSubmissionError(`An error occurred while submitting your ${getEnquiryOrBookingText(typeOfSubmission)}. ${error.message}. Please try again or contact us directly.`);
     } finally {
       setIsLoading(false);
     }
