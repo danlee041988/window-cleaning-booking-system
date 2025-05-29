@@ -147,6 +147,160 @@ const initialFormData = {
     }
 };
 
+// Comprehensive version with all form data as simple strings/booleans
+export const mapFormDataToTemplateParamsSimple = (formData) => {
+  const formatPrice = (price) => (price !== undefined && price !== null ? price.toFixed(2) : '0.00');
+  
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    } catch (e) {
+      return 'N/A';
+    }
+  };
+
+  // Determine booking type
+  let bookingTypeDisplay = 'Unknown Booking Type';
+  const isStandardResidential = (
+    formData.isResidential &&
+    !formData.isCustomQuote &&
+    !formData.isCommercial &&
+    !formData.isGeneralEnquiry
+  );
+
+  if (isStandardResidential) {
+    bookingTypeDisplay = 'Standard Residential Booking';
+  } else if (formData.isGeneralEnquiry) {
+    bookingTypeDisplay = 'General Enquiry';
+  } else if (formData.isCommercial) {
+    bookingTypeDisplay = 'Commercial Enquiry';
+  } else if (formData.isCustomQuote && formData.isResidential) {
+    bookingTypeDisplay = 'Custom Residential Quote Request';
+  }
+
+  // Debug logging
+  console.log('EmailJS Debug - Form Data:', {
+    isResidential: formData.isResidential,
+    isCustomQuote: formData.isCustomQuote,
+    isCommercial: formData.isCommercial,
+    isGeneralEnquiry: formData.isGeneralEnquiry,
+    isStandardResidential: isStandardResidential,
+    bookingTypeDisplay: bookingTypeDisplay
+  });
+
+  return {
+    // Email subject and booking type
+    emailSubject: `New ${bookingTypeDisplay} from ${formData.customerName || 'Customer'}`,
+    bookingTypeDisplay: bookingTypeDisplay,
+    
+    // Customer Information
+    customerName: formData.customerName || 'N/A',
+    email: formData.email || 'N/A',
+    mobile: formData.mobile || 'N/A',
+    addressLine1: formData.addressLine1 || '',
+    addressLine2: formData.addressLine2 || '',
+    townCity: formData.townCity || '',
+    postcode: formData.postcode || '',
+    preferredContactMethod: formData.preferredContactMethod || 'N/A',
+    bookingNotes: formData.bookingNotes || 'N/A',
+
+    // Booking type flags - Convert booleans to strings for EmailJS
+    isStandardResidential: isStandardResidential ? 'true' : '',
+    isCustomQuote: (formData.isCustomQuote || false) ? 'true' : '',
+    isCommercial: (formData.isCommercial || false) ? 'true' : '',
+    isGeneralEnquiry: (formData.isGeneralEnquiry || false) ? 'true' : '',
+    
+    // Debug variables
+    debugIsStandardResidential: isStandardResidential ? 'TRUE' : 'FALSE',
+    debugFormFlags: `isRes:${!!formData.isResidential} isCustom:${!!formData.isCustomQuote} isComm:${!!formData.isCommercial} isGen:${!!formData.isGeneralEnquiry}`,
+
+    // Standard Residential Details
+    propertyType: isStandardResidential ? (formData.propertyType || 'N/A') : 'N/A',
+    bedrooms: isStandardResidential ? (formData.bedrooms || 'N/A') : 'N/A',
+    selectedFrequency: isStandardResidential ? (formData.selectedFrequency || 'N/A') : 'N/A',
+    initialWindowPrice: isStandardResidential ? formatPrice(formData.initialWindowPrice) : '0.00',
+    selectedWindowServiceName: isStandardResidential ? (formData.selectedWindowService?.name || 'N/A') : 'N/A',
+    selectedWindowServiceType: isStandardResidential ? (formData.selectedWindowService?.type || 'N/A') : 'N/A',
+    
+    // Property Features - Convert booleans to strings for EmailJS
+    hasConservatory: isStandardResidential && formData.hasConservatory ? 'true' : '',
+    conservatorySurcharge: isStandardResidential ? formatPrice(formData.conservatorySurcharge) : '0.00',
+    hasExtension: isStandardResidential && formData.hasExtension ? 'true' : '',
+    extensionSurcharge: isStandardResidential ? formatPrice(formData.extensionSurcharge) : '0.00',
+    
+    // Additional Services - Convert booleans to strings for EmailJS
+    hasConservatoryRoof: isStandardResidential && formData.additionalServices?.[FORM_CONSTANTS.ADDON_CONSERVATORY_ROOF] ? 'true' : '',
+    hasFasciaSoffitGutter: isStandardResidential && formData.additionalServices?.[FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER] ? 'true' : '',
+    hasGutterClearing: isStandardResidential && formData.additionalServices?.[FORM_CONSTANTS.ADDON_GUTTER_CLEARING] ? 'true' : '',
+    fasciaSoffitGutterPrice: isStandardResidential ? formatPrice(formData.fasciaSoffitGutterServicePrice) : '0.00',
+    gutterClearingPrice: isStandardResidential ? formatPrice(formData.gutterClearingServicePrice) : '0.00',
+    
+    // Pricing
+    subTotalBeforeDiscount: isStandardResidential ? formatPrice(formData.subTotalBeforeDiscount) : '0.00',
+    windowCleaningDiscount: isStandardResidential ? formatPrice(formData.windowCleaningDiscount) : '0.00',
+    grandTotal: isStandardResidential ? formatPrice(formData.grandTotal) : '0.00',
+    selectedDate: isStandardResidential ? formatDate(formData.selectedDate) : 'N/A',
+
+    // Custom Residential Quote Details
+    customBedrooms: formData.isCustomQuote ? (formData.customResidentialDetails?.exactBedrooms || 'N/A') : 'N/A',
+    customApproxWindows: formData.isCustomQuote ? (formData.customResidentialDetails?.approxWindows || 'N/A') : 'N/A',
+    customPropertyStyle: formData.isCustomQuote ? (formData.customResidentialDetails?.propertyStyle || 'N/A') : 'N/A',
+    customOtherPropertyStyle: formData.isCustomQuote ? (formData.customResidentialDetails?.otherPropertyStyleText || '') : '',
+    customAccessIssues: formData.isCustomQuote ? (formData.customResidentialDetails?.accessIssues || 'N/A') : 'N/A',
+    customFrequencyPreference: formData.isCustomQuote ? (formData.customResidentialDetails?.frequencyPreference || 'N/A') : 'N/A',
+    customOtherFrequency: formData.isCustomQuote ? (formData.customResidentialDetails?.otherFrequencyText || '') : '',
+    customOtherNotes: formData.isCustomQuote ? (formData.customResidentialDetails?.otherNotes || 'N/A') : 'N/A',
+    customOtherServiceText: formData.isCustomQuote ? (formData.customResidentialDetails?.otherServiceText || '') : '',
+    
+    // Custom Residential Services - Convert booleans to strings for EmailJS
+    customWindowCleaning: formData.isCustomQuote && formData.customResidentialDetails?.servicesRequested?.windowCleaning ? 'true' : '',
+    customGutterCleaning: formData.isCustomQuote && formData.customResidentialDetails?.servicesRequested?.gutterCleaning ? 'true' : '',
+    customFasciaSoffit: formData.isCustomQuote && formData.customResidentialDetails?.servicesRequested?.fasciaSoffitCleaning ? 'true' : '',
+    customConservatoryWindows: formData.isCustomQuote && formData.customResidentialDetails?.servicesRequested?.conservatoryWindowCleaning ? 'true' : '',
+    customConservatoryRoof: formData.isCustomQuote && formData.customResidentialDetails?.servicesRequested?.conservatoryRoofCleaning ? 'true' : '',
+    customOtherService: formData.isCustomQuote && formData.customResidentialDetails?.servicesRequested?.other ? 'true' : '',
+
+    // Commercial Details
+    commercialBusinessName: formData.isCommercial ? (formData.commercialDetails?.businessName || 'N/A') : 'N/A',
+    commercialPropertyType: formData.isCommercial ? (formData.commercialDetails?.propertyType || 'N/A') : 'N/A',
+    commercialSizeWindows: formData.isCommercial ? (formData.commercialDetails?.approxSizeOrWindows || 'N/A') : 'N/A',
+    commercialFrequency: formData.isCommercial ? (formData.commercialDetails?.frequencyPreference || 'N/A') : 'N/A',
+    commercialOtherFrequency: formData.isCommercial ? (formData.commercialDetails?.otherFrequencyText || '') : '',
+    commercialRequirements: formData.isCommercial ? (formData.commercialDetails?.specificRequirements || 'N/A') : 'N/A',
+    commercialOtherNotes: formData.isCommercial ? (formData.commercialDetails?.otherNotes || 'N/A') : 'N/A',
+    commercialOtherServiceText: formData.isCommercial ? (formData.commercialDetails?.otherServiceText || '') : '',
+    
+    // Commercial Services - Convert booleans to strings for EmailJS
+    commercialWindowCleaning: formData.isCommercial && formData.commercialDetails?.servicesRequested?.windowCleaning ? 'true' : '',
+    commercialGutterCleaning: formData.isCommercial && formData.commercialDetails?.servicesRequested?.gutterCleaning ? 'true' : '',
+    commercialFasciaSoffit: formData.isCommercial && formData.commercialDetails?.servicesRequested?.fasciaSoffitCleaning ? 'true' : '',
+    commercialCladding: formData.isCommercial && formData.commercialDetails?.servicesRequested?.claddingCleaning ? 'true' : '',
+    commercialSignage: formData.isCommercial && formData.commercialDetails?.servicesRequested?.signageCleaning ? 'true' : '',
+    commercialOther: formData.isCommercial && formData.commercialDetails?.servicesRequested?.other ? 'true' : '',
+
+    // General Enquiry Details
+    generalFrequency: formData.isGeneralEnquiry ? (formData.generalEnquiryDetails?.requestedFrequency || 'N/A') : 'N/A',
+    generalComments: formData.isGeneralEnquiry ? (formData.generalEnquiryDetails?.enquiryComments || 'N/A') : 'N/A',
+    generalCustomerStatus: formData.isGeneralEnquiry ? (formData.generalEnquiryDetails?.customerStatus || 'N/A') : 'N/A',
+    generalOtherServiceText: formData.isGeneralEnquiry ? (formData.generalEnquiryDetails?.otherServiceText || '') : '',
+    
+    // General Enquiry Services - Convert booleans to strings for EmailJS
+    generalWindowCleaning: formData.isGeneralEnquiry && formData.generalEnquiryDetails?.requestedServices?.windowCleaning ? 'true' : '',
+    generalConservatoryWindows: formData.isGeneralEnquiry && formData.generalEnquiryDetails?.requestedServices?.conservatoryWindows ? 'true' : '',
+    generalConservatoryRoof: formData.isGeneralEnquiry && formData.generalEnquiryDetails?.requestedServices?.conservatoryRoof ? 'true' : '',
+    generalGutterClearing: formData.isGeneralEnquiry && formData.generalEnquiryDetails?.requestedServices?.gutterClearing ? 'true' : '',
+    generalFasciaSoffit: formData.isGeneralEnquiry && formData.generalEnquiryDetails?.requestedServices?.fasciaSoffitGutter ? 'true' : '',
+    generalSolarPanels: formData.isGeneralEnquiry && formData.generalEnquiryDetails?.requestedServices?.solarPanels ? 'true' : '',
+    generalOtherService: formData.isGeneralEnquiry && formData.generalEnquiryDetails?.requestedServices?.other ? 'true' : '',
+
+    // Quote Requests - Convert booleans to strings for EmailJS
+    quoteSolarPanels: formData.quoteRequests?.solarPanelCleaning ? 'true' : '',
+    quoteConservatoryRoof: formData.quoteRequests?.conservatoryRoofCleaning ? 'true' : ''
+  };
+};
+
 // Export for use in improved component
 export const mapFormDataToTemplateParams = (formData) => {
   let bookingTypeDisplay = 'Unknown Booking Type';
@@ -210,7 +364,12 @@ export const mapFormDataToTemplateParams = (formData) => {
     conservatorySurchargetoFixed2: '0.00',
     hasExtension: false, // Default
     extensionSurchargetoFixed2: '0.00',
-    additionalServices: { conservatoryRoof: false, fasciaSoffitGutter: false, gutterClearing: false }, // Default
+    // Additional Services - Individual boolean flags for template
+    additionalServiceConservatoryRoof: false, // Default
+    additionalServiceFasciaSoffitGutter: false, // Default  
+    additionalServiceGutterClearing: false, // Default
+    selectedWindowServiceName: 'N/A', // Default
+    selectedWindowServiceType: 'N/A', // Default
     hasGutterClearingServiceSelected: false, // Default
     gutterClearingServicePriceToFixed2: '0.00', // Default
     hasFasciaSoffitGutterServiceSelected: !!formData.additionalServices?.[FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER], // Corrected key
@@ -225,86 +384,105 @@ export const mapFormDataToTemplateParams = (formData) => {
     recurringPricePerVisitToFixed2: '0.00', // Price for one recurring visit
     showAnnualValue: false, // Flag to show annual value section
 
-    // Custom Residential Quote Details
-    customResidentialDetails: formData.isCustomQuote ? {
-        exactBedrooms: formData.customResidentialDetails?.exactBedrooms || 'N/A',
-        approxWindows: formData.customResidentialDetails?.approxWindows || 'N/A',
-        accessIssues: formData.customResidentialDetails?.accessIssues || 'N/A',
-        propertyStyle: formData.customResidentialDetails?.propertyStyle || 'N/A',
-        otherPropertyStyleText: formData.customResidentialDetails?.otherPropertyStyleText || '',
-        servicesRequested: formData.customResidentialDetails?.servicesRequested || {},
-        otherServiceText: formData.customResidentialDetails?.otherServiceText || '',
-        frequencyPreference: formData.customResidentialDetails?.frequencyPreference || 'N/A',
-        otherFrequencyText: formData.customResidentialDetails?.otherFrequencyText || '',
-        otherNotes: formData.customResidentialDetails?.otherNotes || 'N/A',
-        customAdditionalComments: formData.customResidentialDetails?.customAdditionalComments || 'N/A'
-    } : null,
+    // Custom Residential Quote Details - Flattened for EmailJS
+    customResidentialExactBedrooms: formData.isCustomQuote ? (formData.customResidentialDetails?.exactBedrooms || 'N/A') : 'N/A',
+    customResidentialApproxWindows: formData.isCustomQuote ? (formData.customResidentialDetails?.approxWindows || 'N/A') : 'N/A',
+    customResidentialAccessIssues: formData.isCustomQuote ? (formData.customResidentialDetails?.accessIssues || 'N/A') : 'N/A',
+    customResidentialPropertyStyle: formData.isCustomQuote ? (formData.customResidentialDetails?.propertyStyle || 'N/A') : 'N/A',
+    customResidentialOtherPropertyStyleText: formData.isCustomQuote ? (formData.customResidentialDetails?.otherPropertyStyleText || '') : '',
+    customResidentialOtherServiceText: formData.isCustomQuote ? (formData.customResidentialDetails?.otherServiceText || '') : '',
+    customResidentialFrequencyPreference: formData.isCustomQuote ? (formData.customResidentialDetails?.frequencyPreference || 'N/A') : 'N/A',
+    customResidentialOtherFrequencyText: formData.isCustomQuote ? (formData.customResidentialDetails?.otherFrequencyText || '') : '',
+    customResidentialOtherNotes: formData.isCustomQuote ? (formData.customResidentialDetails?.otherNotes || 'N/A') : 'N/A',
+    customResidentialAdditionalComments: formData.isCustomQuote ? (formData.customResidentialDetails?.customAdditionalComments || 'N/A') : 'N/A',
+    
+    // Custom Residential Services - Individual boolean flags
+    customResidentialWindowCleaning: formData.isCustomQuote ? !!(formData.customResidentialDetails?.servicesRequested?.windowCleaning) : false,
+    customResidentialGutterCleaning: formData.isCustomQuote ? !!(formData.customResidentialDetails?.servicesRequested?.gutterCleaning) : false,
+    customResidentialFasciaSoffitCleaning: formData.isCustomQuote ? !!(formData.customResidentialDetails?.servicesRequested?.fasciaSoffitCleaning) : false,
+    customResidentialConservatoryWindowCleaning: formData.isCustomQuote ? !!(formData.customResidentialDetails?.servicesRequested?.conservatoryWindowCleaning) : false,
+    customResidentialConservatoryRoofCleaning: formData.isCustomQuote ? !!(formData.customResidentialDetails?.servicesRequested?.conservatoryRoofCleaning) : false,
+    customResidentialOtherService: formData.isCustomQuote ? !!(formData.customResidentialDetails?.servicesRequested?.other) : false,
 
-    // Commercial Enquiry Details
-    commercialDetails: formData.isCommercial ? {
-        businessName: formData.commercialDetails?.businessName || 'N/A',
-        propertyType: formData.commercialDetails?.propertyType || 'N/A',
-        approxSizeOrWindows: formData.commercialDetails?.approxSizeOrWindows || 'N/A',
+    // Commercial Enquiry Details - Flattened for EmailJS
+    commercialBusinessName: formData.isCommercial ? (formData.commercialDetails?.businessName || 'N/A') : 'N/A',
+    commercialPropertyType: formData.isCommercial ? (formData.commercialDetails?.propertyType || 'N/A') : 'N/A',
+    commercialApproxSizeOrWindows: formData.isCommercial ? (formData.commercialDetails?.approxSizeOrWindows || 'N/A') : 'N/A',
+    commercialOtherServiceDetails: formData.isCommercial ? (formData.commercialDetails?.otherServiceDetails || '') : '',
+    commercialSpecificRequirements: formData.isCommercial ? (formData.commercialDetails?.specificRequirements || 'N/A') : 'N/A',
+    commercialOtherServiceText: formData.isCommercial ? (formData.commercialDetails?.otherServiceText || '') : '',
+    commercialFrequencyPreference: formData.isCommercial ? (formData.commercialDetails?.frequencyPreference || 'N/A') : 'N/A',
+    commercialOtherFrequencyText: formData.isCommercial ? (formData.commercialDetails?.otherFrequencyText || '') : '',
+    commercialOtherNotes: formData.isCommercial ? (formData.commercialDetails?.otherNotes || 'N/A') : 'N/A',
+    
+    // Commercial Services - Individual boolean flags
+    commercialWindowCleaning: formData.isCommercial ? !!(formData.commercialDetails?.services?.windowCleaning || formData.commercialDetails?.servicesRequested?.windowCleaning) : false,
+    commercialGutterClearing: formData.isCommercial ? !!(formData.commercialDetails?.services?.gutterClearing || formData.commercialDetails?.servicesRequested?.gutterCleaning) : false,
+    commercialFasciaSoffit: formData.isCommercial ? !!(formData.commercialDetails?.services?.fasciaSoffit || formData.commercialDetails?.servicesRequested?.fasciaSoffitCleaning) : false,
+    commercialSolarPanels: formData.isCommercial ? !!(formData.commercialDetails?.services?.solarPanels) : false,
+    commercialPressureWashing: formData.isCommercial ? !!(formData.commercialDetails?.services?.pressureWashing) : false,
+    commercialCladdingCleaning: formData.isCommercial ? !!(formData.commercialDetails?.servicesRequested?.claddingCleaning) : false,
+    commercialSignageCleaning: formData.isCommercial ? !!(formData.commercialDetails?.servicesRequested?.signageCleaning) : false,
+    commercialOtherService: formData.isCommercial ? !!(formData.commercialDetails?.services?.other || formData.commercialDetails?.servicesRequested?.other) : false,
+    
+    // Commercial Services Formatted String
+    commercialServicesRequestedFormatted: formData.isCommercial ? (() => {
+        const services = formData.commercialDetails?.services || {};
+        const frequencies = formData.commercialDetails?.frequencies || {};
+        const legacyServices = formData.commercialDetails?.servicesRequested || {};
+        const selectedServices = [];
         
-        // Updated services structure with individual service flags and frequencies
-        services: formData.commercialDetails?.services || {},
-        frequencies: formData.commercialDetails?.frequencies || {},
-        otherServiceDetails: formData.commercialDetails?.otherServiceDetails || '',
+        if (services.windowCleaning || legacyServices.windowCleaning) {
+            selectedServices.push(`Window Cleaning${frequencies.windowCleaning ? ` (${frequencies.windowCleaning})` : ''}`);
+        }
+        if (services.gutterClearing || legacyServices.gutterCleaning) {
+            selectedServices.push(`Gutter Clearing${frequencies.gutterClearing ? ` (${frequencies.gutterClearing})` : ''}`);
+        }
+        if (services.fasciaSoffit || legacyServices.fasciaSoffitCleaning) {
+            selectedServices.push(`Fascia & Soffit Cleaning${frequencies.fasciaSoffit ? ` (${frequencies.fasciaSoffit})` : ''}`);
+        }
+        if (legacyServices.claddingCleaning) {
+            selectedServices.push(`Cladding Cleaning`);
+        }
+        if (legacyServices.signageCleaning) {
+            selectedServices.push(`Signage Cleaning`);
+        }
+        if (services.solarPanels) {
+            selectedServices.push(`Solar Panel Cleaning${frequencies.solarPanels ? ` (${frequencies.solarPanels})` : ''}`);
+        }
+        if (services.pressureWashing) {
+            selectedServices.push(`Pressure Washing${frequencies.pressureWashing ? ` (${frequencies.pressureWashing})` : ''}`);
+        }
+        if (services.other || legacyServices.other) {
+            const otherDetails = formData.commercialDetails?.otherServiceDetails || formData.commercialDetails?.otherServiceText || 'Other services';
+            const otherFreq = frequencies.other || '';
+            selectedServices.push(`${otherDetails}${otherFreq ? ` (${otherFreq})` : ''}`);
+        }
         
-        // Format selected services for email display
-        servicesRequestedFormatted: (() => {
-            const services = formData.commercialDetails?.services || {};
-            const frequencies = formData.commercialDetails?.frequencies || {};
-            const selectedServices = [];
-            
-            if (services.windowCleaning) {
-                selectedServices.push(`Window Cleaning${frequencies.windowCleaning ? ` (${frequencies.windowCleaning})` : ''}`);
-            }
-            if (services.gutterClearing) {
-                selectedServices.push(`Internal Gutter Clearing${frequencies.gutterClearing ? ` (${frequencies.gutterClearing})` : ''}`);
-            }
-            if (services.fasciaSoffit) {
-                selectedServices.push(`Fascia & Soffit Cleaning${frequencies.fasciaSoffit ? ` (${frequencies.fasciaSoffit})` : ''}`);
-            }
-            if (services.solarPanels) {
-                selectedServices.push(`Solar Panel Cleaning${frequencies.solarPanels ? ` (${frequencies.solarPanels})` : ''}`);
-            }
-            if (services.pressureWashing) {
-                selectedServices.push(`Pressure Washing${frequencies.pressureWashing ? ` (${frequencies.pressureWashing})` : ''}`);
-            }
-            if (services.other) {
-                const otherDetails = formData.commercialDetails?.otherServiceDetails || 'Other services';
-                const otherFreq = frequencies.other || '';
-                selectedServices.push(`${otherDetails}${otherFreq ? ` (${otherFreq})` : ''}`);
-            }
-            
-            return selectedServices.length > 0 ? selectedServices.join(', ') : 'None selected';
-        })(),
-        
-        specificRequirements: formData.commercialDetails?.specificRequirements || 'N/A',
-        
-        // Legacy fields for backward compatibility
-        servicesRequested: formData.commercialDetails?.servicesRequested || {},
-        otherServiceText: formData.commercialDetails?.otherServiceText || '',
-        frequencyPreference: formData.commercialDetails?.frequencyPreference || 'N/A',
-        otherFrequencyText: formData.commercialDetails?.otherFrequencyText || '',
-        otherNotes: formData.commercialDetails?.otherNotes || 'N/A'
-    } : null,
+        return selectedServices.length > 0 ? selectedServices.join(', ') : 'None selected';
+    })() : 'N/A',
 
-    // General Enquiry Details
-    generalEnquiryDetails: formData.isGeneralEnquiry ? {
-        requestedServices: formData.generalEnquiryDetails?.requestedServices || {},
-        otherServiceText: formData.generalEnquiryDetails?.otherServiceText || '',
-        requestedFrequency: formData.generalEnquiryDetails?.requestedFrequency || 'N/A',
-        enquiryComments: formData.generalEnquiryDetails?.enquiryComments || 'N/A',
-        customerStatus: formData.generalEnquiryDetails?.customerStatus || 'N/A'
-    } : null,
+    // General Enquiry Details - Flattened for EmailJS
+    generalEnquiryOtherServiceText: formData.isGeneralEnquiry ? (formData.generalEnquiryDetails?.otherServiceText || '') : '',
+    generalEnquiryRequestedFrequency: formData.isGeneralEnquiry ? (formData.generalEnquiryDetails?.requestedFrequency || 'N/A') : 'N/A',
+    generalEnquiryComments: formData.isGeneralEnquiry ? (formData.generalEnquiryDetails?.enquiryComments || 'N/A') : 'N/A',
+    generalEnquiryCustomerStatus: formData.isGeneralEnquiry ? (formData.generalEnquiryDetails?.customerStatus || 'N/A') : 'N/A',
+    
+    // General Enquiry Services - Individual boolean flags
+    generalEnquiryWindowCleaning: formData.isGeneralEnquiry ? !!(formData.generalEnquiryDetails?.requestedServices?.windowCleaning) : false,
+    generalEnquiryConservatoryWindows: formData.isGeneralEnquiry ? !!(formData.generalEnquiryDetails?.requestedServices?.conservatoryWindows) : false,
+    generalEnquiryConservatoryRoof: formData.isGeneralEnquiry ? !!(formData.generalEnquiryDetails?.requestedServices?.conservatoryRoof) : false,
+    generalEnquiryGutterClearing: formData.isGeneralEnquiry ? !!(formData.generalEnquiryDetails?.requestedServices?.gutterClearing) : false,
+    generalEnquiryFasciaSoffitGutter: formData.isGeneralEnquiry ? !!(formData.generalEnquiryDetails?.requestedServices?.fasciaSoffitGutter) : false,
+    generalEnquirySolarPanels: formData.isGeneralEnquiry ? !!(formData.generalEnquiryDetails?.requestedServices?.solarPanels) : false,
+    generalEnquiryOtherService: formData.isGeneralEnquiry ? !!(formData.generalEnquiryDetails?.requestedServices?.other) : false,
 
     // reCAPTCHA
     'g-recaptcha-response': formData.recaptchaToken || '',
 
-    // Quote requests
-    quoteRequests: formData.quoteRequests || { solarPanelCleaning: false, conservatoryRoofCleaning: false },
+    // Quote requests - Individual boolean flags
+    quoteRequestSolarPanelCleaning: !!(formData.quoteRequests?.solarPanelCleaning),
+    quoteRequestConservatoryRoofCleaning: !!(formData.quoteRequests?.conservatoryRoofCleaning),
 
     // Add a flag for non-zero grand total for template logic
     grandTotal_not_zero: formData.grandTotal > 0
@@ -316,11 +494,17 @@ export const mapFormDataToTemplateParams = (formData) => {
     params.bedrooms = formData.bedrooms || 'N/A';
     params.selectedFrequency = formData.selectedFrequency || 'N/A';
     params.initialWindowPricetoFixed2 = formatPrice(formData.initialWindowPrice);
-    params.selectedWindowService = formData.selectedWindowService || null; // Pass the object directly
+    params.selectedWindowServiceName = formData.selectedWindowService?.name || 'N/A';
+    params.selectedWindowServiceType = formData.selectedWindowService?.type || 'N/A';
     params.hasConservatory = formData.hasConservatory || false;
     params.conservatorySurchargetoFixed2 = formatPrice(formData.conservatorySurcharge);
     params.hasExtension = formData.hasExtension || false;
     params.extensionSurchargetoFixed2 = formatPrice(formData.extensionSurcharge);
+    
+    // Additional Services for Standard Residential
+    params.additionalServiceConservatoryRoof = !!formData.additionalServices?.[FORM_CONSTANTS.ADDON_CONSERVATORY_ROOF];
+    params.additionalServiceFasciaSoffitGutter = !!formData.additionalServices?.[FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER];
+    params.additionalServiceGutterClearing = !!formData.additionalServices?.[FORM_CONSTANTS.ADDON_GUTTER_CLEARING];
     // No need to re-assign params.additionalServices here if additionalServicesForTemplate is used by the email template
     // If the email template *directly* uses a field named additionalServices and expects string keys:
     // params.additionalServices = { 
@@ -471,7 +655,9 @@ function BookingForm() {
       return;
     }
     
-    const templateParams = mapFormDataToTemplateParams(formDataToSubmit);
+    // Use comprehensive version
+    const templateParams = mapFormDataToTemplateParamsSimple(formDataToSubmit);
+    console.log('Template Params being sent to EmailJS:', templateParams);
 
     try {
       await emailjs.send(serviceId, templateId, templateParams, userId);
