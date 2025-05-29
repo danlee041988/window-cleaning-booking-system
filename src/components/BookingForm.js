@@ -1,5 +1,6 @@
 // Main parent component for the multi-step booking form
 import React, { useState } from 'react';
+import emailjs from '@emailjs/browser';
 import * as FORM_CONSTANTS from '../constants/formConstants'; // Import constants
 import WindowCleaningPricing from './WindowCleaningPricing';
 import PropertyDetailsForm from './PropertyDetailsForm';
@@ -681,6 +682,22 @@ function BookingForm() {
     console.log('=================================');
 
     try {
+      // Send email first (to customer) using existing EmailJS setup
+      const serviceId = process.env.REACT_APP_EMAILJS_SERVICE_ID;
+      const templateId = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
+      const userId = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
+
+      if (serviceId && templateId && userId) {
+        console.log('Sending email via EmailJS...');
+        const templateParams = mapFormDataToTemplateParamsSimple(formDataToSubmit);
+        await emailjs.send(serviceId, templateId, templateParams, userId);
+        console.log('Email sent successfully');
+      } else {
+        console.warn('EmailJS not configured, skipping email');
+      }
+
+      // Then submit to backend API (for database storage)
+      console.log('Submitting to backend API...');
       const response = await fetch(`${apiUrl}/api/submit-booking`, {
         method: 'POST',
         headers: {
