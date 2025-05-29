@@ -323,7 +323,10 @@ export const mapFormDataToTemplateParamsSimple = (formData) => {
     
     // Custom Quote Details
     customDetails: formData.isCustomQuote ? (formData.customResidentialDetails?.otherNotes || '') : '',
-    customBudget: formData.isCustomQuote ? (formData.customResidentialDetails?.budget || '') : ''
+    customBudget: formData.isCustomQuote ? (formData.customResidentialDetails?.budget || '') : '',
+    
+    // reCAPTCHA - EmailJS expects this exact parameter name
+    'g-recaptcha-response': formData.recaptchaToken || ''
   };
 };
 
@@ -690,6 +693,7 @@ function BookingForm() {
     console.log('Form Data:', formDataToSubmit);
     console.log('Template Params being sent:', templateParams);
     console.log('Specific recaptchaToken being sent:', formDataToSubmit.recaptchaToken);
+    console.log('g-recaptcha-response in templateParams:', templateParams['g-recaptcha-response']);
     console.log('Customer Name:', templateParams.customer_name);
     console.log('Customer Email:', templateParams.customer_email);
     console.log('=================================');
