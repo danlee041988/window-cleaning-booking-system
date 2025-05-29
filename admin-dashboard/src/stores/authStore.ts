@@ -178,17 +178,26 @@ export const useAuthStore = create<AuthState>()(
       }),
       onRehydrateStorage: () => (state) => {
         // When storage is rehydrated, check if we need to refresh
-        if (state?.refreshToken) {
+        if (state?.refreshToken && state?.isAuthenticated) {
           state.refreshAuth().catch(() => {
             state.logout();
           });
         } else {
+          // No tokens or not authenticated, stop loading
           state?.setLoading(false);
         }
       },
     }
   )
 );
+
+// Failsafe: Ensure loading is set to false after 3 seconds maximum
+setTimeout(() => {
+  const state = useAuthStore.getState();
+  if (state.isLoading && !state.refreshToken) {
+    state.setLoading(false);
+  }
+}, 3000);
 
 // Helper functions for checking permissions
 export const useHasPermission = (permission: string): boolean => {
