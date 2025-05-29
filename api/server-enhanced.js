@@ -657,6 +657,36 @@ app.get('/api/debug/env', (req, res) => {
   });
 });
 
+// Debug endpoint to test database connection and admin user
+app.get('/api/debug/db', async (req, res) => {
+  try {
+    console.log('Testing database connection...');
+    const users = await prisma.user.findMany();
+    console.log('Users found:', users.length);
+    
+    const admin = await prisma.user.findUnique({
+      where: { username: 'admin' },
+      select: { id: true, username: true, email: true, role: true, isActive: true, passwordHash: true }
+    });
+    
+    res.json({
+      success: true,
+      timestamp: new Date().toISOString(),
+      totalUsers: users.length,
+      adminFound: !!admin,
+      adminActive: admin?.isActive,
+      adminHasPassword: !!admin?.passwordHash
+    });
+  } catch (error) {
+    console.error('Database test error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {
