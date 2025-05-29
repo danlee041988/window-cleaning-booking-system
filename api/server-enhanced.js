@@ -237,7 +237,12 @@ app.post('/api/auth/login', authLimiter, [
 
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ success: false, error: 'Login failed' });
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      username: username
+    });
+    res.status(500).json({ success: false, error: 'Login failed: ' + error.message });
   }
 });
 
