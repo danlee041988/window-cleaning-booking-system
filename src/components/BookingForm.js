@@ -191,11 +191,22 @@ export const mapFormDataToTemplateParamsSimple = (formData) => {
   });
 
   return {
+    // EmailJS specific fields
+    to_email: 'info@somersetwindowcleaning.co.uk', // Business email to receive notifications
+    
     // Email subject and booking type
     emailSubject: `New ${bookingTypeDisplay} from ${formData.customerName || 'Customer'}`,
     bookingTypeDisplay: bookingTypeDisplay,
     
-    // Customer Information
+    // Customer Information - Using underscore naming to match email template
+    customer_name: formData.customerName || 'N/A',
+    customer_email: formData.email || 'N/A',
+    customer_phone: formData.mobile || 'N/A',
+    customer_address: formData.addressLine1 || '',
+    customer_city: formData.townCity || '',
+    customer_postcode: formData.postcode || '',
+    
+    // Keep legacy names for backward compatibility
     customerName: formData.customerName || 'N/A',
     email: formData.email || 'N/A',
     mobile: formData.mobile || 'N/A',
@@ -219,6 +230,7 @@ export const mapFormDataToTemplateParamsSimple = (formData) => {
     // Standard Residential Details
     propertyType: isStandardResidential ? (formData.propertyType || 'N/A') : 'N/A',
     bedrooms: isStandardResidential ? (formData.bedrooms || 'N/A') : 'N/A',
+    frequency: isStandardResidential ? (formData.selectedFrequency || 'N/A') : 'N/A',
     selectedFrequency: isStandardResidential ? (formData.selectedFrequency || 'N/A') : 'N/A',
     initialWindowPrice: isStandardResidential ? formatPrice(formData.initialWindowPrice) : '0.00',
     selectedWindowServiceName: isStandardResidential ? (formData.selectedWindowService?.name || 'N/A') : 'N/A',
@@ -232,7 +244,7 @@ export const mapFormDataToTemplateParamsSimple = (formData) => {
     
     // Additional Services - Convert booleans to strings for EmailJS
     hasConservatoryRoof: isStandardResidential && formData.additionalServices?.[FORM_CONSTANTS.ADDON_CONSERVATORY_ROOF] ? 'true' : '',
-    hasFasciaSoffitGutter: isStandardResidential && formData.additionalServices?.[FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER] ? 'true' : '',
+    hasFasciaSoffit: isStandardResidential && formData.additionalServices?.[FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER] ? 'true' : '',
     hasGutterClearing: isStandardResidential && formData.additionalServices?.[FORM_CONSTANTS.ADDON_GUTTER_CLEARING] ? 'true' : '',
     fasciaSoffitGutterPrice: isStandardResidential ? formatPrice(formData.fasciaSoffitGutterServicePrice) : '0.00',
     gutterClearingPrice: isStandardResidential ? formatPrice(formData.gutterClearingServicePrice) : '0.00',
@@ -240,8 +252,13 @@ export const mapFormDataToTemplateParamsSimple = (formData) => {
     // Pricing
     subTotalBeforeDiscount: isStandardResidential ? formatPrice(formData.subTotalBeforeDiscount) : '0.00',
     windowCleaningDiscount: isStandardResidential ? formatPrice(formData.windowCleaningDiscount) : '0.00',
-    grandTotal: isStandardResidential ? formatPrice(formData.grandTotal) : '0.00',
+    grandTotal: formatPrice(formData.grandTotal) || '0.00',
+    totalPrice: formatPrice(formData.grandTotal) || '0.00',
     selectedDate: isStandardResidential ? formatDate(formData.selectedDate) : 'N/A',
+    
+    // Schedule Information
+    scheduledDate: formData.selectedDate ? formatDate(formData.selectedDate) : '',
+    scheduledTime: formData.selectedTimeSlot || '',
 
     // Custom Residential Quote Details
     customBedrooms: formData.isCustomQuote ? (formData.customResidentialDetails?.exactBedrooms || 'N/A') : 'N/A',
@@ -263,6 +280,9 @@ export const mapFormDataToTemplateParamsSimple = (formData) => {
     customOtherService: formData.isCustomQuote && formData.customResidentialDetails?.servicesRequested?.other ? 'true' : '',
 
     // Commercial Details
+    businessName: formData.isCommercial ? (formData.commercialDetails?.businessName || '') : '',
+    businessType: formData.isCommercial ? (formData.commercialDetails?.propertyType || '') : '',
+    buildingDetails: formData.isCommercial ? (formData.commercialDetails?.approxSizeOrWindows || '') : '',
     commercialBusinessName: formData.isCommercial ? (formData.commercialDetails?.businessName || 'N/A') : 'N/A',
     commercialPropertyType: formData.isCommercial ? (formData.commercialDetails?.propertyType || 'N/A') : 'N/A',
     commercialSizeWindows: formData.isCommercial ? (formData.commercialDetails?.approxSizeOrWindows || 'N/A') : 'N/A',
@@ -281,6 +301,8 @@ export const mapFormDataToTemplateParamsSimple = (formData) => {
     commercialOther: formData.isCommercial && formData.commercialDetails?.servicesRequested?.other ? 'true' : '',
 
     // General Enquiry Details
+    enquiryType: formData.isGeneralEnquiry ? 'General Enquiry' : '',
+    enquiryMessage: formData.isGeneralEnquiry ? (formData.generalEnquiryDetails?.enquiryComments || '') : '',
     generalFrequency: formData.isGeneralEnquiry ? (formData.generalEnquiryDetails?.requestedFrequency || 'N/A') : 'N/A',
     generalComments: formData.isGeneralEnquiry ? (formData.generalEnquiryDetails?.enquiryComments || 'N/A') : 'N/A',
     generalCustomerStatus: formData.isGeneralEnquiry ? (formData.generalEnquiryDetails?.customerStatus || 'N/A') : 'N/A',
@@ -297,7 +319,11 @@ export const mapFormDataToTemplateParamsSimple = (formData) => {
 
     // Quote Requests - Convert booleans to strings for EmailJS
     quoteSolarPanels: formData.quoteRequests?.solarPanelCleaning ? 'true' : '',
-    quoteConservatoryRoof: formData.quoteRequests?.conservatoryRoofCleaning ? 'true' : ''
+    quoteConservatoryRoof: formData.quoteRequests?.conservatoryRoofCleaning ? 'true' : '',
+    
+    // Custom Quote Details
+    customDetails: formData.isCustomQuote ? (formData.customResidentialDetails?.otherNotes || '') : '',
+    customBudget: formData.isCustomQuote ? (formData.customResidentialDetails?.budget || '') : ''
   };
 };
 
@@ -657,10 +683,19 @@ function BookingForm() {
     
     // Use comprehensive version
     const templateParams = mapFormDataToTemplateParamsSimple(formDataToSubmit);
-    console.log('Template Params being sent to EmailJS:', templateParams);
+    console.log('=== EmailJS Debug Information ===');
+    console.log('Service ID:', serviceId);
+    console.log('Template ID:', templateId);
+    console.log('User ID:', userId);
+    console.log('Form Data:', formDataToSubmit);
+    console.log('Template Params being sent:', templateParams);
+    console.log('Customer Name:', templateParams.customer_name);
+    console.log('Customer Email:', templateParams.customer_email);
+    console.log('=================================');
 
     try {
-      await emailjs.send(serviceId, templateId, templateParams, userId);
+      const response = await emailjs.send(serviceId, templateId, templateParams, userId);
+      console.log('EmailJS Success Response:', response);
       setIsSubmitted(true);
       setCurrentStep(5); // Assuming 5 is your thank you/confirmation step
       clearSavedData(); // Clear the saved form data after successful submission

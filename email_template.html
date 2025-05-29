@@ -148,9 +148,9 @@
             <p><span class="label">Selected Frequency:</span> <span class="value">{{{ selectedFrequency }}}</span></p>
             <p><span class="label">Initial Window Price:</span> <span class="value">£{{{ initialWindowPricetoFixed2 }}}</span></p>
             
-            {{#selectedWindowService}}
-            <p><span class="label">Selected Service:</span> <span class="value">{{{ selectedWindowService.name }}} ({{{ selectedWindowService.type }}})</span></p>
-            {{/selectedWindowService}}
+            {{#selectedWindowServiceName}}
+            <p><span class="label">Selected Service:</span> <span class="value">{{{ selectedWindowServiceName }}} ({{{ selectedWindowServiceType }}})</span></p>
+            {{/selectedWindowServiceName}}
 
             <h3>🏡 Property Details</h3>
             <p><span class="label">Has Conservatory:</span> <span class="value">{{#hasConservatory}}Yes{{/hasConservatory}}{{^hasConservatory}}No{{/hasConservatory}}</span></p>
@@ -165,7 +165,7 @@
             <h3>🛠️ Additional Services Selected</h3>
             <div class="service-list">
                 <ul>
-                    {{#additionalServices.conservatoryRoof}}<li>Conservatory Roof Cleaning</li>{{/additionalServices.conservatoryRoof}}
+                    {{#additionalServiceConservatoryRoof}}<li>Conservatory Roof Cleaning</li>{{/additionalServiceConservatoryRoof}}
                     {{#hasFasciaSoffitGutterServiceSelected}}
                         <li>Fascia, Soffit & Gutter Cleaning (£{{{fasciaSoffitGutterServicePriceToFixed2}}})</li>
                     {{/hasFasciaSoffitGutterServiceSelected}}
@@ -173,11 +173,11 @@
                         <li>Gutter Clearing (£{{{gutterClearingServicePriceToFixed2}}})</li>
                     {{/hasGutterClearingServiceSelected}}
                     
-                    {{^additionalServices.conservatoryRoof}}
+                    {{^additionalServiceConservatoryRoof}}
                         {{^hasFasciaSoffitGutterServiceSelected}}
                             {{^hasGutterClearingServiceSelected}}<li>None selected</li>{{/hasGutterClearingServiceSelected}}
                         {{/hasFasciaSoffitGutterServiceSelected}}
-                    {{/additionalServices.conservatoryRoof}}
+                    {{/additionalServiceConservatoryRoof}}
                 </ul>
             </div>
             
@@ -203,28 +203,28 @@
         {{#isCustomQuote}}
         <div class="section">
             <h2>🏘️ Custom Residential Quote Details</h2>
-            <p><span class="label">Number of Bedrooms:</span> <span class="value">{{{ customResidentialDetails.exactBedrooms }}}</span></p>
-            <p><span class="label">Property Style:</span> <span class="value">{{{ customResidentialDetails.propertyStyle }}}{{#customResidentialDetails.otherPropertyStyleText}} ({{{ customResidentialDetails.otherPropertyStyleText }}}){{/customResidentialDetails.otherPropertyStyleText}}</span></p>
-            <p><span class="label">Approximate Windows:</span> <span class="value">{{{ customResidentialDetails.approxWindows }}}</span></p>
+            <p><span class="label">Number of Bedrooms:</span> <span class="value">{{{ customResidentialExactBedrooms }}}</span></p>
+            <p><span class="label">Property Style:</span> <span class="value">{{{ customResidentialPropertyStyle }}}{{#customResidentialOtherPropertyStyleText}} ({{{ customResidentialOtherPropertyStyleText }}}){{/customResidentialOtherPropertyStyleText}}</span></p>
+            <p><span class="label">Approximate Windows:</span> <span class="value">{{{ customResidentialApproxWindows }}}</span></p>
             
             <h3>🛠️ Services Requested</h3>
             <div class="service-list">
                 <ul>
-                    {{#customResidentialDetails.servicesRequested.windowCleaning}}<li>Window Cleaning</li>{{/customResidentialDetails.servicesRequested.windowCleaning}}
-                    {{#customResidentialDetails.servicesRequested.gutterCleaning}}<li>Gutter Clearing</li>{{/customResidentialDetails.servicesRequested.gutterCleaning}}
-                    {{#customResidentialDetails.servicesRequested.fasciaSoffitCleaning}}<li>Fascia & Soffit Cleaning</li>{{/customResidentialDetails.servicesRequested.fasciaSoffitCleaning}}
-                    {{#customResidentialDetails.servicesRequested.conservatoryWindowCleaning}}<li>Conservatory Window Cleaning</li>{{/customResidentialDetails.servicesRequested.conservatoryWindowCleaning}}
-                    {{#customResidentialDetails.servicesRequested.conservatoryRoofCleaning}}<li>Conservatory Roof Cleaning</li>{{/customResidentialDetails.servicesRequested.conservatoryRoofCleaning}}
-                    {{#customResidentialDetails.servicesRequested.other}}<li>Other: {{{ customResidentialDetails.otherServiceText }}}</li>{{/customResidentialDetails.servicesRequested.other}}
+                    {{#customResidentialWindowCleaning}}<li>Window Cleaning</li>{{/customResidentialWindowCleaning}}
+                    {{#customResidentialGutterCleaning}}<li>Gutter Clearing</li>{{/customResidentialGutterCleaning}}
+                    {{#customResidentialFasciaSoffitCleaning}}<li>Fascia & Soffit Cleaning</li>{{/customResidentialFasciaSoffitCleaning}}
+                    {{#customResidentialConservatoryWindowCleaning}}<li>Conservatory Window Cleaning</li>{{/customResidentialConservatoryWindowCleaning}}
+                    {{#customResidentialConservatoryRoofCleaning}}<li>Conservatory Roof Cleaning</li>{{/customResidentialConservatoryRoofCleaning}}
+                    {{#customResidentialOtherService}}<li>Other: {{{ customResidentialOtherServiceText }}}</li>{{/customResidentialOtherService}}
                 </ul>
             </div>
             
-            {{#customResidentialDetails.servicesRequested.windowCleaning}}
-            <p><span class="label">Frequency Preference:</span> <span class="value">{{{ customResidentialDetails.frequencyPreference }}}{{#customResidentialDetails.otherFrequencyText}} ({{{ customResidentialDetails.otherFrequencyText }}}){{/customResidentialDetails.otherFrequencyText}}</span></p>
-            {{/customResidentialDetails.servicesRequested.windowCleaning}}
+            {{#customResidentialWindowCleaning}}
+            <p><span class="label">Frequency Preference:</span> <span class="value">{{{ customResidentialFrequencyPreference }}}{{#customResidentialOtherFrequencyText}} ({{{ customResidentialOtherFrequencyText }}}){{/customResidentialOtherFrequencyText}}</span></p>
+            {{/customResidentialWindowCleaning}}
             
-            <p><span class="label">Access Issues:</span> <span class="value">{{{ customResidentialDetails.accessIssues }}}</span></p>
-            <p><span class="label">Other Notes:</span> <span class="value">{{{ customResidentialDetails.otherNotes }}}</span></p>
+            <p><span class="label">Access Issues:</span> <span class="value">{{{ customResidentialAccessIssues }}}</span></p>
+            <p><span class="label">Other Notes:</span> <span class="value">{{{ customResidentialOtherNotes }}}</span></p>
             
             {{#showAnnualValue}}
             <div class="highlight">
@@ -245,27 +245,30 @@
         {{#isCommercial}}
         <div class="section">
             <h2>🏢 Commercial Enquiry Details</h2>
-            {{#commercialDetails.businessName}}
-            <p><span class="label">Business Name:</span> <span class="value">{{{ commercialDetails.businessName }}}</span></p>
-            {{/commercialDetails.businessName}}
-            <p><span class="label">Property Type:</span> <span class="value">{{{ commercialDetails.propertyType }}}</span></p>
-            <p><span class="label">Approx. Size/Windows:</span> <span class="value">{{{ commercialDetails.approxSizeOrWindows }}}</span></p>
+            {{#commercialBusinessName}}
+            <p><span class="label">Business Name:</span> <span class="value">{{{ commercialBusinessName }}}</span></p>
+            {{/commercialBusinessName}}
+            <p><span class="label">Property Type:</span> <span class="value">{{{ commercialPropertyType }}}</span></p>
+            <p><span class="label">Approx. Size/Windows:</span> <span class="value">{{{ commercialApproxSizeOrWindows }}}</span></p>
             
             <h3>🛠️ Services Requested</h3>
             <div class="service-list">
+                <p><strong>Summary:</strong> {{{ commercialServicesRequestedFormatted }}}</p>
                 <ul>
-                    {{#commercialDetails.servicesRequested.windowCleaning}}<li>Window Cleaning</li>{{/commercialDetails.servicesRequested.windowCleaning}}
-                    {{#commercialDetails.servicesRequested.gutterCleaning}}<li>Gutter Cleaning</li>{{/commercialDetails.servicesRequested.gutterCleaning}}
-                    {{#commercialDetails.servicesRequested.fasciaSoffitCleaning}}<li>Fascia & Soffit Cleaning</li>{{/commercialDetails.servicesRequested.fasciaSoffitCleaning}}
-                    {{#commercialDetails.servicesRequested.claddingCleaning}}<li>Cladding Cleaning</li>{{/commercialDetails.servicesRequested.claddingCleaning}}
-                    {{#commercialDetails.servicesRequested.signageCleaning}}<li>Signage Cleaning</li>{{/commercialDetails.servicesRequested.signageCleaning}}
-                    {{#commercialDetails.servicesRequested.other}}<li>Other: {{{ commercialDetails.otherServiceText }}}</li>{{/commercialDetails.servicesRequested.other}}
+                    {{#commercialWindowCleaning}}<li>Window Cleaning</li>{{/commercialWindowCleaning}}
+                    {{#commercialGutterClearing}}<li>Gutter Clearing</li>{{/commercialGutterClearing}}
+                    {{#commercialFasciaSoffit}}<li>Fascia & Soffit Cleaning</li>{{/commercialFasciaSoffit}}
+                    {{#commercialCladdingCleaning}}<li>Cladding Cleaning</li>{{/commercialCladdingCleaning}}
+                    {{#commercialSignageCleaning}}<li>Signage Cleaning</li>{{/commercialSignageCleaning}}
+                    {{#commercialSolarPanels}}<li>Solar Panel Cleaning</li>{{/commercialSolarPanels}}
+                    {{#commercialPressureWashing}}<li>Pressure Washing</li>{{/commercialPressureWashing}}
+                    {{#commercialOtherService}}<li>Other: {{{ commercialOtherServiceDetails }}} {{{ commercialOtherServiceText }}}</li>{{/commercialOtherService}}
                 </ul>
             </div>
             
-            <p><span class="label">Frequency Preference:</span> <span class="value">{{{ commercialDetails.frequencyPreference }}}{{#commercialDetails.otherFrequencyText}} ({{{ commercialDetails.otherFrequencyText }}}){{/commercialDetails.otherFrequencyText}}</span></p>
-            <p><span class="label">Specific Requirements:</span> <span class="value">{{{ commercialDetails.specificRequirements }}}</span></p>
-            <p><span class="label">Other Notes:</span> <span class="value">{{{ commercialDetails.otherNotes }}}</span></p>
+            <p><span class="label">Frequency Preference:</span> <span class="value">{{{ commercialFrequencyPreference }}}{{#commercialOtherFrequencyText}} ({{{ commercialOtherFrequencyText }}}){{/commercialOtherFrequencyText}}</span></p>
+            <p><span class="label">Specific Requirements:</span> <span class="value">{{{ commercialSpecificRequirements }}}</span></p>
+            <p><span class="label">Other Notes:</span> <span class="value">{{{ commercialOtherNotes }}}</span></p>
             
             {{#showAnnualValue}}
             <div class="highlight">
@@ -289,35 +292,36 @@
             <h3>🛠️ Services of Interest</h3>
             <div class="service-list">
                 <ul>
-                    {{#generalEnquiryDetails.requestedServices.windowCleaning}}<li>Window Cleaning</li>{{/generalEnquiryDetails.requestedServices.windowCleaning}}
-                    {{#generalEnquiryDetails.requestedServices.conservatoryWindows}}<li>Conservatory Window Cleaning</li>{{/generalEnquiryDetails.requestedServices.conservatoryWindows}}
-                    {{#generalEnquiryDetails.requestedServices.conservatoryRoof}}<li>Conservatory Roof Cleaning</li>{{/generalEnquiryDetails.requestedServices.conservatoryRoof}}
-                    {{#generalEnquiryDetails.requestedServices.gutterClearing}}<li>Gutter Clearing</li>{{/generalEnquiryDetails.requestedServices.gutterClearing}}
-                    {{#generalEnquiryDetails.requestedServices.fasciaSoffitGutter}}<li>Fascia, Soffit & Gutter Cleaning</li>{{/generalEnquiryDetails.requestedServices.fasciaSoffitGutter}}
-                    {{#generalEnquiryDetails.requestedServices.solarPanels}}<li>Solar Panel Cleaning</li>{{/generalEnquiryDetails.requestedServices.solarPanels}}
-                    {{#generalEnquiryDetails.requestedServices.other}}<li>Other: {{{ generalEnquiryDetails.otherServiceText }}}</li>{{/generalEnquiryDetails.requestedServices.other}}
+                    {{#generalEnquiryWindowCleaning}}<li>Window Cleaning</li>{{/generalEnquiryWindowCleaning}}
+                    {{#generalEnquiryConservatoryWindows}}<li>Conservatory Window Cleaning</li>{{/generalEnquiryConservatoryWindows}}
+                    {{#generalEnquiryConservatoryRoof}}<li>Conservatory Roof Cleaning</li>{{/generalEnquiryConservatoryRoof}}
+                    {{#generalEnquiryGutterClearing}}<li>Gutter Clearing</li>{{/generalEnquiryGutterClearing}}
+                    {{#generalEnquiryFasciaSoffitGutter}}<li>Fascia, Soffit & Gutter Cleaning</li>{{/generalEnquiryFasciaSoffitGutter}}
+                    {{#generalEnquirySolarPanels}}<li>Solar Panel Cleaning</li>{{/generalEnquirySolarPanels}}
+                    {{#generalEnquiryOtherService}}<li>Other: {{{ generalEnquiryOtherServiceText }}}</li>{{/generalEnquiryOtherService}}
                 </ul>
             </div>
-            <p><span class="label">Requested Frequency:</span> <span class="value">{{{ generalEnquiryDetails.requestedFrequency }}}</span></p>
-            <p><span class="label">Enquiry Comments:</span> <span class="value">{{{ generalEnquiryDetails.enquiryComments }}}</span></p>
+            <p><span class="label">Requested Frequency:</span> <span class="value">{{{ generalEnquiryRequestedFrequency }}}</span></p>
+            <p><span class="label">Enquiry Comments:</span> <span class="value">{{{ generalEnquiryComments }}}</span></p>
+            <p><span class="label">Customer Status:</span> <span class="value">{{{ generalEnquiryCustomerStatus }}}</span></p>
         </div>
         {{/isGeneralEnquiry}}
 
-        {{#quoteRequests.solarPanelCleaning}}
+        {{#quoteRequestSolarPanelCleaning}}
         <div class="section urgent">
             <h2>📋 Quote Requests (Requires Physical Assessment)</h2>
             <p>🔆 <strong>Solar Panel Cleaning</strong> - Quote requested</p>
             <p><em>Note: This service requires an on-site assessment for accurate pricing.</em></p>
         </div>
-        {{/quoteRequests.solarPanelCleaning}}
+        {{/quoteRequestSolarPanelCleaning}}
 
-        {{#quoteRequests.conservatoryRoofCleaning}}
+        {{#quoteRequestConservatoryRoofCleaning}}
         <div class="section urgent">
             <h2>📋 Quote Requests (Requires Physical Assessment)</h2>
             <p>🏠 <strong>Conservatory Roof Cleaning</strong> - Quote requested</p>
             <p><em>Note: This service requires an on-site assessment for accurate pricing.</em></p>
         </div>
-        {{/quoteRequests.conservatoryRoofCleaning}}
+        {{/quoteRequestConservatoryRoofCleaning}}
 
                  {{#bookingNotes}}
          <div class="section">
