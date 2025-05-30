@@ -9,5 +9,15 @@ export default defineConfig({
   },
   build: {
     outDir: 'build',
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
+  },
+  publicDir: 'public',
+  resolve: {
+    extensions: ['.tsx', '.ts', '.jsx', '.js'],
   },
 })
