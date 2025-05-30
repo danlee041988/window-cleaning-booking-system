@@ -219,11 +219,8 @@ function initializeBookingForm() {
         });
     });
 
-    // Initialize reCAPTCHA placeholder
-    const recaptchaDiv = document.getElementById('recaptcha');
-    if (recaptchaDiv) {
-        recaptchaDiv.innerHTML = '<p style="padding: 20px; background: #f0f0f0; border-radius: 4px;">reCAPTCHA verification will appear here</p>';
-    }
+    // Initialize reCAPTCHA
+    loadRecaptcha();
 }
 
 function updateStep1Display() {
@@ -378,7 +375,7 @@ function previousStep() {
 function validateStep(step) {
     if (step === 1) {
         if (!formState.propertyType) {
-            alert('Please select a property type');
+            showErrorMessage('Please select a property type');
             return false;
         }
         return true;
@@ -394,14 +391,28 @@ function validateStep(step) {
         const missingFields = requiredFields.filter(field => !formState[field]);
         
         if (missingFields.length > 0) {
-            alert('Please fill in all required fields');
+            showErrorMessage('Please fill in all required fields');
             return false;
         }
         
         // Email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formState.email)) {
-            alert('Please enter a valid email address');
+            showErrorMessage('Please enter a valid email address');
+            return false;
+        }
+        
+        // UK Mobile number validation (matches API validation)
+        const ukMobileRegex = /^(?:(?:\+44\s?|0)7(?:[45789]\d{2}|624)\s?\d{3}\s?\d{3})$/;
+        if (!ukMobileRegex.test(formState.phone)) {
+            showErrorMessage('Please enter a valid UK mobile number (e.g., 07891234567)');
+            return false;
+        }
+        
+        // UK Postcode validation
+        const postcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$/i;
+        if (!postcodeRegex.test(formState.postcode)) {
+            showErrorMessage('Please enter a valid UK postcode');
             return false;
         }
         
@@ -410,9 +421,17 @@ function validateStep(step) {
     
     if (step === 4) {
         if (!formState.termsAgreed) {
-            alert('Please agree to the terms and conditions');
+            showErrorMessage('Please agree to the terms and conditions');
             return false;
         }
+        
+        // Check reCAPTCHA if available
+        const recaptchaResponse = getRecaptchaResponse();
+        if (window.grecaptcha && recaptchaWidgetId !== null && !recaptchaResponse) {
+            showErrorMessage('Please complete the reCAPTCHA verification');
+            return false;
+        }
+        
         return true;
     }
     
@@ -514,20 +533,282 @@ if (bookingForm) {
             return;
         }
         
-        // In production, you would:
-        // 1. Verify reCAPTCHA
-        // 2. Send data via EmailJS
-        // 3. Show success/error message
+        // Show loading state
+        const submitBtn = document.getElementById('submitBtn');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Submitting...';
+        submitBtn.disabled = true;
         
-        alert(`Thank you for your booking, ${formState.fullName}! We'll contact you soon to confirm your service.`);
+        // Prepare data for API
+        const bookingData = {
+            customerName: formState.fullName,
+            email: formState.email,
+            mobile: formState.phone,
+            addressLine1: formState.address,
+            addressLine2: '',
+            townCity: formState.city,
+            postcode: formState.postcode,
+            propertyType: formState.propertyType,
+            frequency: formState.frequency,
+            servicesRequested: {
+                windowCleaning: true,
+                ...formState.additionalServices.reduce((acc, service) => {
+                    acc[service] = true;
+                    return acc;
+                }, {})
+            },
+            estimatedPrice: propertyPrices[formState.propertyType] ? 
+                propertyPrices[formState.propertyType] + (frequencyAdjustments[formState.frequency] || 0) : null,
+            preferredContactMethod: formState.contactMethod,
+            specialRequirements: formState.notes,
+            marketingConsent: formState.termsAgreed
+        };
         
-        // Reset form
-        bookingForm.reset();
-        formState.additionalServices = [];
-        formState.termsAgreed = false;
-        currentStep = 1;
-        showStep(1);
+        console.log('Submitting booking data:', bookingData);
+        
+        try {
+            const response = await fetch('https://window-cleaning-booking-system-6k15.vercel.app/api/submit-booking', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(bookingData)
+            });
+            
+            const result = await response.json();
+            console.log('API Response:', result);
+            
+            if (result.success) {
+                // Show success message
+                showSuccessMessage(`Thank you for your booking, ${formState.fullName}! Your booking reference is: ${result.bookingReference}. We'll contact you within 24 hours.`);
+                
+                // Send confirmation email via EmailJS (async, don't block the success flow)
+                sendConfirmationEmail(bookingData, result.bookingReference).then(emailSent => {
+                    if (emailSent) {
+                        console.log('Confirmation email sent successfully');
+                    } else {
+                        console.log('Confirmation email failed, but booking was successful');
+                    }
+                });
+                
+                // Reset form
+                bookingForm.reset();
+                Object.keys(formState).forEach(key => {
+                    if (key === 'additionalServices') {
+                        formState[key] = [];
+                    } else if (key === 'frequency') {
+                        formState[key] = '4weekly';
+                    } else if (key === 'contactMethod') {
+                        formState[key] = 'email';
+                    } else if (key === 'termsAgreed') {
+                        formState[key] = false;
+                    } else {
+                        formState[key] = '';
+                    }
+                });
+                currentStep = 1;
+                showStep(1);
+                
+                // Reset reCAPTCHA after successful submission
+                resetRecaptcha();
+            } else {
+                throw new Error(result.error || 'Submission failed');
+            }
+        } catch (error) {
+            console.error('Booking submission error:', error);
+            
+            let errorMessage = 'There was an error submitting your booking. ';
+            if (error.message && error.message.includes('Failed to fetch')) {
+                errorMessage += 'Please check your internet connection and try again.';
+            } else if (error.message && error.message.includes('422')) {
+                errorMessage += 'Please check your information and try again.';
+            } else if (error.message && error.message.includes('500')) {
+                errorMessage += 'Server error occurred. Please try again in a few moments.';
+            } else {
+                errorMessage += 'Please try again or contact us directly at 01458 860339.';
+            }
+            
+            showErrorMessage(errorMessage);
+            
+            // Reset reCAPTCHA after failed submission
+            resetRecaptcha();
+        } finally {
+            // Restore button state
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
     });
+}
+
+// Error and success message functions
+function showErrorMessage(message) {
+    // Remove any existing messages
+    removeExistingMessages();
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'booking-message error-message';
+    messageDiv.innerHTML = `
+        <div style="background: #fee; border: 1px solid #f88; color: #c33; padding: 15px; border-radius: 8px; margin: 20px 0; font-size: 16px;">
+            <strong>❌ Error:</strong> ${message}
+        </div>
+    `;
+    
+    const form = document.getElementById('bookingForm');
+    form.insertBefore(messageDiv, form.firstChild);
+    
+    // Scroll to message
+    messageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // Auto-remove after 10 seconds
+    setTimeout(() => {
+        if (messageDiv.parentNode) {
+            messageDiv.remove();
+        }
+    }, 10000);
+}
+
+function showSuccessMessage(message) {
+    // Remove any existing messages
+    removeExistingMessages();
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'booking-message success-message';
+    messageDiv.innerHTML = `
+        <div style="background: #efe; border: 1px solid #8f8; color: #393; padding: 15px; border-radius: 8px; margin: 20px 0; font-size: 16px;">
+            <strong>✅ Success:</strong> ${message}
+        </div>
+    `;
+    
+    const form = document.getElementById('bookingForm');
+    form.insertBefore(messageDiv, form.firstChild);
+    
+    // Scroll to message
+    messageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function removeExistingMessages() {
+    const existingMessages = document.querySelectorAll('.booking-message');
+    existingMessages.forEach(msg => msg.remove());
+}
+
+// Configuration
+const EMAILJS_CONFIG = {
+    SERVICE_ID: 'service_your_id', // Replace with your actual EmailJS service ID
+    TEMPLATE_ID: 'template_your_id', // Replace with your actual EmailJS template ID
+    PUBLIC_KEY: 'your_public_key' // Replace with your actual EmailJS public key
+};
+
+const RECAPTCHA_CONFIG = {
+    SITE_KEY: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI' // Test key - replace with your actual reCAPTCHA site key
+};
+
+let recaptchaLoaded = false;
+let recaptchaWidgetId = null;
+
+// Load EmailJS script dynamically
+function loadEmailJS() {
+    return new Promise((resolve, reject) => {
+        if (window.emailjs) {
+            resolve(window.emailjs);
+            return;
+        }
+        
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+        script.onload = () => {
+            window.emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
+            resolve(window.emailjs);
+        };
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+// Send confirmation email via EmailJS
+async function sendConfirmationEmail(bookingData, bookingReference) {
+    try {
+        await loadEmailJS();
+        
+        const templateParams = {
+            customer_name: bookingData.customerName,
+            customer_email: bookingData.email,
+            customer_phone: bookingData.mobile,
+            booking_reference: bookingReference,
+            property_address: `${bookingData.addressLine1}, ${bookingData.townCity}, ${bookingData.postcode}`,
+            property_type: bookingData.propertyType,
+            frequency: bookingData.frequency,
+            estimated_price: bookingData.estimatedPrice ? `£${bookingData.estimatedPrice}` : 'Quote required',
+            services_requested: Object.keys(bookingData.servicesRequested)
+                .filter(key => bookingData.servicesRequested[key])
+                .join(', '),
+            special_requirements: bookingData.specialRequirements || 'None',
+            preferred_contact: bookingData.preferredContactMethod,
+            submission_date: new Date().toLocaleDateString('en-GB'),
+            to_email: 'info@somersetwindowcleaning.co.uk' // Your business email
+        };
+        
+        console.log('Sending confirmation email via EmailJS...');
+        
+        await window.emailjs.send(
+            EMAILJS_CONFIG.SERVICE_ID,
+            EMAILJS_CONFIG.TEMPLATE_ID,
+            templateParams
+        );
+        
+        console.log('Confirmation email sent successfully');
+        return true;
+    } catch (error) {
+        console.error('EmailJS error:', error);
+        return false;
+    }
+}
+
+// reCAPTCHA Functions
+function loadRecaptcha() {
+    if (recaptchaLoaded) return;
+    
+    // Create reCAPTCHA script
+    const script = document.createElement('script');
+    script.src = 'https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit';
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+    
+    // Make callback available globally
+    window.onRecaptchaLoad = function() {
+        recaptchaLoaded = true;
+        initRecaptchaWidget();
+    };
+}
+
+function initRecaptchaWidget() {
+    const recaptchaContainer = document.getElementById('recaptcha');
+    if (recaptchaContainer && window.grecaptcha) {
+        try {
+            recaptchaWidgetId = window.grecaptcha.render(recaptchaContainer, {
+                'sitekey': RECAPTCHA_CONFIG.SITE_KEY,
+                'theme': 'light',
+                'size': 'normal'
+            });
+        } catch (error) {
+            console.error('reCAPTCHA render error:', error);
+            // Fallback to basic message
+            recaptchaContainer.innerHTML = '<p style="padding: 15px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; color: #666;">reCAPTCHA verification required for form submission</p>';
+        }
+    }
+}
+
+function getRecaptchaResponse() {
+    if (window.grecaptcha && recaptchaWidgetId !== null) {
+        return window.grecaptcha.getResponse(recaptchaWidgetId);
+    }
+    return null;
+}
+
+function resetRecaptcha() {
+    if (window.grecaptcha && recaptchaWidgetId !== null) {
+        window.grecaptcha.reset(recaptchaWidgetId);
+    }
 }
 
 // Initialize booking form when DOM is ready
