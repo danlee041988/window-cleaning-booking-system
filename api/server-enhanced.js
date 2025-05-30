@@ -112,8 +112,10 @@ const bookingValidation = [
   body('customerName').trim().notEmpty().withMessage('Name is required')
     .isLength({ min: 2, max: 100 }).withMessage('Name must be between 2 and 100 characters'),
   body('email').trim().isEmail().normalizeEmail().withMessage('Valid email is required'),
-  body('mobile').trim().matches(/^(?:(?:\+44\s?|0)7(?:[45789]\d{2}|624)\s?\d{3}\s?\d{3})$/)
-    .withMessage('Valid UK mobile number required'),
+  body('mobile').trim()
+    .customSanitizer(value => value.replace(/[\s\-\(\)]/g, '')) // Remove spaces, dashes, parentheses
+    .matches(/^(?:(?:\+44\s?|0)(?:1\d{8,9}|2\d{9}|3\d{9}|7\d{9}|8\d{9}))$/)
+    .withMessage('Valid UK phone number required'),
   body('postcode').trim().matches(/^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$/i)
     .withMessage('Valid UK postcode required'),
   body('addressLine1').trim().notEmpty().withMessage('Address is required'),

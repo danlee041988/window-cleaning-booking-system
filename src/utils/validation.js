@@ -6,8 +6,9 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // UK postcode regex (comprehensive)
 const UK_POSTCODE_REGEX = /^([A-Z]{1,2}[0-9][A-Z0-9]?\s?[0-9][A-Z]{2}|GIR\s?0AA)$/i;
 
-// UK mobile phone regex
-const UK_MOBILE_REGEX = /^(\+44|0)7\d{9}$/;
+// UK phone number regex (mobile and landline)
+// Accepts: 01/02/03/07/08 numbers, with or without +44, with optional spaces/dashes
+const UK_PHONE_REGEX = /^(?:(?:\+44\s?|0)(?:1\d{8,9}|2\d{9}|3\d{9}|7\d{9}|8\d{9}))$/;
 
 // Validation rules for each field
 export const validationRules = {
@@ -28,9 +29,9 @@ export const validationRules = {
   
   phone: {
     required: true,
-    pattern: UK_MOBILE_REGEX,
-    transform: (value) => value.replace(/\s/g, ''), // Remove spaces before validation
-    message: 'Please enter a valid UK mobile number'
+    pattern: UK_PHONE_REGEX,
+    transform: (value) => value.replace(/[\s\-\(\)]/g, ''), // Remove spaces, dashes, parentheses before validation
+    message: 'Please enter a valid UK phone number'
   },
   
   addressLine1: {
