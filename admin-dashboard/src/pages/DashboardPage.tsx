@@ -36,14 +36,23 @@ const calculateAnnualValue = (price: number, frequency: string): number => {
 
 export const DashboardPage: React.FC = () => {
   // Fetch all leads
-  const { data: leadsData, isLoading } = useQuery({
+  const { data: leadsData, isLoading, error } = useQuery({
     queryKey: ['dashboard-leads'],
-    queryFn: () => leadApi.getLeads({ limit: 1000 })
+    queryFn: () => leadApi.getLeads({ limit: 1000 }),
+    retry: 3,
+    retryDelay: 1000,
+    onError: (error) => {
+      console.error('Dashboard leads fetch error:', error);
+    }
   });
 
   // Calculate analytics
   const analytics = useMemo(() => {
-    if (!leadsData?.data) return null;
+    // Ensure we have data and it's an array
+    if (!leadsData?.data || !Array.isArray(leadsData.data)) {
+      console.warn('Invalid leads data:', leadsData);
+      return null;
+    }
     
     const leads = leadsData.data;
     const now = new Date();
@@ -121,10 +130,20 @@ export const DashboardPage: React.FC = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-400">Error loading dashboard data</p>
+        <p className="text-gray-400 text-sm mt-2">Please try refreshing the page</p>
+      </div>
+    );
+  }
+
   if (!analytics) {
     return (
       <div className="text-center py-8">
         <p className="text-gray-400">No data available</p>
+        <p className="text-gray-500 text-sm mt-1">Leads will appear here once submitted</p>
       </div>
     );
   }

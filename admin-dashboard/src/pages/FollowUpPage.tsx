@@ -63,7 +63,7 @@ export const FollowUpPage: React.FC = () => {
   const queryClient = useQueryClient();
 
   // Fetch enquiry leads that need follow-up
-  const { data: enquiryLeads, isLoading, refetch } = useQuery({
+  const { data: enquiryLeads, isLoading, refetch, error } = useQuery({
     queryKey: ['enquiry-leads-for-followup'],
     queryFn: () => leadApi.getLeads({
       status: 'New,Contacted,Quote Sent',
@@ -72,11 +72,16 @@ export const FollowUpPage: React.FC = () => {
       sortOrder: 'desc'
     }),
     refetchInterval: 60000, // Refresh every minute
+    retry: 3,
+    retryDelay: 1000,
+    onError: (error) => {
+      console.error('Follow-up leads fetch error:', error);
+    }
   });
 
   // Transform leads into follow-up activities and categorize by time
   const followUps = useMemo(() => {
-    if (!enquiryLeads?.data) return [];
+    if (!enquiryLeads?.data || !Array.isArray(enquiryLeads.data)) return [];
     
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -281,6 +286,15 @@ export const FollowUpPage: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-64">
         <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-400">Error loading follow-up data</p>
+        <p className="text-gray-400 text-sm mt-2">Please try refreshing the page</p>
       </div>
     );
   }
@@ -519,7 +533,7 @@ export const FollowUpPage: React.FC = () => {
             setShowCompleteModal(false);
             setSelectedActivity(null);
           }}
-          isLoading={completeFollowUpMutation.isLoading}
+          isLoading={completeFollowUpMutation.isPending}
         />
       )}
 
@@ -538,7 +552,7 @@ export const FollowUpPage: React.FC = () => {
             setShowRescheduleModal(false);
             setSelectedActivity(null);
           }}
-          isLoading={rescheduleFollowUpMutation.isLoading}
+          isLoading={rescheduleFollowUpMutation.isPending}
         />
       )}
     </motion.div>

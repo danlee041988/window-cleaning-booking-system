@@ -58,7 +58,7 @@ export const SqueegeeTransferPage: React.FC = () => {
   const canTransfer = useHasPermission('leads:transfer');
 
   // Fetch leads ready for Squeegee transfer (confirmed bookings)
-  const { data: readyLeads, isLoading, refetch } = useQuery({
+  const { data: readyLeads, isLoading, refetch, error } = useQuery({
     queryKey: ['leads-ready-for-squeegee'],
     queryFn: () => leadApi.getLeads({
       status: 'Accepted',
@@ -67,6 +67,11 @@ export const SqueegeeTransferPage: React.FC = () => {
       sortOrder: 'desc'
     }),
     refetchInterval: 30000, // Refresh every 30 seconds
+    retry: 3,
+    retryDelay: 1000,
+    onError: (error) => {
+      console.error('Squeegee transfer leads fetch error:', error);
+    }
   });
 
   // Fetch transfer history
@@ -99,7 +104,7 @@ export const SqueegeeTransferPage: React.FC = () => {
   });
 
   // Transform API leads to ReadyLead format
-  const leads: ReadyLead[] = (readyLeads?.data || []).map((lead: any) => {
+  const leads: ReadyLead[] = (readyLeads?.data && Array.isArray(readyLeads.data) ? readyLeads.data : []).map((lead: any) => {
     const estimatedPrice = parseFloat(lead.estimatedPrice?.toString() || '0');
     const frequency = lead.frequency || 'monthly';
     
@@ -243,6 +248,15 @@ export const SqueegeeTransferPage: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-64">
         <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-400">Error loading transfer data</p>
+        <p className="text-gray-400 text-sm mt-2">Please try refreshing the page</p>
       </div>
     );
   }
@@ -406,10 +420,10 @@ export const SqueegeeTransferPage: React.FC = () => {
               {canTransfer && (
                 <button
                   onClick={handleTransfer}
-                  disabled={selectedLeads.length === 0 || transferMutation.isLoading}
+                  disabled={selectedLeads.length === 0 || transferMutation.isPending}
                   className="inline-flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {transferMutation.isLoading ? (
+                  {transferMutation.isPending ? (
                     <LoadingSpinner size="sm" className="mr-2" />
                   ) : (
                     <ArrowPathIcon className="h-4 w-4 mr-2" />
@@ -567,7 +581,7 @@ export const SqueegeeTransferPage: React.FC = () => {
           leads={leads.filter(lead => selectedLeads.includes(lead.id))}
           onConfirm={confirmTransfer}
           onClose={() => setShowPreview(false)}
-          isLoading={transferMutation.isLoading}
+          isLoading={transferMutation.isPending}
         />
       )}
     </motion.div>

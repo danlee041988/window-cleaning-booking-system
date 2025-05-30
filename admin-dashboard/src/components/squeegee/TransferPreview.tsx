@@ -1,30 +1,51 @@
 import React from 'react';
 
 interface TransferPreviewProps {
-  selectedLeads: any[];
+  leads: any[];
+  onConfirm: () => void;
+  onClose: () => void;
+  isLoading: boolean;
 }
 
-export const TransferPreview: React.FC<TransferPreviewProps> = ({ selectedLeads }) => {
+export const TransferPreview: React.FC<TransferPreviewProps> = ({
+  leads,
+  onConfirm,
+  onClose,
+  isLoading
+}) => {
   return (
-    <div className="bg-gray-800 rounded-lg p-4">
-      <h3 className="text-lg font-semibold text-white mb-3">Transfer Preview</h3>
-      <p className="text-gray-300">
-        {selectedLeads.length} leads selected for transfer to Squeegee
-      </p>
-      {selectedLeads.length > 0 && (
-        <div className="mt-3 space-y-1">
-          {selectedLeads.slice(0, 3).map((lead: any) => (
-            <div key={lead.id} className="text-sm text-gray-400">
-              {lead.customerName} - {lead.postcode}
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-gray-800 rounded-lg p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+        <h2 className="text-lg font-semibold text-white mb-4">
+          Transfer Preview - {leads.length} leads
+        </h2>
+        
+        <div className="space-y-2 mb-6">
+          {leads.map((lead, index) => (
+            <div key={index} className="flex justify-between items-center p-2 bg-gray-700 rounded">
+              <span className="text-white">{lead.customerName}</span>
+              <span className="text-green-400">£{lead.estimatedMonthlyValue}/month</span>
             </div>
           ))}
-          {selectedLeads.length > 3 && (
-            <div className="text-sm text-gray-500">
-              +{selectedLeads.length - 3} more leads...
-            </div>
-          )}
         </div>
-      )}
+        
+        <div className="flex space-x-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+            disabled={isLoading}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Transferring...' : 'Confirm Transfer'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

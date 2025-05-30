@@ -1,22 +1,20 @@
 import React from 'react';
 
 interface RescheduleModalProps {
-  isOpen: boolean;
+  activity: any;
   onClose: () => void;
   onReschedule: (newDate: string, reason: string) => void;
-  followUp?: any;
+  isLoading: boolean;
 }
 
 export const RescheduleModal: React.FC<RescheduleModalProps> = ({ 
-  isOpen, 
+  activity, 
   onClose, 
   onReschedule,
-  followUp 
+  isLoading 
 }) => {
   const [newDate, setNewDate] = React.useState('');
   const [reason, setReason] = React.useState('');
-
-  if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +27,7 @@ export const RescheduleModal: React.FC<RescheduleModalProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full">
         <h3 className="text-lg font-semibold text-white mb-4">Reschedule Follow-up</h3>
+        <p className="text-gray-300 mb-4">Customer: {activity?.lead?.customerName}</p>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -59,14 +58,16 @@ export const RescheduleModal: React.FC<RescheduleModalProps> = ({
               type="button"
               onClick={onClose}
               className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg text-white"
+              disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white disabled:opacity-50"
+              disabled={isLoading}
             >
-              Reschedule
+              {isLoading ? 'Rescheduling...' : 'Reschedule'}
             </button>
           </div>
         </form>
