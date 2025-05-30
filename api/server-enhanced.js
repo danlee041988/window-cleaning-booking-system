@@ -156,9 +156,8 @@ const logActivity = async (userId, action, tableName = null, recordId = null, ol
 // ===================
 
 app.post('/api/auth/login', authLimiter, [
-  body('username').trim().notEmpty().withMessage('Username is required')
-  // TEMPORARY: Password validation disabled
-  // body('password').notEmpty().withMessage('Password is required')
+  body('username').trim().notEmpty().withMessage('Username is required'),
+  body('password').notEmpty().withMessage('Password is required')
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -182,14 +181,11 @@ app.post('/api/auth/login', authLimiter, [
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
     }
 
-    // TEMPORARY: Password check disabled for testing
-    // TODO: RE-ENABLE THIS BEFORE PRODUCTION!
-    // const isValidPassword = await bcrypt.compare(password, user.passwordHash);
-    // if (!isValidPassword) {
-    //   console.log('Invalid password for user:', username);
-    //   return res.status(401).json({ success: false, error: 'Invalid credentials' });
-    // }
-    console.log('⚠️  WARNING: Password verification temporarily disabled!');
+    const isValidPassword = await bcrypt.compare(password, user.passwordHash);
+    if (!isValidPassword) {
+      console.log('Invalid password for user:', username);
+      return res.status(401).json({ success: false, error: 'Invalid credentials' });
+    }
 
     if (!process.env.JWT_SECRET) {
       console.error('JWT_SECRET not configured');
