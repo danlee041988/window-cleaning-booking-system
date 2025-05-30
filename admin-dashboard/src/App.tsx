@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from './stores/authStore';
 import { Layout } from './components/Layout';
+import { SimpleLayout } from './components/SimpleLayout';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { LeadsPage } from './pages/LeadsPage';
@@ -91,9 +92,9 @@ function App() {
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <Layout>
+                  <SimpleLayout>
                     <DashboardPage />
-                  </Layout>
+                  </SimpleLayout>
                 </ProtectedRoute>
               }
             />
@@ -101,9 +102,9 @@ function App() {
               path="/leads"
               element={
                 <ProtectedRoute>
-                  <Layout>
+                  <SimpleLayout>
                     <LeadsPage />
-                  </Layout>
+                  </SimpleLayout>
                 </ProtectedRoute>
               }
             />
@@ -111,9 +112,9 @@ function App() {
               path="/leads/:id"
               element={
                 <ProtectedRoute>
-                  <Layout>
+                  <SimpleLayout>
                     <LeadDetailPage />
-                  </Layout>
+                  </SimpleLayout>
                 </ProtectedRoute>
               }
             />
@@ -121,9 +122,9 @@ function App() {
               path="/follow-ups"
               element={
                 <ProtectedRoute>
-                  <Layout>
+                  <SimpleLayout>
                     <FollowUpPage />
-                  </Layout>
+                  </SimpleLayout>
                 </ProtectedRoute>
               }
             />
@@ -131,9 +132,9 @@ function App() {
               path="/squeegee-transfer"
               element={
                 <ProtectedRoute>
-                  <Layout>
+                  <SimpleLayout>
                     <SqueegeeTransferPage />
-                  </Layout>
+                  </SimpleLayout>
                 </ProtectedRoute>
               }
             />
@@ -141,9 +142,9 @@ function App() {
               path="/analytics"
               element={
                 <ProtectedRoute>
-                  <Layout>
+                  <SimpleLayout>
                     <AnalyticsPage />
-                  </Layout>
+                  </SimpleLayout>
                 </ProtectedRoute>
               }
             />
@@ -151,9 +152,9 @@ function App() {
               path="/settings"
               element={
                 <ProtectedRoute>
-                  <Layout>
+                  <SimpleLayout>
                     <SettingsPage />
-                  </Layout>
+                  </SimpleLayout>
                 </ProtectedRoute>
               }
             />
