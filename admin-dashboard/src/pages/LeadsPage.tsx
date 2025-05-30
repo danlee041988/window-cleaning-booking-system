@@ -91,7 +91,7 @@ export const LeadsPage: React.FC = () => {
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 25,
-    sortBy: 'createdAt',
+    sortBy: 'submittedAt',
     sortOrder: 'desc' as 'asc' | 'desc'
   });
 
