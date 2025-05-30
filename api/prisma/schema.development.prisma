@@ -1,0 +1,223 @@
+// Prisma schema for Somerset Window Cleaning Lead Management System - SQLite Development
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  firstName    String?  @map("first_name")
+  lastName     String?  @map("last_name")
+  role         UserRole @default(USER)
+  isActive     Boolean  @default(true) @map("is_active")
+  mfaEnabled   Boolean  @default(false) @map("mfa_enabled")
+  mfaSecret    String?  @map("mfa_secret")
+  lastLogin    DateTime? @map("last_login")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  assignedLeads  Lead[]           @relation("AssignedTo")
+  activities     LeadActivity[]
+  sessions       UserSession[]
+  auditLogs      AuditLog[]
+  configUpdates  SystemConfig[]
+
+  @@map("users")
+}
+
+model LeadStatus {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  color       String?
+  sortOrder   Int     @default(0) @map("sort_order")
+  isActive    Boolean @default(true) @map("is_active")
+  isDefault   Boolean @default(false) @map("is_default")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations
+  leads Lead[]
+
+  @@map("lead_statuses")
+}
+
+model Lead {
+  id                     Int       @id @default(autoincrement())
+  bookingReference       String    @unique @map("booking_reference")
+  
+  // Customer Information
+  customerName           String    @map("customer_name")
+  email                  String
+  mobile                 String
+  
+  // Address Information
+  addressLine1           String    @map("address_line1")
+  addressLine2           String?   @map("address_line2")
+  townCity               String    @map("town_city")
+  county                 String?
+  postcode               String
+  postcodeArea           String?   @map("postcode_area")
+  
+  // Property Details
+  propertyType           String?   @map("property_type")
+  propertySize           String?   @map("property_size")
+  accessDifficulty       String?   @map("access_difficulty")
+  frequency              String?
+  
+  // Services and Pricing (JSON fields)
+  servicesRequested      String    @default("{}") @map("services_requested")
+  estimatedPrice         Float?    @map("estimated_price")
+  priceBreakdown         String?   @map("price_breakdown")
+  quoteRequests          String    @default("{}") @map("quote_requests")
+  
+  // Additional Information
+  specialRequirements    String?   @map("special_requirements")
+  preferredContactMethod String    @default("phone") @map("preferred_contact_method")
+  preferredContactTime   String?   @map("preferred_contact_time")
+  marketingConsent       Boolean   @default(false) @map("marketing_consent")
+  
+  // Lead Management
+  statusId               Int       @map("status_id")
+  priority               Priority  @default(MEDIUM)
+  assignedToId           Int?      @map("assigned_to")
+  source                 String    @default("website")
+  
+  // Follow-up Information
+  nextFollowUp           DateTime? @map("next_follow_up")
+  followUpNotes          String?   @map("follow_up_notes")
+  
+  // Technical Information
+  submissionIp           String?   @map("submission_ip")
+  userAgent              String?   @map("user_agent")
+  
+  // Timestamps
+  submittedAt            DateTime  @default(now()) @map("submitted_at")
+  firstContactedAt       DateTime? @map("first_contacted_at")
+  lastContactedAt        DateTime? @map("last_contacted_at")
+  convertedAt            DateTime? @map("converted_at")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  status       LeadStatus     @relation(fields: [statusId], references: [id])
+  assignedTo   User?          @relation("AssignedTo", fields: [assignedToId], references: [id])
+  activities   LeadActivity[]
+
+  @@index([statusId])
+  @@index([assignedToId])
+  @@index([postcodeArea])
+  @@index([submittedAt])
+  @@index([nextFollowUp])
+  @@index([priority])
+  @@map("leads")
+}
+
+model LeadActivity {
+  id           Int       @id @default(autoincrement())
+  leadId       Int       @map("lead_id")
+  userId       Int?      @map("user_id")
+  
+  activityType String    @map("activity_type")
+  title        String
+  description  String?
+  outcome      String?
+  
+  // Scheduling
+  scheduledFor DateTime? @map("scheduled_for")
+  completedAt  DateTime? @map("completed_at")
+  
+  // Flexible metadata
+  metadata     String    @default("{}")
+  
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([leadId])
+  @@index([scheduledFor])
+  @@index([activityType])
+  @@map("lead_activities")
+}
+
+model SystemConfig {
+  key         String   @id
+  value       String
+  description String?
+  category    String   @default("general")
+  updatedBy   Int?     @map("updated_by")
+  updatedAt   DateTime @default(now()) @map("updated_at")
+
+  // Relations
+  updatedByUser User? @relation(fields: [updatedBy], references: [id])
+
+  @@map("system_config")
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int?     @map("user_id")
+  action     String
+  tableName  String?  @map("table_name")
+  recordId   Int?     @map("record_id")
+  oldValues  String?  @map("old_values")
+  newValues  String?  @map("new_values")
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_log")
+}
+
+model UserSession {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map("user_id")
+  sessionToken String   @unique @map("session_token")
+  refreshToken String   @unique @map("refresh_token")
+  expiresAt    DateTime @map("expires_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  lastAccessed DateTime @default(now()) @map("last_accessed")
+  ipAddress    String?  @map("ip_address")
+  userAgent    String?  @map("user_agent")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([sessionToken])
+  @@index([expiresAt])
+  @@map("user_sessions")
+}
+
+// Enums
+enum UserRole {
+  ADMIN
+  MANAGER
+  USER
+
+  @@map("user_role")
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+
+  @@map("priority")
+}

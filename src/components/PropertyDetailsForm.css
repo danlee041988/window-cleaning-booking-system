@@ -1,0 +1,71 @@
+.property-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.property-option-card {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.property-option-card:hover {
+  background-color: #f0f0f0;
+  transform: translateY(-2px);
+}
+
+.property-option-card.selected {
+  background-color: #e0e0ff;
+  border-color: #007bff;
+  font-weight: bold;
+}
+
+.property-option-card h4 {
+  margin-top: 0;
+  font-size: 1.1em;
+}
+
+.property-option-card .price {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #007bff;
+  margin-top: 0.5rem;
+}
+
+.property-option-card .note {
+  font-size: 0.8em;
+  color: #555;
+}
+
+/* Animation for date selection UI */
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-pop-in {
+  animation: popIn 0.3s ease-out;
+}
+
+/* Hide number input arrows */
+.hide-number-arrows::-webkit-outer-spin-button,
+.hide-number-arrows::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.hide-number-arrows[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
