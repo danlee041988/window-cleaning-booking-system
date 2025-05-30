@@ -238,10 +238,10 @@ export const LeadsPage: React.FC = () => {
 
     const totalValue = leads.reduce((sum, lead) => sum + (lead.estimatedPrice || 0), 0);
     const overdueCount = leads.filter(lead => 
-      lead.activities?.some(activity => activity.nextFollowUp && new Date(activity.nextFollowUp) < new Date())
+      lead.activities?.some((activity: any) => activity.nextFollowUp && new Date(activity.nextFollowUp) < new Date())
     ).length;
     const highPriorityCount = leads.filter(lead => 
-      lead.priority === 'high' || lead.priority === 'urgent'
+      lead.priority === 'HIGH' || lead.priority === 'URGENT'
     ).length;
 
     return { totalValue, overdueCount, highPriorityCount };

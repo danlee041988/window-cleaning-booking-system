@@ -13,40 +13,60 @@ import {
 import { StatusBadge } from '../ui/StatusBadge';
 import { PriorityBadge } from '../ui/PriorityBadge';
 import { formatCurrency, formatDate, formatRelativeTime } from '../../utils/formatters';
+import { formatServicesRequested, formatFrequency, formatPropertyType, getBookingType } from '../../utils/serviceFormatters';
 
 interface Lead {
-  id: string;
-  leadNumber: string;
+  id: number;
+  bookingReference: string;
   customerName: string;
   email: string;
-  phone: string;
-  displayAddress: string;
-  postcodeArea: string;
-  propertyType: string;
-  serviceType: string;
-  estimatedMonthlyValue: number;
+  mobile: string;
+  addressLine1: string;
+  addressLine2?: string;
+  townCity: string;
+  county?: string;
+  postcode: string;
+  postcodeArea?: string;
+  propertyType?: string;
+  propertySize?: string;
+  accessDifficulty?: string;
+  frequency?: string;
+  servicesRequested?: any;
+  estimatedPrice?: number;
+  priceBreakdown?: any;
+  quoteRequests?: any;
+  specialRequirements?: string;
+  preferredContactMethod?: string;
+  preferredContactTime?: string;
+  marketingConsent: boolean;
   status: {
-    id: string;
+    id: number;
     name: string;
     displayName: string;
     color: string;
+    isDefault?: boolean;
   };
-  priority: 'low' | 'normal' | 'high' | 'urgent';
+  priority?: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
   assignedTo?: {
-    id: string;
+    id: number;
     firstName: string;
     lastName: string;
+    username: string;
   };
-  nextFollowUp?: string;
-  lastContactDate?: string;
-  createdAt: string;
-  source: string;
+  submittedAt: string;
+  firstContactedAt?: string;
+  lastContactedAt?: string;
+  convertedAt?: string;
+  followUpNotes?: string;
+  submissionIp?: string;
+  userAgent?: string;
+  activities?: any[];
 }
 
 interface LeadTableProps {
   leads: Lead[];
-  selectedLeads: string[];
-  onSelectionChange: (selected: string[]) => void;
+  selectedLeads: number[];
+  onSelectionChange: (selected: number[]) => void;
   sortBy: string;
   sortOrder: 'asc' | 'desc';
   onSort: (field: string, order: 'asc' | 'desc') => void;
@@ -118,11 +138,11 @@ export const LeadTable: React.FC<LeadTableProps> = ({
             </th>
             <th 
               className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:text-white"
-              onClick={() => handleSort('leadNumber')}
+              onClick={() => handleSort('bookingReference')}
             >
               <div className="flex items-center space-x-1">
-                <span>Lead #</span>
-                {getSortIcon('leadNumber')}
+                <span>Booking Ref</span>
+                {getSortIcon('bookingReference')}
               </div>
             </th>
             <th 
@@ -138,15 +158,15 @@ export const LeadTable: React.FC<LeadTableProps> = ({
               Contact
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-              Service
+              Type & Frequency
             </th>
             <th 
               className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:text-white"
-              onClick={() => handleSort('estimatedMonthlyValue')}
+              onClick={() => handleSort('estimatedPrice')}
             >
               <div className="flex items-center space-x-1">
-                <span>Value</span>
-                {getSortIcon('estimatedMonthlyValue')}
+                <span>Price</span>
+                {getSortIcon('estimatedPrice')}
               </div>
             </th>
             <th 
@@ -175,11 +195,11 @@ export const LeadTable: React.FC<LeadTableProps> = ({
             </th>
             <th 
               className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:text-white"
-              onClick={() => handleSort('createdAt')}
+              onClick={() => handleSort('submittedAt')}
             >
               <div className="flex items-center space-x-1">
-                <span>Created</span>
-                {getSortIcon('createdAt')}
+                <span>Submitted</span>
+                {getSortIcon('submittedAt')}
               </div>
             </th>
             <th className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
@@ -209,7 +229,7 @@ export const LeadTable: React.FC<LeadTableProps> = ({
                   to={`/leads/${lead.id}`}
                   className="text-blue-400 hover:text-blue-300 font-medium"
                 >
-                  {lead.leadNumber}
+                  {lead.bookingReference}
                 </Link>
               </td>
               
@@ -219,7 +239,7 @@ export const LeadTable: React.FC<LeadTableProps> = ({
                     {lead.customerName}
                   </div>
                   <div className="text-sm text-gray-400">
-                    {lead.displayAddress} • {lead.postcodeArea}
+                    {lead.townCity} • {lead.postcode}
                   </div>
                 </div>
               </td>
@@ -234,9 +254,9 @@ export const LeadTable: React.FC<LeadTableProps> = ({
                     <EnvelopeIcon className="h-4 w-4" />
                   </a>
                   <a
-                    href={`tel:${lead.phone}`}
+                    href={`tel:${lead.mobile}`}
                     className="text-gray-400 hover:text-green-400"
-                    title={lead.phone}
+                    title={lead.mobile}
                   >
                     <PhoneIcon className="h-4 w-4" />
                   </a>
@@ -246,18 +266,17 @@ export const LeadTable: React.FC<LeadTableProps> = ({
               <td className="px-6 py-4 whitespace-nowrap">
                 <div>
                   <div className="text-sm text-white">
-                    {lead.serviceType}
+                    {getBookingType(lead)}
                   </div>
                   <div className="text-sm text-gray-400">
-                    {lead.propertyType}
+                    {formatFrequency(lead.frequency)}
                   </div>
                 </div>
               </td>
               
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="text-sm font-medium text-green-400">
-                  {formatCurrency(lead.estimatedMonthlyValue)}
-                  <span className="text-gray-400">/month</span>
+                  {lead.estimatedPrice ? formatCurrency(lead.estimatedPrice) : 'Quote Required'}
                 </div>
               </td>
               
@@ -270,7 +289,7 @@ export const LeadTable: React.FC<LeadTableProps> = ({
               </td>
               
               <td className="px-6 py-4 whitespace-nowrap">
-                <PriorityBadge priority={lead.priority} />
+                <PriorityBadge priority={lead.priority?.toLowerCase() as any || 'normal'} />
               </td>
               
               <td className="px-6 py-4 whitespace-nowrap">
@@ -284,15 +303,15 @@ export const LeadTable: React.FC<LeadTableProps> = ({
               </td>
               
               <td className="px-6 py-4 whitespace-nowrap">
-                {lead.nextFollowUp ? (
+                {lead.activities && lead.activities[0]?.nextFollowUp ? (
                   <div className={`flex items-center space-x-1 ${
-                    isOverdue(lead.nextFollowUp) ? 'text-red-400' : 'text-gray-300'
+                    isOverdue(lead.activities[0].nextFollowUp) ? 'text-red-400' : 'text-gray-300'
                   }`}>
-                    {isOverdue(lead.nextFollowUp) && (
+                    {isOverdue(lead.activities[0].nextFollowUp) && (
                       <ExclamationTriangleIcon className="h-4 w-4" />
                     )}
                     <span className="text-sm">
-                      {formatRelativeTime(lead.nextFollowUp)}
+                      {formatRelativeTime(lead.activities[0].nextFollowUp)}
                     </span>
                   </div>
                 ) : (
@@ -303,10 +322,10 @@ export const LeadTable: React.FC<LeadTableProps> = ({
               <td className="px-6 py-4 whitespace-nowrap">
                 <div>
                   <div className="text-sm text-gray-300">
-                    {formatRelativeTime(lead.createdAt)}
+                    {formatRelativeTime(lead.submittedAt)}
                   </div>
-                  <div className="text-xs text-gray-400 capitalize">
-                    {lead.source}
+                  <div className="text-xs text-gray-400">
+                    Website Form
                   </div>
                 </div>
               </td>
