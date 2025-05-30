@@ -167,21 +167,45 @@ app.post('/api/auth/login', authLimiter, [
   const { username, password } = req.body;
 
   try {
-    // Debug logging
-    console.log('Login attempt for username:', username);
+    // Enhanced debug logging
+    console.log('=== LOGIN ATTEMPT ===');
+    console.log('Username:', username);
+    console.log('Password received:', password ? 'Yes' : 'No');
+    console.log('Password length:', password?.length);
     console.log('JWT_SECRET available:', !!process.env.JWT_SECRET);
+    console.log('JWT_REFRESH_SECRET available:', !!process.env.JWT_REFRESH_SECRET);
     
     const user = await prisma.user.findUnique({
       where: { username },
       select: { id: true, username: true, email: true, passwordHash: true, role: true, isActive: true }
     });
 
+    console.log('User found:', !!user);
+    if (user) {
+      console.log('User details:', {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        isActive: user.isActive,
+        hasPasswordHash: !!user.passwordHash
+      });
+    }
+
     if (!user || !user.isActive) {
       console.log('User not found or inactive:', { found: !!user, active: user?.isActive });
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
     }
 
+    // Test password
+    console.log('Testing password...');
     const isValidPassword = await bcrypt.compare(password, user.passwordHash);
+    console.log('Password valid:', isValidPassword);
+    
+    // Also test with admin123 directly
+    const testAdmin123 = await bcrypt.compare('admin123', user.passwordHash);
+    console.log('Password hash matches admin123:', testAdmin123);
+    
     if (!isValidPassword) {
       console.log('Invalid password for user:', username);
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
@@ -923,6 +947,100 @@ app.get('/api/debug/db', async (req, res) => {
   }
 });
 
+
+// Test endpoint to check admin user and password
+app.get('/api/test-admin', async (req, res) => {
+  try {
+    console.log('=== ADMIN USER TEST ===');
+    
+    // Check if admin user exists
+    const adminUser = await prisma.user.findUnique({
+      where: { username: 'admin' }
+    });
+    
+    if (!adminUser) {
+      console.log('Admin user not found in database');
+      
+      // Create admin user with admin123 password
+      const hashedPassword = await bcrypt.hash('admin123', 12);
+      const newAdmin = await prisma.user.create({
+        data: {
+          username: 'admin',
+          email: 'admin@example.com',
+          passwordHash: hashedPassword,
+          role: 'ADMIN',
+          isActive: true,
+          firstName: 'Admin',
+          lastName: 'User'
+        }
+      });
+      
+      return res.json({ 
+        created: true, 
+        message: 'Admin user created with password admin123',
+        user: {
+          id: newAdmin.id,
+          username: newAdmin.username,
+          email: newAdmin.email,
+          role: newAdmin.role
+        }
+      });
+    }
+    
+    console.log('Admin user found:', {
+      id: adminUser.id,
+      username: adminUser.username,
+      email: adminUser.email,
+      role: adminUser.role,
+      isActive: adminUser.isActive
+    });
+    
+    // Test password
+    const testPassword = 'admin123';
+    const isValid = await bcrypt.compare(testPassword, adminUser.passwordHash);
+    console.log('Password test for admin123:', isValid);
+    
+    if (!isValid) {
+      // Update password to admin123
+      const hashedPassword = await bcrypt.hash('admin123', 12);
+      await prisma.user.update({
+        where: { username: 'admin' },
+        data: { 
+          passwordHash: hashedPassword,
+          isActive: true
+        }
+      });
+      
+      return res.json({
+        updated: true,
+        message: 'Admin password updated to admin123',
+        user: {
+          id: adminUser.id,
+          username: adminUser.username,
+          email: adminUser.email,
+          role: adminUser.role,
+          isActive: true
+        }
+      });
+    }
+    
+    res.json({
+      exists: true,
+      passwordValid: true,
+      message: 'Admin user exists with correct password',
+      user: {
+        id: adminUser.id,
+        username: adminUser.username,
+        email: adminUser.email,
+        role: adminUser.role,
+        isActive: adminUser.isActive
+      }
+    });
+  } catch (error) {
+    console.error('Test admin error:', error);
+    res.status(500).json({ error: 'Failed to test admin user' });
+  }
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
