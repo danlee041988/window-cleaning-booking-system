@@ -10,14 +10,31 @@ async function main() {
   console.log('Creating lead statuses...');
   
   const statusesToCreate = [
-    { name: 'New', description: 'Newly submitted booking request', color: '#3B82F6', sortOrder: 1, isDefault: true },
-    { name: 'Contacted', description: 'Initial contact made with customer', color: '#F59E0B', sortOrder: 2, isDefault: false },
-    { name: 'Quote Sent', description: 'Quote has been provided to customer', color: '#8B5CF6', sortOrder: 3, isDefault: false },
-    { name: 'Accepted', description: 'Customer has accepted the quote', color: '#10B981', sortOrder: 4, isDefault: false },
-    { name: 'Scheduled', description: 'Job has been scheduled', color: '#06B6D4', sortOrder: 5, isDefault: false },
-    { name: 'Completed', description: 'Job has been completed', color: '#059669', sortOrder: 6, isDefault: false },
-    { name: 'Cancelled', description: 'Booking was cancelled', color: '#EF4444', sortOrder: 7, isDefault: false },
-    { name: 'Lost', description: 'Lead did not convert', color: '#6B7280', sortOrder: 8, isDefault: false }
+    // ACTIVE STATUSES (Requiring Action)
+    { name: 'New', description: 'Newly submitted booking request', color: '#3B82F6', sortOrder: 1, isDefault: true, isActive: true, category: 'active', followUpDays: 1 },
+    { name: 'Initial Contact', description: 'First contact made with customer', color: '#F59E0B', sortOrder: 2, isDefault: false, isActive: true, category: 'active', followUpDays: 1 },
+    { name: 'Qualifying', description: 'Understanding customer requirements', color: '#A855F7', sortOrder: 3, isDefault: false, isActive: true, category: 'active', followUpDays: 2 },
+    { name: 'Site Visit Required', description: 'Needs physical assessment for quote', color: '#EC4899', sortOrder: 4, isDefault: false, isActive: true, category: 'active', followUpDays: 1 },
+    { name: 'Site Visit Scheduled', description: 'Appointment booked for assessment', color: '#8B5CF6', sortOrder: 5, isDefault: false, isActive: true, category: 'active', followUpDays: 1 },
+    { name: 'Site Visit Completed', description: 'Assessment done, preparing quote', color: '#06B6D4', sortOrder: 6, isDefault: false, isActive: true, category: 'active', followUpDays: 2 },
+    { name: 'Quote Sent', description: 'Quote provided to customer', color: '#10B981', sortOrder: 7, isDefault: false, isActive: true, category: 'active', followUpDays: 3 },
+    { name: 'Follow-up Required', description: 'Customer thinking, needs gentle nudging', color: '#F59E0B', sortOrder: 8, isDefault: false, isActive: true, category: 'active', followUpDays: 7 },
+    { name: 'Follow-up Overdue', description: 'No response, urgent action needed', color: '#EF4444', sortOrder: 9, isDefault: false, isActive: true, category: 'urgent', followUpDays: 1 },
+    
+    // COMPLETED STATUSES (Archive)
+    { name: 'Accepted - Squeegee', description: 'Quote accepted, transferred to Squeegee', color: '#059669', sortOrder: 10, isDefault: false, isActive: false, category: 'completed', followUpDays: null },
+    { name: 'Rejected', description: 'Customer declined quote', color: '#DC2626', sortOrder: 11, isDefault: false, isActive: false, category: 'completed', followUpDays: null },
+    { name: 'No Response', description: 'Customer went silent after follow-ups', color: '#6B7280', sortOrder: 12, isDefault: false, isActive: false, category: 'completed', followUpDays: null },
+    { name: 'Not Viable', description: 'Cannot provide service (access, location, etc.)', color: '#9CA3AF', sortOrder: 13, isDefault: false, isActive: false, category: 'completed', followUpDays: null },
+    { name: 'Converted Other', description: 'Became customer through different route', color: '#10B981', sortOrder: 14, isDefault: false, isActive: false, category: 'completed', followUpDays: null },
+    
+    // LEGACY STATUSES (for backwards compatibility)
+    { name: 'Contacted', description: 'Initial contact made with customer (legacy)', color: '#F59E0B', sortOrder: 15, isDefault: false, isActive: true, category: 'active', followUpDays: 1 },
+    { name: 'Accepted', description: 'Customer has accepted the quote (legacy)', color: '#10B981', sortOrder: 16, isDefault: false, isActive: true, category: 'active', followUpDays: 1 },
+    { name: 'Scheduled', description: 'Job has been scheduled (legacy)', color: '#06B6D4', sortOrder: 17, isDefault: false, isActive: false, category: 'completed', followUpDays: null },
+    { name: 'Completed', description: 'Job has been completed (legacy)', color: '#059669', sortOrder: 18, isDefault: false, isActive: false, category: 'completed', followUpDays: null },
+    { name: 'Cancelled', description: 'Booking was cancelled (legacy)', color: '#EF4444', sortOrder: 19, isDefault: false, isActive: false, category: 'completed', followUpDays: null },
+    { name: 'Lost', description: 'Lead did not convert (legacy)', color: '#6B7280', sortOrder: 20, isDefault: false, isActive: false, category: 'completed', followUpDays: null }
   ];
 
   for (const status of statusesToCreate) {
