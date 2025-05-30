@@ -2,7 +2,7 @@
   "name": "window-cleaning-booking-api",
   "version": "1.0.0",
   "description": "Secure backend API for Somerset Window Cleaning booking system",
-  "main": "server.js",
+  "main": "server-enhanced.js",
   "scripts": {
     "start": "node server-enhanced.js",
     "dev": "nodemon server-enhanced.js",

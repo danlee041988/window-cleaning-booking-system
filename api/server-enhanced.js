@@ -30,7 +30,8 @@ const corsOrigins = process.env.NODE_ENV === 'production'
   : [
       'http://localhost:3000',
       'http://localhost:5173',
-      'https://somerset-admin-dashboard.vercel.app'
+      'https://somerset-admin-dashboard.vercel.app',
+      'https://window-cleaning-booking-system.vercel.app'
     ];
 
 app.use(cors({
