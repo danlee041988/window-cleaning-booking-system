@@ -667,7 +667,7 @@ if (bookingForm) {
             
             // Handle specific API validation errors
             if (error.message && error.message.includes('Valid UK mobile number required')) {
-                errorMessage = 'Please check your mobile number format. UK mobile numbers should start with 07 (e.g., 07891234567)';
+                errorMessage = 'Please check your phone number format. We accept UK mobile and landline numbers';
             } else if (error.message && error.message.includes('Valid UK postcode required')) {
                 errorMessage = 'Please check your postcode format. UK postcodes should be in the format like BS1 4DJ or M1 1AA';
             } else if (error.message && error.message.includes('Failed to fetch')) {
@@ -867,16 +867,19 @@ function resetRecaptcha() {
 
 // Real-time validation functions
 function validateMobileNumber(input) {
-    const ukMobileRegex = /^(?:(?:\+44\s?|0)7(?:[45789]\d{2}|624)\s?\d{3}\s?\d{3})$/;
-    const value = input.value.trim();
+    // UK phone regex - accepts mobile (07) and landline (01/02/03) numbers
+    // Allows spaces and dashes for user convenience
+    const ukPhoneRegex = /^(?:(?:\+44\s?|0)(?:1\d{8,9}|2\d{9}|3\d{9}|7\d{9}|8\d{9}))$/;
+    // Clean the value by removing spaces, dashes, and parentheses for validation
+    const value = input.value.trim().replace(/[\s\-\(\)]/g, '');
     
     // Remove any existing validation styling
     input.classList.remove('invalid-input', 'valid-input');
     removeFieldError(input);
     
-    if (value && !ukMobileRegex.test(value)) {
+    if (value && !ukPhoneRegex.test(value)) {
         input.classList.add('invalid-input');
-        showFieldError(input, 'Please enter a valid UK mobile number (e.g., 07891234567)');
+        showFieldError(input, 'Please enter a valid UK phone number');
         return false;
     } else if (value) {
         input.classList.add('valid-input');
