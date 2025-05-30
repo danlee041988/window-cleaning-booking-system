@@ -490,6 +490,139 @@ app.put('/api/leads/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// Delete lead
+app.delete('/api/leads/:id', authenticateToken, async (req, res) => {
+  try {
+    const leadId = parseInt(req.params.id);
+    const lead = await prisma.lead.findUnique({ where: { id: leadId } });
+    
+    if (!lead) {
+      return res.status(404).json({ success: false, error: 'Lead not found' });
+    }
+
+    // Delete associated activities first (cascade delete)
+    await prisma.leadActivity.deleteMany({ where: { leadId } });
+    
+    // Delete the lead
+    await prisma.lead.delete({ where: { id: leadId } });
+
+    await logActivity(
+      req.user.id,
+      'DELETE_LEAD',
+      'leads',
+      leadId,
+      lead,
+      null,
+      req.clientIp,
+      req.headers['user-agent']
+    );
+
+    res.json({ success: true, message: 'Lead deleted successfully' });
+  } catch (error) {
+    console.error('Delete lead error:', error);
+    res.status(500).json({ success: false, error: 'Failed to delete lead' });
+  }
+});
+
+// Create new lead (for admin panel)
+app.post('/api/leads', authenticateToken, [
+  body('customerName').trim().notEmpty().withMessage('Customer name is required'),
+  body('email').trim().isEmail().normalizeEmail().withMessage('Valid email is required'),
+  body('mobile').trim().notEmpty().withMessage('Mobile number is required'),
+  body('postcode').trim().notEmpty().withMessage('Postcode is required'),
+  body('addressLine1').trim().notEmpty().withMessage('Address is required'),
+  body('townCity').trim().notEmpty().withMessage('Town/City is required')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
+  try {
+    const formData = req.body;
+    
+    // Generate unique booking reference
+    const bookingRef = `SWC-${Date.now()}-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+    
+    // Get default status
+    const defaultStatus = await prisma.leadStatus.findFirst({
+      where: { isDefault: true }
+    });
+
+    // Extract postcode area
+    const postcodeArea = extractPostcodeArea(formData.postcode);
+
+    const lead = await prisma.lead.create({
+      data: {
+        bookingReference: bookingRef,
+        customerName: formData.customerName,
+        email: formData.email,
+        mobile: formData.mobile,
+        addressLine1: formData.addressLine1,
+        addressLine2: formData.addressLine2 || null,
+        townCity: formData.townCity,
+        county: formData.county || null,
+        postcode: formData.postcode,
+        postcodeArea,
+        propertyType: formData.propertyType || null,
+        propertySize: formData.propertySize || null,
+        accessDifficulty: formData.accessDifficulty || null,
+        frequency: formData.frequency || null,
+        servicesRequested: formData.servicesRequested || {},
+        estimatedPrice: formData.estimatedPrice ? parseFloat(formData.estimatedPrice) : null,
+        priceBreakdown: formData.priceBreakdown || null,
+        quoteRequests: formData.quoteRequests || {},
+        specialRequirements: formData.specialRequirements || null,
+        preferredContactMethod: formData.preferredContactMethod || 'phone',
+        preferredContactTime: formData.preferredContactTime || null,
+        marketingConsent: formData.marketingConsent || false,
+        statusId: formData.statusId || defaultStatus?.id || 1,
+        assignedToId: formData.assignedToId || null,
+        priority: formData.priority || null,
+        submissionIp: req.clientIp,
+        userAgent: req.headers['user-agent']
+      },
+      include: {
+        status: true,
+        assignedTo: {
+          select: { id: true, firstName: true, lastName: true, username: true }
+        }
+      }
+    });
+
+    // Create initial activity
+    await prisma.leadActivity.create({
+      data: {
+        leadId: lead.id,
+        userId: req.user.id,
+        activityType: 'lead_created',
+        title: 'Lead Created',
+        description: 'Lead manually created via admin panel',
+        metadata: {
+          source: 'admin_panel',
+          createdBy: req.user.username
+        }
+      }
+    });
+
+    await logActivity(
+      req.user.id,
+      'CREATE_LEAD',
+      'leads',
+      lead.id,
+      null,
+      lead,
+      req.clientIp,
+      req.headers['user-agent']
+    );
+
+    res.json({ success: true, data: lead });
+  } catch (error) {
+    console.error('Create lead error:', error);
+    res.status(500).json({ success: false, error: 'Failed to create lead' });
+  }
+});
+
 // Submit booking endpoint (Enhanced to store in database + send email)
 app.post('/api/submit-booking', logIpAddress, bookingLimiter, bookingValidation, async (req, res) => {
   // Validate input
@@ -656,6 +789,32 @@ app.put('/api/system/config', authenticateToken, requireAdmin, async (req, res) 
   } catch (error) {
     console.error('Update system config error:', error);
     res.status(500).json({ success: false, error: 'Failed to update system configuration' });
+  }
+});
+
+// Get users (for assignment dropdowns)
+app.get('/api/system/users', authenticateToken, async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      where: { isActive: true },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true
+      },
+      orderBy: [
+        { firstName: 'asc' },
+        { lastName: 'asc' }
+      ]
+    });
+
+    res.json({ success: true, data: users });
+  } catch (error) {
+    console.error('Get users error:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch users' });
   }
 });
 
