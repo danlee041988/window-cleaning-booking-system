@@ -266,6 +266,81 @@ app.post('/api/auth/logout', authenticateToken, async (req, res) => {
   }
 });
 
+// Refresh token endpoint
+app.post('/api/auth/refresh', [
+  body('refreshToken').notEmpty().withMessage('Refresh token is required')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
+  const { refreshToken } = req.body;
+
+  try {
+    // Verify refresh token
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    
+    // Check if session exists and is valid
+    const session = await prisma.userSession.findFirst({
+      where: { 
+        refreshToken,
+        userId: decoded.userId,
+        expiresAt: { gt: new Date() }
+      },
+      include: {
+        user: {
+          select: { id: true, username: true, email: true, role: true, isActive: true }
+        }
+      }
+    });
+
+    if (!session || !session.user.isActive) {
+      return res.status(401).json({ success: false, error: 'Invalid refresh token' });
+    }
+
+    // Generate new access token
+    const newAccessToken = jwt.sign(
+      { userId: session.user.id, username: session.user.username, role: session.user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '15m' }
+    );
+
+    // Generate new refresh token
+    const newRefreshToken = jwt.sign(
+      { userId: session.user.id },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d' }
+    );
+
+    // Update session with new tokens
+    await prisma.userSession.update({
+      where: { id: session.id },
+      data: {
+        sessionToken: newAccessToken,
+        refreshToken: newRefreshToken,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+      }
+    });
+
+    res.json({
+      success: true,
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+      user: {
+        id: session.user.id,
+        username: session.user.username,
+        email: session.user.email,
+        role: session.user.role
+      }
+    });
+
+  } catch (error) {
+    console.error('Token refresh error:', error);
+    res.status(401).json({ success: false, error: 'Invalid refresh token' });
+  }
+});
+
 // ===================
 // LEAD ENDPOINTS
 // ===================

@@ -8,7 +8,7 @@ export interface User {
   email: string;
   firstName?: string;
   lastName?: string;
-  role: 'admin' | 'manager' | 'sales' | 'viewer' | 'ADMIN';
+  role: 'ADMIN' | 'MANAGER' | 'USER';
   permissions?: string[];
   lastLogin?: string;
 }
@@ -199,20 +199,25 @@ setTimeout(() => {
   }
 }, 3000);
 
-// Helper functions for checking permissions
+// Helper functions for checking permissions based on role
 export const useHasPermission = (permission: string): boolean => {
   const user = useAuthStore((state) => state.user);
   
   if (!user) return false;
   
-  // If user has no permissions array, grant admin permissions by default
-  if (!user.permissions || !Array.isArray(user.permissions)) {
-    return user.role === 'admin' || user.role === 'ADMIN';
+  // Role-based permission system
+  switch (user.role) {
+    case 'ADMIN':
+      return true; // Admin has all permissions
+    case 'MANAGER':
+      // Manager has most permissions except user management
+      return !permission.includes('users:delete');
+    case 'USER':
+      // Basic users have read-only permissions
+      return permission.includes('read') || permission.includes('view');
+    default:
+      return false;
   }
-  
-  if (user.permissions.includes('*')) return true;
-  
-  return user.permissions.includes(permission);
 };
 
 export const useIsRole = (role: string | string[]): boolean => {
