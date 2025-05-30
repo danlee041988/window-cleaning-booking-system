@@ -57,13 +57,13 @@ export const SqueegeeTransferPage: React.FC = () => {
   const queryClient = useQueryClient();
   const canTransfer = useHasPermission('leads:transfer');
 
-  // Fetch leads ready for Squeegee transfer
+  // Fetch leads ready for Squeegee transfer (confirmed bookings)
   const { data: readyLeads, isLoading, refetch } = useQuery({
     queryKey: ['leads-ready-for-squeegee'],
     queryFn: () => leadApi.getLeads({
-      status: 'ready_for_squeegee',
+      status: 'Accepted',
       limit: 100,
-      sortBy: 'createdAt',
+      sortBy: 'submittedAt',
       sortOrder: 'desc'
     }),
     refetchInterval: 30000, // Refresh every 30 seconds
@@ -98,7 +98,47 @@ export const SqueegeeTransferPage: React.FC = () => {
     }
   });
 
-  const leads: ReadyLead[] = readyLeads?.leads || [];
+  // Transform API leads to ReadyLead format
+  const leads: ReadyLead[] = (readyLeads?.data || []).map((lead: any) => {
+    const estimatedPrice = parseFloat(lead.estimatedPrice?.toString() || '0');
+    const frequency = lead.frequency || 'monthly';
+    
+    // Calculate annual value using our helper function
+    const calculateAnnualValue = (price: number, freq: string): number => {
+      const multipliers: { [key: string]: number } = {
+        'weekly': 52, '2weekly': 26, 'monthly': 12, '4weekly': 13,
+        '6weekly': 8.67, '8weekly': 6.5, '12weekly': 4.33, 'quarterly': 4, 'onetime': 1
+      };
+      return price * (multipliers[freq] || 1);
+    };
+    
+    const annualValue = calculateAnnualValue(estimatedPrice, frequency);
+    
+    return {
+      id: lead.id.toString(),
+      leadNumber: lead.bookingReference,
+      customerName: lead.customerName,
+      email: lead.email,
+      phone: lead.mobile,
+      fullAddress: `${lead.addressLine1}${lead.addressLine2 ? ', ' + lead.addressLine2 : ''}, ${lead.townCity}`,
+      postcode: lead.postcode,
+      propertyType: lead.propertyType || 'House',
+      serviceType: 'Window Cleaning',
+      serviceFrequency: frequency,
+      estimatedMonthlyValue: estimatedPrice,
+      estimatedAnnualValue: annualValue,
+      additionalServices: Object.keys(lead.servicesRequested || {})
+        .filter(key => lead.servicesRequested[key] && key !== 'windowCleaning')
+        .map(key => key.replace(/([A-Z])/g, ' $1').trim()),
+      preferredStartDate: lead.preferredDate,
+      specialInstructions: lead.specialRequirements,
+      paymentMethod: lead.preferredContactMethod,
+      status: lead.status,
+      assignedTo: lead.assignedTo,
+      createdAt: lead.submittedAt
+    };
+  });
+  
   const totalValue = leads.reduce((sum, lead) => sum + lead.estimatedMonthlyValue, 0);
   const totalAnnualValue = leads.reduce((sum, lead) => sum + lead.estimatedAnnualValue, 0);
 
@@ -392,14 +432,16 @@ export const SqueegeeTransferPage: React.FC = () => {
             </h3>
             <div className="mt-1 text-sm text-blue-300">
               <p>
-                Leads shown here have been confirmed and are ready to be added to your main Squeegee booking system. 
-                Once transferred, they will be marked as "Transferred to Squeegee" and removed from this list.
+                Leads shown here have status "Accepted" - meaning customers have confirmed their booking and accepted the quote. 
+                These confirmed bookings are ready to be transferred to your main Squeegee CRM system for scheduling and service delivery.
               </p>
               <ul className="mt-2 list-disc list-inside space-y-1 text-xs">
+                <li>Only "Accepted" status leads appear here (confirmed bookings)</li>
                 <li>Manual transfer allows you to review each lead before adding to Squeegee</li>
                 <li>Batch transfer processes multiple leads simultaneously</li>
                 <li>Download sheets can be imported into Squeegee manually if needed</li>
                 <li>All transfers are logged for audit purposes</li>
+                <li>Once transferred, leads will be marked as "Scheduled" status</li>
               </ul>
             </div>
           </div>
@@ -509,9 +551,9 @@ export const SqueegeeTransferPage: React.FC = () => {
       ) : (
         <div className="bg-gray-800 rounded-lg border border-gray-700 text-center py-12">
           <CheckCircleIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <div className="text-gray-400 text-lg">No leads ready for transfer</div>
+          <div className="text-gray-400 text-lg">No confirmed bookings ready for transfer</div>
           <div className="text-gray-500 text-sm mt-1">
-            Leads will appear here when they reach "Ready for Squeegee" status
+            Leads will appear here when customers accept quotes and status changes to "Accepted"
           </div>
         </div>
       )}

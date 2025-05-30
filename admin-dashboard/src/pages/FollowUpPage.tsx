@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   ClockIcon,
@@ -12,7 +12,7 @@ import {
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
-import { followUpApi, leadApi } from '../services/api';
+import { leadApi } from '../services/api';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { PriorityBadge } from '../components/ui/PriorityBadge';
@@ -62,37 +62,110 @@ export const FollowUpPage: React.FC = () => {
 
   const queryClient = useQueryClient();
 
-  // Fetch follow-up data based on active tab
-  const { data: followUps, isLoading, refetch } = useQuery({
-    queryKey: ['follow-ups', activeTab],
-    queryFn: () => {
-      switch (activeTab) {
-        case 'today':
-          return followUpApi.getTodaysFollowUps();
-        case 'overdue':
-          return followUpApi.getOverdueFollowUps();
-        case 'upcoming':
-          return followUpApi.getUpcomingFollowUps(7);
-        case 'completed':
-          return followUpApi.getUpcomingFollowUps(30); // Last 30 days of completed
-        default:
-          return followUpApi.getTodaysFollowUps();
-      }
-    },
+  // Fetch enquiry leads that need follow-up
+  const { data: enquiryLeads, isLoading, refetch } = useQuery({
+    queryKey: ['enquiry-leads-for-followup'],
+    queryFn: () => leadApi.getLeads({
+      status: 'New,Contacted,Quote Sent',
+      limit: 1000,
+      sortBy: 'submittedAt',
+      sortOrder: 'desc'
+    }),
     refetchInterval: 60000, // Refresh every minute
   });
 
-  // Complete follow-up mutation
+  // Transform leads into follow-up activities and categorize by time
+  const followUps = useMemo(() => {
+    if (!enquiryLeads?.data) return [];
+    
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    return enquiryLeads.data.map((lead: any) => {
+      // Calculate when follow-up is due based on lead status and age
+      const submittedDate = new Date(lead.submittedAt);
+      const daysSinceSubmitted = Math.floor((now.getTime() - submittedDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      let followUpDue = new Date(submittedDate);
+      let activityType = 'call';
+      let subject = '';
+      
+      // Determine follow-up schedule based on status
+      if (lead.status.name === 'New') {
+        followUpDue.setHours(followUpDue.getHours() + 24); // Follow up within 24 hours
+        subject = 'Initial contact and quote';
+        activityType = lead.preferredContactMethod === 'email' ? 'email' : 'call';
+      } else if (lead.status.name === 'Contacted') {
+        followUpDue.setDate(followUpDue.getDate() + 3); // Follow up in 3 days
+        subject = 'Follow up on initial contact';
+        activityType = 'call';
+      } else if (lead.status.name === 'Quote Sent') {
+        followUpDue.setDate(followUpDue.getDate() + 7); // Follow up in 1 week
+        subject = 'Follow up on quote sent';
+        activityType = 'call';
+      }
+      
+      return {
+        id: `followup-${lead.id}`,
+        leadId: lead.id.toString(),
+        activityType,
+        subject,
+        description: `Follow up with ${lead.customerName} regarding their ${lead.propertyType || 'property'} window cleaning enquiry`,
+        scheduledFor: followUpDue.toISOString(),
+        outcome: null, // We'll track this separately
+        notes: lead.specialRequirements,
+        assignedTo: lead.assignedTo || {
+          id: '1',
+          firstName: 'Admin',
+          lastName: 'User'
+        },
+        lead: {
+          id: lead.id.toString(),
+          leadNumber: lead.bookingReference,
+          customerName: lead.customerName,
+          phone: lead.mobile,
+          email: lead.email,
+          postcodeArea: lead.postcodeArea || lead.postcode?.split(' ')[0] || '',
+          estimatedMonthlyValue: parseFloat(lead.estimatedPrice?.toString() || '0'),
+          status: lead.status,
+          priority: lead.priority?.toLowerCase() || 'medium'
+        },
+        daysSinceSubmitted,
+        isOverdue: followUpDue < now,
+        isToday: followUpDue.toDateString() === today.toDateString(),
+        isUpcoming: followUpDue > now && !followUpDue.toDateString() === today.toDateString()
+      };
+    });
+  }, [enquiryLeads]);
+
+  // Complete follow-up by updating lead status
   const completeFollowUpMutation = useMutation({
-    mutationFn: ({ activityId, outcome, notes }: {
-      activityId: string;
+    mutationFn: ({ leadId, outcome, notes }: {
+      leadId: string;
       outcome: string;
       notes?: string;
-    }) => followUpApi.completeFollowUp(activityId, outcome, notes),
+    }) => {
+      // Update lead status based on outcome
+      let newStatus = '';
+      if (outcome === 'quote_sent') {
+        newStatus = 'Quote Sent';
+      } else if (outcome === 'accepted') {
+        newStatus = 'Accepted';
+      } else if (outcome === 'no_interest') {
+        newStatus = 'Lost';
+      } else {
+        newStatus = 'Contacted';
+      }
+      
+      return leadApi.updateLead(leadId, {
+        statusId: newStatus, // This will need to be mapped to actual status ID
+        followUpNotes: notes
+      });
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries(['follow-ups']);
+      queryClient.invalidateQueries(['enquiry-leads-for-followup']);
       queryClient.invalidateQueries(['leads']);
-      toast.success('Follow-up completed successfully');
+      toast.success('Follow-up completed and lead updated');
       setShowCompleteModal(false);
       setSelectedActivity(null);
     },
@@ -101,15 +174,20 @@ export const FollowUpPage: React.FC = () => {
     }
   });
 
-  // Reschedule follow-up mutation
+  // Update lead next follow-up date
   const rescheduleFollowUpMutation = useMutation({
-    mutationFn: ({ activityId, newDate, reason }: {
-      activityId: string;
+    mutationFn: ({ leadId, newDate, reason }: {
+      leadId: string;
       newDate: string;
       reason?: string;
-    }) => followUpApi.rescheduleFollowUp(activityId, newDate, reason),
+    }) => {
+      return leadApi.updateLead(leadId, {
+        nextFollowUp: newDate,
+        followUpNotes: reason
+      });
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries(['follow-ups']);
+      queryClient.invalidateQueries(['enquiry-leads-for-followup']);
       queryClient.invalidateQueries(['leads']);
       toast.success('Follow-up rescheduled successfully');
       setShowRescheduleModal(false);
@@ -158,33 +236,44 @@ export const FollowUpPage: React.FC = () => {
     }
   };
 
+  // Filter follow-ups by active tab
+  const filteredFollowUps = useMemo(() => {
+    if (!followUps) return [];
+    
+    switch (activeTab) {
+      case 'today':
+        return followUps.filter((f: any) => f.isToday);
+      case 'overdue':
+        return followUps.filter((f: any) => f.isOverdue);
+      case 'upcoming':
+        return followUps.filter((f: any) => f.isUpcoming);
+      case 'completed':
+        return followUps.filter((f: any) => f.lead.status.name === 'Contacted' || f.lead.status.name === 'Quote Sent');
+      default:
+        return followUps;
+    }
+  }, [followUps, activeTab]);
+
   const tabs = [
     { 
       id: 'today' as TabType, 
-      name: 'Today', 
-      count: followUps?.filter((f: FollowUpActivity) => {
-        const today = new Date().toDateString();
-        return new Date(f.scheduledFor).toDateString() === today;
-      }).length || 0
+      name: 'Due Today', 
+      count: followUps?.filter((f: any) => f.isToday).length || 0
     },
     { 
       id: 'overdue' as TabType, 
       name: 'Overdue', 
-      count: followUps?.filter((f: FollowUpActivity) => {
-        return new Date(f.scheduledFor) < new Date() && !f.outcome;
-      }).length || 0
+      count: followUps?.filter((f: any) => f.isOverdue).length || 0
     },
     { 
       id: 'upcoming' as TabType, 
       name: 'Upcoming', 
-      count: followUps?.filter((f: FollowUpActivity) => {
-        return new Date(f.scheduledFor) > new Date() && !f.outcome;
-      }).length || 0
+      count: followUps?.filter((f: any) => f.isUpcoming).length || 0
     },
     { 
       id: 'completed' as TabType, 
-      name: 'Completed', 
-      count: followUps?.filter((f: FollowUpActivity) => f.outcome).length || 0
+      name: 'In Progress', 
+      count: followUps?.filter((f: any) => f.lead.status.name === 'Contacted' || f.lead.status.name === 'Quote Sent').length || 0
     }
   ];
 
@@ -267,9 +356,9 @@ export const FollowUpPage: React.FC = () => {
 
       {/* Follow-up list */}
       <div className="bg-gray-800 rounded-lg border border-gray-700">
-        {followUps && followUps.length > 0 ? (
+        {filteredFollowUps && filteredFollowUps.length > 0 ? (
           <div className="divide-y divide-gray-700">
-            {followUps.map((activity: FollowUpActivity) => (
+            {filteredFollowUps.map((activity: FollowUpActivity) => (
               <div key={activity.id} className="p-6 hover:bg-gray-750 transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-4 flex-1">
@@ -421,7 +510,7 @@ export const FollowUpPage: React.FC = () => {
           activity={selectedActivity}
           onComplete={(outcome, notes) => {
             completeFollowUpMutation.mutate({
-              activityId: selectedActivity.id,
+              leadId: selectedActivity.leadId,
               outcome,
               notes
             });
@@ -440,7 +529,7 @@ export const FollowUpPage: React.FC = () => {
           activity={selectedActivity}
           onReschedule={(newDate, reason) => {
             rescheduleFollowUpMutation.mutate({
-              activityId: selectedActivity.id,
+              leadId: selectedActivity.leadId,
               newDate,
               reason
             });

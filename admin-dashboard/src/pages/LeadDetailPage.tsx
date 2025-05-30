@@ -50,15 +50,22 @@ export const LeadDetailPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <LoadingSpinner size="lg" />
+        <div className="text-center">
+          <LoadingSpinner size="lg" />
+          <p className="mt-4 text-gray-400">Loading lead details...</p>
+        </div>
       </div>
     );
   }
 
   if (error || !leadData?.data) {
+    console.error('Lead detail error:', error);
     return (
       <div className="text-center py-8">
-        <p className="text-gray-400">Lead not found or failed to load</p>
+        <p className="text-gray-400">
+          {error ? `Error loading lead: ${error.message || 'Unknown error'}` : 'Lead not found'}
+        </p>
+        <p className="text-sm text-gray-500 mt-2">Lead ID: {id}</p>
         <button
           onClick={() => navigate('/leads')}
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -295,6 +302,25 @@ export const LeadDetailPage: React.FC = () => {
             Additional Information
           </h2>
           <div className="space-y-3">
+            {lead.preferredDate && (
+              <div>
+                <span className="text-gray-400 text-sm">Preferred Date:</span>
+                <p className="text-white mt-1">
+                  {(() => {
+                    try {
+                      return new Date(lead.preferredDate).toLocaleDateString('en-GB', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                      });
+                    } catch (error) {
+                      return lead.preferredDate;
+                    }
+                  })()}
+                </p>
+              </div>
+            )}
             {lead.specialRequirements && (
               <div>
                 <span className="text-gray-400 text-sm">Special Requirements:</span>

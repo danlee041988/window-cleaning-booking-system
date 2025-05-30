@@ -92,7 +92,7 @@ export const LeadTable: React.FC<LeadTableProps> = ({
     }
   };
 
-  const handleSelectLead = (leadId: string, checked: boolean) => {
+  const handleSelectLead = (leadId: number, checked: boolean) => {
     if (checked) {
       onSelectionChange([...selectedLeads, leadId]);
     } else {
@@ -228,6 +228,7 @@ export const LeadTable: React.FC<LeadTableProps> = ({
                 <Link 
                   to={`/leads/${lead.id}`}
                   className="text-blue-400 hover:text-blue-300 font-medium"
+                  onClick={() => console.log('Navigating to lead:', lead.id)}
                 >
                   {lead.bookingReference}
                 </Link>
@@ -336,6 +337,7 @@ export const LeadTable: React.FC<LeadTableProps> = ({
                     to={`/leads/${lead.id}`}
                     className="text-gray-400 hover:text-blue-400"
                     title="View details"
+                    onClick={() => console.log('Navigating to lead details:', lead.id)}
                   >
                     <EyeIcon className="h-4 w-4" />
                   </Link>
