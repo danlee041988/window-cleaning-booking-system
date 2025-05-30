@@ -73,20 +73,18 @@ export const FollowUpPage: React.FC = () => {
     }),
     refetchInterval: 60000, // Refresh every minute
     retry: 3,
-    retryDelay: 1000,
-    onError: (error) => {
-      console.error('Follow-up leads fetch error:', error);
-    }
+    retryDelay: 1000
   });
 
   // Transform leads into follow-up activities and categorize by time
   const followUps = useMemo(() => {
-    if (!enquiryLeads?.data || !Array.isArray(enquiryLeads.data)) return [];
+    const apiResponse = enquiryLeads as any;
+    if (!apiResponse?.data || !Array.isArray(apiResponse.data)) return [];
     
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     
-    return enquiryLeads.data.map((lead: any) => {
+    return apiResponse.data.map((lead: any) => {
       // Calculate when follow-up is due based on lead status and age
       const submittedDate = new Date(lead.submittedAt);
       const daysSinceSubmitted = Math.floor((now.getTime() - submittedDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -138,7 +136,7 @@ export const FollowUpPage: React.FC = () => {
         daysSinceSubmitted,
         isOverdue: followUpDue < now,
         isToday: followUpDue.toDateString() === today.toDateString(),
-        isUpcoming: followUpDue > now && !followUpDue.toDateString() === today.toDateString()
+        isUpcoming: followUpDue > now && followUpDue.toDateString() !== today.toDateString()
       };
     });
   }, [enquiryLeads]);
@@ -168,8 +166,8 @@ export const FollowUpPage: React.FC = () => {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['enquiry-leads-for-followup']);
-      queryClient.invalidateQueries(['leads']);
+      queryClient.invalidateQueries({ queryKey: ['enquiry-leads-for-followup'] });
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
       toast.success('Follow-up completed and lead updated');
       setShowCompleteModal(false);
       setSelectedActivity(null);
@@ -192,8 +190,8 @@ export const FollowUpPage: React.FC = () => {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['enquiry-leads-for-followup']);
-      queryClient.invalidateQueries(['leads']);
+      queryClient.invalidateQueries({ queryKey: ['enquiry-leads-for-followup'] });
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
       toast.success('Follow-up rescheduled successfully');
       setShowRescheduleModal(false);
       setSelectedActivity(null);
@@ -402,7 +400,7 @@ export const FollowUpPage: React.FC = () => {
                           color={activity.lead.status.color}
                           label={activity.lead.status.displayName}
                         />
-                        <PriorityBadge priority={activity.lead.priority} />
+                        <PriorityBadge priority={activity.lead.priority as "normal" | "low" | "high" | "urgent"} />
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">

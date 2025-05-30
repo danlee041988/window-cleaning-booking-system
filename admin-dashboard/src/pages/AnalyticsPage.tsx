@@ -273,38 +273,12 @@ export const AnalyticsPage: React.FC = () => {
 
       {/* Conversion Funnel and Property Types */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 className="text-lg font-semibold text-white mb-4">Conversion Funnel</h2>
-          <div className="space-y-3">
-            {analytics.funnelData.map((stage, index) => (
-              <div key={stage.stage} className="flex items-center">
-                <div className="w-20 text-sm text-gray-400">{stage.stage}</div>
-                <div className="flex-1 mx-4">
-                  <div className="bg-gray-700 rounded-full h-6 relative">
-                    <div 
-                      className={`h-6 rounded-full flex items-center justify-center text-xs font-medium text-white ${
-                        index === 0 ? 'bg-blue-500' :
-                        index === 1 ? 'bg-orange-500' :
-                        index === 2 ? 'bg-purple-500' : 'bg-green-500'
-                      }`}
-                      style={{ width: `${stage.percentage}%` }}
-                    >
-                      {stage.percentage.toFixed(1)}%
-                    </div>
-                  </div>
-                </div>
-                <div className="w-12 text-sm text-white font-medium text-right">
-                  {stage.count}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <ConversionFunnel data={analytics.funnelData} />
 
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
           <h2 className="text-lg font-semibold text-white mb-4">Property Types</h2>
           <div className="space-y-3">
-            {Object.entries(analytics.propertyTypes).map(([type, count], index) => (
+            {Object.entries(analytics.propertyTypes).map(([type, count]) => (
               <div key={type} className="flex items-center justify-between">
                 <span className="text-gray-300 capitalize">{type.replace(/([A-Z])/g, ' $1').trim()}</span>
                 <div className="flex items-center space-x-3">

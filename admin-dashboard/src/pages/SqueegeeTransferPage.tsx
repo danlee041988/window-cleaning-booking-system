@@ -68,27 +68,26 @@ export const SqueegeeTransferPage: React.FC = () => {
     }),
     refetchInterval: 30000, // Refresh every 30 seconds
     retry: 3,
-    retryDelay: 1000,
-    onError: (error) => {
-      console.error('Squeegee transfer leads fetch error:', error);
-    }
+    retryDelay: 1000
   });
 
   // Fetch transfer history
   const { data: transferHistory } = useQuery({
     queryKey: ['squeegee-transfer-history'],
     queryFn: () => leadApi.getTransferHistory(),
+    retry: 3,
+    retryDelay: 1000
   });
 
   // Transfer to Squeegee mutation
   const transferMutation = useMutation({
     mutationFn: (leadIds: string[]) => leadApi.transferToSqueegee(leadIds),
     onSuccess: (result) => {
-      queryClient.invalidateQueries(['leads-ready-for-squeegee']);
-      queryClient.invalidateQueries(['squeegee-transfer-history']);
-      queryClient.invalidateQueries(['leads']);
+      queryClient.invalidateQueries({ queryKey: ['leads-ready-for-squeegee'] });
+      queryClient.invalidateQueries({ queryKey: ['squeegee-transfer-history'] });
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
       
-      const { successful, failed, total } = result;
+      const { successful, failed } = result;
       
       if (failed === 0) {
         toast.success(`Successfully transferred ${successful} lead(s) to Squeegee`);
@@ -104,7 +103,8 @@ export const SqueegeeTransferPage: React.FC = () => {
   });
 
   // Transform API leads to ReadyLead format
-  const leads: ReadyLead[] = (readyLeads?.data && Array.isArray(readyLeads.data) ? readyLeads.data : []).map((lead: any) => {
+  const leadsData = readyLeads?.data || [];
+  const leads: ReadyLead[] = (Array.isArray(leadsData) ? leadsData : []).map((lead: any) => {
     const estimatedPrice = parseFloat(lead.estimatedPrice?.toString() || '0');
     const frequency = lead.frequency || 'monthly';
     
@@ -573,7 +573,7 @@ export const SqueegeeTransferPage: React.FC = () => {
       )}
 
       {/* Transfer history */}
-      <TransferHistory history={transferHistory} />
+      <TransferHistory history={transferHistory || []} />
 
       {/* Transfer preview modal */}
       {showPreview && selectedLeads.length > 0 && (

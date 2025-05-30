@@ -40,21 +40,19 @@ export const DashboardPage: React.FC = () => {
     queryKey: ['dashboard-leads'],
     queryFn: () => leadApi.getLeads({ limit: 1000 }),
     retry: 3,
-    retryDelay: 1000,
-    onError: (error) => {
-      console.error('Dashboard leads fetch error:', error);
-    }
+    retryDelay: 1000
   });
 
   // Calculate analytics
   const analytics = useMemo(() => {
     // Ensure we have data and it's an array
-    if (!leadsData?.data || !Array.isArray(leadsData.data)) {
+    const apiResponse = leadsData as any;
+    if (!apiResponse?.data || !Array.isArray(apiResponse.data)) {
       console.warn('Invalid leads data:', leadsData);
       return null;
     }
     
-    const leads = leadsData.data;
+    const leads = apiResponse.data;
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
