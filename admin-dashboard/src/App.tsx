@@ -88,25 +88,77 @@ function App() {
 
             {/* Protected routes */}
             <Route
-              path="/*"
+              path="/dashboard"
               element={
                 <ProtectedRoute>
                   <Layout>
-                    <Routes>
-                      <Route path="/dashboard" element={<DashboardPage />} />
-                      <Route path="/leads" element={<LeadsPage />} />
-                      <Route path="/leads/:id" element={<LeadDetailPage />} />
-                      <Route path="/follow-ups" element={<FollowUpPage />} />
-                      <Route path="/squeegee-transfer" element={<SqueegeeTransferPage />} />
-                      <Route path="/analytics" element={<AnalyticsPage />} />
-                      <Route path="/settings" element={<SettingsPage />} />
-                      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                      <Route path="*" element={<Navigate to="/dashboard" replace />} />
-                    </Routes>
+                    <DashboardPage />
                   </Layout>
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/leads"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <LeadsPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/leads/:id"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <LeadDetailPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/follow-ups"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <FollowUpPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/squeegee-transfer"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <SqueegeeTransferPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/analytics"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <AnalyticsPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <SettingsPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
 
           {/* Global toast notifications */}
