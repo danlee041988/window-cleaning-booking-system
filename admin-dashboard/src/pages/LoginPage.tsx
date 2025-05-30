@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { useAuthStore } from '../stores/authStore';
-import { authApi } from '../services/api';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 
 export const LoginPage: React.FC = () => {
@@ -14,23 +13,27 @@ export const LoginPage: React.FC = () => {
   const { login } = useAuthStore();
 
   const loginMutation = useMutation({
-    mutationFn: authApi.login,
-    onSuccess: (data) => {
-      login(data.user, data.accessToken, data.refreshToken);
-      toast.success('Welcome back!');
+    mutationFn: login,
+    onSuccess: (result) => {
+      if (result.success && !result.mfaRequired) {
+        toast.success('Welcome back!');
+      }
     },
     onError: (error: any) => {
       toast.error(error.message || 'Login failed');
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.username.trim() || !formData.password.trim()) {
       toast.error('Please fill in all fields');
       return;
     }
-    loginMutation.mutate(formData);
+    const result = await login(formData);
+    if (!result.success && result.error) {
+      toast.error(result.error);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
