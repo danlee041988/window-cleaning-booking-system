@@ -3,11 +3,11 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from './stores/authStore';
-import { Layout } from './components/Layout';
 import { SimpleLayout } from './components/SimpleLayout';
 import { LoginPage } from './pages/LoginPage';
-import { DashboardPage } from './pages/DashboardPage';
+import { EnhancedDashboardPage } from './pages/EnhancedDashboardPage';
 import { LeadsPage } from './pages/LeadsPage';
+import { CompletedLeadsPage } from './pages/CompletedLeadsPage';
 import { LeadDetailPage } from './pages/LeadDetailPage';
 import { FollowUpPage } from './pages/FollowUpPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
@@ -93,7 +93,7 @@ function App() {
               element={
                 <ProtectedRoute>
                   <SimpleLayout>
-                    <DashboardPage />
+                    <EnhancedDashboardPage />
                   </SimpleLayout>
                 </ProtectedRoute>
               }
@@ -124,6 +124,16 @@ function App() {
                 <ProtectedRoute>
                   <SimpleLayout>
                     <FollowUpPage />
+                  </SimpleLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/completed-leads"
+              element={
+                <ProtectedRoute>
+                  <SimpleLayout>
+                    <CompletedLeadsPage />
                   </SimpleLayout>
                 </ProtectedRoute>
               }

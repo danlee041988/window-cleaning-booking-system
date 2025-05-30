@@ -12,6 +12,7 @@ import {
   XMarkIcon,
   BellIcon,
   UserCircleIcon,
+  ArchiveBoxIcon,
 } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore, useHasPermission } from '../stores/authStore';
@@ -29,7 +30,7 @@ const navigation = [
     permission: 'dashboard:read'
   },
   { 
-    name: 'Leads', 
+    name: 'Active Leads', 
     href: '/leads', 
     icon: UserGroupIcon,
     permission: 'leads:read'
@@ -38,6 +39,12 @@ const navigation = [
     name: 'Follow-ups', 
     href: '/follow-ups', 
     icon: ClockIcon,
+    permission: 'leads:read'
+  },
+  { 
+    name: 'Completed Archive', 
+    href: '/completed-leads', 
+    icon: ArchiveBoxIcon,
     permission: 'leads:read'
   },
   { 
