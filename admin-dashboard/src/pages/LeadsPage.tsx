@@ -28,37 +28,56 @@ import toast from 'react-hot-toast';
 type ViewMode = 'table' | 'kanban';
 
 interface Lead {
-  id: string;
-  leadNumber: string;
+  id: number;
+  bookingReference: string;
   customerName: string;
   email: string;
-  phone: string;
-  displayAddress: string;
-  postcodeArea: string;
-  propertyType: string;
-  serviceType: string;
-  estimatedMonthlyValue: number;
+  mobile: string;
+  addressLine1: string;
+  addressLine2?: string;
+  townCity: string;
+  county?: string;
+  postcode: string;
+  postcodeArea?: string;
+  propertyType?: string;
+  propertySize?: string;
+  accessDifficulty?: string;
+  frequency?: string;
+  servicesRequested?: any;
+  estimatedPrice?: number;
+  priceBreakdown?: any;
+  quoteRequests?: any;
+  specialRequirements?: string;
+  preferredContactMethod?: string;
+  preferredContactTime?: string;
+  marketingConsent: boolean;
   status: {
-    id: string;
+    id: number;
     name: string;
     displayName: string;
     color: string;
+    isDefault?: boolean;
   };
-  priority: 'low' | 'normal' | 'high' | 'urgent';
+  priority?: 'low' | 'normal' | 'high' | 'urgent';
   assignedTo?: {
-    id: string;
+    id: number;
     firstName: string;
     lastName: string;
+    username: string;
   };
-  nextFollowUp?: string;
-  lastContactDate?: string;
-  createdAt: string;
-  source: string;
+  submittedAt: string;
+  firstContactedAt?: string;
+  lastContactedAt?: string;
+  convertedAt?: string;
+  followUpNotes?: string;
+  submissionIp?: string;
+  userAgent?: string;
+  activities?: any[];
 }
 
 export const LeadsPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('table');
-  const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
+  const [selectedLeads, setSelectedLeads] = useState<number[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [filters, setFilters] = useState({
     search: '',
@@ -106,8 +125,8 @@ export const LeadsPage: React.FC = () => {
 
   // Bulk update mutation
   const bulkUpdateMutation = useMutation({
-    mutationFn: async ({ leadIds, updates }: { leadIds: string[]; updates: any }) => {
-      const promises = leadIds.map(id => leadApi.updateLead(id, updates));
+    mutationFn: async ({ leadIds, updates }: { leadIds: number[]; updates: any }) => {
+      const promises = leadIds.map(id => leadApi.updateLead(id.toString(), updates));
       return Promise.all(promises);
     },
     onSuccess: () => {
@@ -122,8 +141,8 @@ export const LeadsPage: React.FC = () => {
 
   // Delete leads mutation
   const deleteMutation = useMutation({
-    mutationFn: async (leadIds: string[]) => {
-      const promises = leadIds.map(id => leadApi.deleteLead(id));
+    mutationFn: async (leadIds: number[]) => {
+      const promises = leadIds.map(id => leadApi.deleteLead(id.toString()));
       return Promise.all(promises);
     },
     onSuccess: () => {
@@ -155,8 +174,8 @@ export const LeadsPage: React.FC = () => {
     }
   });
 
-  const leads = leadsData?.leads || [];
-  const totalCount = leadsData?.total || 0;
+  const leads = leadsData?.data || [];
+  const totalCount = leadsData?.pagination?.total || 0;
   const totalPages = Math.ceil(totalCount / pagination.limit);
 
   // Handle pagination
@@ -217,9 +236,9 @@ export const LeadsPage: React.FC = () => {
   const summaryStats = useMemo(() => {
     if (!leads.length) return null;
 
-    const totalValue = leads.reduce((sum, lead) => sum + (lead.estimatedMonthlyValue || 0), 0);
+    const totalValue = leads.reduce((sum, lead) => sum + (lead.estimatedPrice || 0), 0);
     const overdueCount = leads.filter(lead => 
-      lead.nextFollowUp && new Date(lead.nextFollowUp) < new Date()
+      lead.activities?.some(activity => activity.nextFollowUp && new Date(activity.nextFollowUp) < new Date())
     ).length;
     const highPriorityCount = leads.filter(lead => 
       lead.priority === 'high' || lead.priority === 'urgent'
