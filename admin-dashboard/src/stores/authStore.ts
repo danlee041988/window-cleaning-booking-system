@@ -6,10 +6,10 @@ export interface User {
   id: string;
   username: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  role: 'admin' | 'manager' | 'sales' | 'viewer';
-  permissions: string[];
+  firstName?: string;
+  lastName?: string;
+  role: 'admin' | 'manager' | 'sales' | 'viewer' | 'ADMIN';
+  permissions?: string[];
   lastLogin?: string;
 }
 
@@ -204,6 +204,12 @@ export const useHasPermission = (permission: string): boolean => {
   const user = useAuthStore((state) => state.user);
   
   if (!user) return false;
+  
+  // If user has no permissions array, grant admin permissions by default
+  if (!user.permissions || !Array.isArray(user.permissions)) {
+    return user.role === 'admin' || user.role === 'ADMIN';
+  }
+  
   if (user.permissions.includes('*')) return true;
   
   return user.permissions.includes(permission);
