@@ -1,0 +1,283 @@
+# Somerset Window Cleaning - Complete Data Fields Reference
+
+## Overview
+This document provides a comprehensive mapping of all data fields from the booking form through to database storage and admin dashboard display.
+
+## Data Flow Architecture
+
+```
+Booking Form (React) → API (Express) → Database (PostgreSQL/Supabase) → Admin Dashboard (React)
+```
+
+## Complete Field Mapping
+
+### 1. Customer Information Fields
+
+| Form Field | API Field | Database Column | Type | Validation | Admin Display |
+|------------|-----------|-----------------|------|------------|---------------|
+| `customerName` | `customerName` | `customer_name` | String(100) | Required, 2-100 chars | Yes - Lead name |
+| `email` | `email` | `email` | String | Required, valid email | Yes - Contact info |
+| `mobile` | `mobile` | `mobile` | String | Required, UK format | Yes - Contact info |
+
+**Validation Rules:**
+- Name: Minimum 2 characters, maximum 100
+- Email: Valid email format, normalized
+- Mobile: UK format `/^(?:(?:\+44\s?|0)7(?:[45789]\d{2}|624)\s?\d{3}\s?\d{3})$/`
+
+### 2. Address Information Fields
+
+| Form Field | API Field | Database Column | Type | Validation | Admin Display |
+|------------|-----------|-----------------|------|------------|---------------|
+| `addressLine1` | `addressLine1` | `address_line1` | String | Required | Yes |
+| `addressLine2` | `addressLine2` | `address_line2` | String | Optional | Yes |
+| `townCity` | `townCity` | `town_city` | String | Required | Yes |
+| `county` | `county` | `county` | String | Optional | Yes |
+| `postcode` | `postcode` | `postcode` | String | Required, UK format | Yes |
+| - | `postcodeArea` | `postcode_area` | String | Auto-extracted | Yes - For filtering |
+
+**Validation Rules:**
+- Postcode: UK format `/^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$/i`
+- Postcode area: Automatically extracted (e.g., "TA1" from "TA1 1AA")
+
+### 3. Property Information Fields
+
+| Form Field | API Field | Database Column | Type | Validation | Admin Display |
+|------------|-----------|-----------------|------|------------|---------------|
+| `propertyType` | `propertyType` | `property_type` | String | Optional | Yes |
+| `bedrooms` | Part of `propertySize` | `property_size` | String | Optional | Yes |
+| `accessDifficulty` | `accessDifficulty` | `access_difficulty` | String | Optional | Yes |
+
+**Property Types:**
+- `house` - Standard house
+- `flat` - Apartment/flat
+- `bungalow` - Single story
+- `commercial` - Business property
+- `other` - Custom type
+
+### 4. Service Selection Fields
+
+| Form Field | API Field | Database Column | Type | Storage Format | Admin Display |
+|------------|-----------|-----------------|------|----------------|---------------|
+| `selectedFrequency` | `frequency` | `frequency` | String | Direct value | Yes |
+| `hasConservatory` | `servicesRequested` | `services_requested` | JSON | `{hasConservatory: true/false}` | Yes |
+| `hasExtension` | `servicesRequested` | `services_requested` | JSON | `{hasExtension: true/false}` | Yes |
+| `additionalServices` | `servicesRequested` | `services_requested` | JSON | Object with service flags | Yes |
+
+**Frequency Options:**
+- `one-time` - Single service
+- `weekly` - Every week
+- `fortnightly` - Every 2 weeks  
+- `monthly` - Every 4 weeks
+- `quarterly` - Every 3 months
+
+**Additional Services:**
+- `conservatoryRoof` - Conservatory roof cleaning
+- `fasciaSoffitGutter` - Fascia, soffit & gutter cleaning
+- `gutterClearing` - Gutter clearing service
+
+### 5. Pricing Information Fields
+
+| Form Field | API Field | Database Column | Type | Format | Admin Display |
+|------------|-----------|-----------------|------|--------|---------------|
+| `estimatedPrice` | `estimatedPrice` | `estimated_price` | Decimal(10,2) | Numeric | Yes |
+| `priceBreakdown` | `priceBreakdown` | `price_breakdown` | JSON | Detailed object | Yes - Expandable |
+| `isCustomQuote` | `quoteRequests` | `quote_requests` | JSON | `{isCustomQuote: true}` | Yes - Badge |
+
+**Price Breakdown Structure:**
+```json
+{
+  "basePrice": 25.00,
+  "conservatorySurcharge": 5.00,
+  "extensionSurcharge": 5.00,
+  "additionalServices": {
+    "conservatoryRoof": 35.00,
+    "fasciaSoffitGutter": 75.00,
+    "gutterClearing": 65.00
+  },
+  "discount": 5.00,
+  "subTotal": 200.00,
+  "total": 195.00
+}
+```
+
+### 6. Contact Preferences Fields
+
+| Form Field | API Field | Database Column | Type | Options | Admin Display |
+|------------|-----------|-----------------|------|---------|---------------|
+| `preferredContactMethod` | `preferredContactMethod` | `preferred_contact_method` | String | phone/email/text | Yes |
+| `preferredContactTime` | `preferredContactTime` | `preferred_contact_time` | String | morning/afternoon/evening | Yes |
+| `specialRequirements` | `specialRequirements` | `special_requirements` | Text | Free text | Yes - Notes section |
+| `marketingConsent` | `marketingConsent` | `marketing_consent` | Boolean | true/false | Yes - Icon |
+
+### 7. System Generated Fields
+
+| Field | Database Column | Type | Generated By | Purpose |
+|-------|-----------------|------|--------------|---------|
+| `bookingReference` | `booking_reference` | String | API | Unique identifier (SWC-timestamp-hash) |
+| `submissionIp` | `submission_ip` | String | API | Security/tracking |
+| `userAgent` | `user_agent` | Text | API | Browser information |
+| `submittedAt` | `submitted_at` | DateTime | Database | Timestamp of submission |
+| `statusId` | `status_id` | Integer | API | Links to lead_statuses table |
+| `priority` | `priority` | Enum | API | LOW/MEDIUM/HIGH |
+
+### 8. Lead Management Fields (Admin Only)
+
+| Field | Database Column | Type | Purpose |
+|-------|-----------------|------|---------|
+| `assignedToId` | `assigned_to` | Integer | Staff member assignment |
+| `nextFollowUp` | `next_follow_up` | DateTime | Scheduled follow-up |
+| `followUpNotes` | `follow_up_notes` | Text | Internal notes |
+| `firstContactedAt` | `first_contacted_at` | DateTime | First contact timestamp |
+| `lastContactedAt` | `last_contacted_at` | DateTime | Last contact timestamp |
+| `convertedAt` | `converted_at` | DateTime | Conversion timestamp |
+
+## JSON Field Structures
+
+### services_requested
+```json
+{
+  "hasConservatory": true,
+  "hasExtension": false,
+  "conservatoryRoof": true,
+  "fasciaSoffitGutter": false,
+  "gutterClearing": true,
+  "windowCleaning": true
+}
+```
+
+### quote_requests
+```json
+{
+  "isCustomQuote": false,
+  "isCommercial": false,
+  "isResidential": true,
+  "isGeneralEnquiry": false,
+  "requiresSiteVisit": false
+}
+```
+
+### price_breakdown
+```json
+{
+  "basePrice": 25.00,
+  "frequency": "monthly",
+  "propertyType": "house",
+  "bedrooms": "3",
+  "surcharges": {
+    "conservatory": 5.00,
+    "extension": 5.00
+  },
+  "services": {
+    "windows": 25.00,
+    "conservatoryRoof": 35.00,
+    "gutterClearing": 65.00
+  },
+  "discounts": {
+    "multiService": 5.00,
+    "frequency": 0
+  },
+  "subtotal": 135.00,
+  "total": 130.00
+}
+```
+
+## Data Validation Rules
+
+### Frontend Validation
+1. **Required Fields**: customerName, email, mobile, addressLine1, townCity, postcode
+2. **Format Validation**: Email, mobile, postcode
+3. **Length Limits**: Applied to all text fields
+4. **Real-time Feedback**: Shows errors as user types
+
+### Backend Validation
+1. **Express Validator**: Validates all incoming data
+2. **Sanitization**: Removes HTML tags, trims whitespace
+3. **Type Checking**: Ensures correct data types
+4. **Business Rules**: Validates pricing, combinations
+
+### Database Constraints
+1. **Unique Fields**: booking_reference
+2. **Foreign Keys**: status_id, assigned_to
+3. **Not Null**: Required fields enforced
+4. **Check Constraints**: Price >= 0
+
+## Admin Dashboard Data Display
+
+### Lead List View
+- Customer Name
+- Email & Mobile
+- Postcode Area
+- Status (with color)
+- Priority
+- Submitted Date
+- Assigned To
+- Next Follow-up
+
+### Lead Detail View
+- All customer information
+- Full address
+- Property details
+- Service selections
+- Price breakdown
+- Special requirements
+- Activity history
+- Internal notes
+
+### Filterable Fields
+- Status
+- Priority  
+- Postcode Area
+- Assigned To
+- Date Range
+- Search (name, email, mobile, reference)
+
+## Data Retention & GDPR
+
+### Personal Data Categories
+1. **Identity Data**: Name
+2. **Contact Data**: Email, mobile, address
+3. **Technical Data**: IP address, user agent
+4. **Profile Data**: Property details, service preferences
+5. **Marketing Data**: Consent status
+
+### GDPR Compliance
+- Explicit consent for marketing
+- Data minimization principle
+- Right to erasure support
+- Data portability ready
+- Audit trail maintained
+
+## Integration Points
+
+### EmailJS Integration
+- Booking confirmation emails
+- Admin notification emails
+- Template variables match database fields
+
+### Future Integrations
+- Squeegee CRM export
+- Accounting system sync
+- SMS notifications
+- Calendar integration
+
+## Monitoring & Debugging
+
+### Key Metrics to Track
+1. Form completion rate
+2. Field error frequency
+3. Submission success rate
+4. Data completeness
+5. API response times
+
+### Common Data Issues
+1. **Missing Fields**: Check form state management
+2. **JSON Parse Errors**: Validate JSON structure
+3. **Type Mismatches**: Ensure consistent types
+4. **Truncated Data**: Check field length limits
+5. **Timezone Issues**: Store in UTC, display in local
+
+## Version History
+- v1.0: Initial data structure
+- v1.1: Added lead management fields
+- v1.2: Enhanced pricing breakdown
+- Current: v1.3 (May 2025)

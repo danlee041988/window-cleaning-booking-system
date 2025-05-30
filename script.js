@@ -590,6 +590,7 @@ if (bookingForm) {
             postcode: formState.postcode,
             propertyType: formState.propertyType,
             frequency: formState.frequency,
+            preferredDate: formState.preferredDate,
             servicesRequested: {
                 windowCleaning: true,
                 ...formState.additionalServices.reduce((acc, service) => {
