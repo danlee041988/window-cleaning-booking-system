@@ -24,20 +24,45 @@ const corsOrigins = process.env.NODE_ENV === 'production'
   ? [
       process.env.FRONTEND_URL,
       'https://somerset-admin-dashboard.vercel.app',
+      'https://window-cleaning-booking-system-admin.vercel.app',
       'https://window-cleaning-booking-system.vercel.app',
       'https://somersetwindowcleaning.co.uk',
-      'https://www.somersetwindowcleaning.co.uk'
+      'https://www.somersetwindowcleaning.co.uk',
+      // Allow all Vercel preview deployments
+      /https:\/\/somerset-admin-dashboard-.*\.vercel\.app$/,
+      /https:\/\/window-cleaning-booking-system-admin-.*\.vercel\.app$/
     ].filter(Boolean)
   : [
       'http://localhost:3000',
       'http://localhost:5173',
       'https://somerset-admin-dashboard.vercel.app',
+      'https://window-cleaning-booking-system-admin.vercel.app',
       'https://window-cleaning-booking-system.vercel.app'
     ];
 
 app.use(cors({
-  origin: corsOrigins,
-  credentials: true
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin is in the allowed list
+    const isAllowed = corsOrigins.some(allowed => {
+      if (allowed instanceof RegExp) {
+        return allowed.test(origin);
+      }
+      return allowed === origin;
+    });
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json({ limit: '10mb' }));
 
