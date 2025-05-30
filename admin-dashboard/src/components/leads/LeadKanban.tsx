@@ -2,10 +2,12 @@ import React from 'react';
 
 interface LeadKanbanProps {
   leads: any[];
+  statuses?: any[];
   onLeadUpdate: (leadId: string, updates: any) => void;
+  canWrite: boolean;
 }
 
-export const LeadKanban: React.FC<LeadKanbanProps> = ({ leads, onLeadUpdate }) => {
+export const LeadKanban: React.FC<LeadKanbanProps> = ({ leads, statuses, onLeadUpdate, canWrite }) => {
   const columns = [
     { id: 'new', title: 'New', color: 'blue' },
     { id: 'contacted', title: 'Contacted', color: 'yellow' },

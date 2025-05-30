@@ -60,7 +60,8 @@ export const PriorityBadge: React.FC<PriorityBadgeProps> = ({
     lg: 'h-5 w-5'
   };
 
-  const priorityConfig = config[priority];
+  // Default to 'normal' if priority is not found in config
+  const priorityConfig = config[priority] || config.normal;
   const Icon = priorityConfig.icon;
 
   return (

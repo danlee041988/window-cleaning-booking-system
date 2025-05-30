@@ -1,18 +1,15 @@
 import React from 'react';
 
 interface CreateLeadModalProps {
-  isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: any) => void;
+  statuses?: any[];
+  users?: any[];
 }
 
-export const CreateLeadModal: React.FC<CreateLeadModalProps> = ({ isOpen, onClose, onSubmit }) => {
-  if (!isOpen) return null;
-
+export const CreateLeadModal: React.FC<CreateLeadModalProps> = ({ onClose, statuses, users }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Placeholder for form submission
-    onSubmit({});
     onClose();
   };
 

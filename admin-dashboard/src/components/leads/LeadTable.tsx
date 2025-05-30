@@ -290,7 +290,7 @@ export const LeadTable: React.FC<LeadTableProps> = ({
               </td>
               
               <td className="px-6 py-4 whitespace-nowrap">
-                <PriorityBadge priority={lead.priority?.toLowerCase() as any || 'normal'} />
+                <PriorityBadge priority={(lead.priority?.toLowerCase() || 'normal') as 'low' | 'normal' | 'high' | 'urgent'} />
               </td>
               
               <td className="px-6 py-4 whitespace-nowrap">

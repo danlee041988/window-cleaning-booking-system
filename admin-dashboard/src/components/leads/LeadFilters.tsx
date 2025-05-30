@@ -2,10 +2,12 @@ import React from 'react';
 
 interface LeadFiltersProps {
   filters: any;
-  onFilterChange: (filters: any) => void;
+  onChange: (filters: any) => void;
+  statuses?: any[];
+  users?: any[];
 }
 
-export const LeadFilters: React.FC<LeadFiltersProps> = ({ filters, onFilterChange }) => {
+export const LeadFilters: React.FC<LeadFiltersProps> = ({ filters, onChange, statuses, users }) => {
   return (
     <div className="bg-gray-800 rounded-lg p-4 space-y-4">
       <div>
@@ -14,14 +16,24 @@ export const LeadFilters: React.FC<LeadFiltersProps> = ({ filters, onFilterChang
         </label>
         <select
           value={filters.status || ''}
-          onChange={(e) => onFilterChange({ ...filters, status: e.target.value })}
+          onChange={(e) => onChange({ ...filters, status: e.target.value })}
           className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white"
         >
           <option value="">All Statuses</option>
-          <option value="new">New</option>
-          <option value="contacted">Contacted</option>
-          <option value="qualified">Qualified</option>
-          <option value="converted">Converted</option>
+          {statuses && statuses.length > 0 ? (
+            statuses.map((status: any) => (
+              <option key={status.id} value={status.name}>
+                {status.displayName}
+              </option>
+            ))
+          ) : (
+            <>
+              <option value="new">New</option>
+              <option value="contacted">Contacted</option>
+              <option value="qualified">Qualified</option>
+              <option value="converted">Converted</option>
+            </>
+          )}
         </select>
       </div>
       
@@ -31,7 +43,7 @@ export const LeadFilters: React.FC<LeadFiltersProps> = ({ filters, onFilterChang
         </label>
         <select
           value={filters.priority || ''}
-          onChange={(e) => onFilterChange({ ...filters, priority: e.target.value })}
+          onChange={(e) => onChange({ ...filters, priority: e.target.value })}
           className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white"
         >
           <option value="">All Priorities</option>
@@ -49,14 +61,14 @@ export const LeadFilters: React.FC<LeadFiltersProps> = ({ filters, onFilterChang
         <input
           type="text"
           value={filters.search || ''}
-          onChange={(e) => onFilterChange({ ...filters, search: e.target.value })}
+          onChange={(e) => onChange({ ...filters, search: e.target.value })}
           placeholder="Search leads..."
           className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white"
         />
       </div>
       
       <button
-        onClick={() => onFilterChange({})}
+        onClick={() => onChange({})}
         className="w-full py-2 px-4 bg-gray-600 hover:bg-gray-700 rounded-lg text-white transition-colors"
       >
         Clear Filters
