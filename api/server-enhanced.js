@@ -24,6 +24,7 @@ const corsOrigins = process.env.NODE_ENV === 'production'
   ? [
       process.env.FRONTEND_URL,
       'https://somerset-admin-dashboard.vercel.app',
+      'https://window-cleaning-booking-system.vercel.app',
       'https://somersetwindowcleaning.co.uk',
       'https://www.somersetwindowcleaning.co.uk'
     ].filter(Boolean)
