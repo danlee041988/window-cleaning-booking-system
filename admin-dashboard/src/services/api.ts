@@ -1,7 +1,7 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import axios, { AxiosInstance } from 'axios';
 
 // API Configuration
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = 'https://window-cleaning-booking-system-6k15.vercel.app/api';
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
@@ -169,6 +169,11 @@ export const leadApi = {
       params,
       responseType: 'blob' 
     });
+    return response.data;
+  },
+
+  getTransferHistory: async () => {
+    const response = await apiClient.get('/leads/transfer-history');
     return response.data;
   },
 };
