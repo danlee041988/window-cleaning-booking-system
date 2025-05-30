@@ -208,7 +208,7 @@ function initializeBookingForm() {
     const postcodeInput = document.querySelector('input[name="postcode"]');
     postcodeInput?.addEventListener('blur', updateAvailableDates);
 
-    // Form inputs handler
+    // Form inputs handler with real-time validation
     document.querySelectorAll('#bookingForm input, #bookingForm select, #bookingForm textarea').forEach(input => {
         input.addEventListener('change', (e) => {
             const name = e.target.name;
@@ -216,7 +216,35 @@ function initializeBookingForm() {
             if (name && name !== 'additionalServices') {
                 formState[name] = value;
             }
+            
+            // Real-time validation for mobile number
+            if (name === 'phone') {
+                validateMobileNumber(e.target);
+            }
+            
+            // Real-time validation for postcode
+            if (name === 'postcode') {
+                validatePostcode(e.target);
+            }
+            
+            // Real-time validation for email
+            if (name === 'email') {
+                validateEmail(e.target);
+            }
         });
+        
+        // Also validate on blur for better UX
+        if (input.name === 'phone' || input.name === 'postcode' || input.name === 'email') {
+            input.addEventListener('blur', (e) => {
+                if (e.target.name === 'phone') {
+                    validateMobileNumber(e.target);
+                } else if (e.target.name === 'postcode') {
+                    validatePostcode(e.target);
+                } else if (e.target.name === 'email') {
+                    validateEmail(e.target);
+                }
+            });
+        }
     });
 
     // Initialize reCAPTCHA
@@ -346,6 +374,9 @@ function updateProgressBar() {
 }
 
 function showStep(step) {
+    // Clear any field validation errors when moving between steps
+    clearAllFieldErrors();
+    
     document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
     document.getElementById(`step${step}`).classList.add('active');
     updateProgressBar();
@@ -353,6 +384,13 @@ function showStep(step) {
     if (step === 4) {
         updateReviewSummary();
     }
+}
+
+function clearAllFieldErrors() {
+    document.querySelectorAll('.field-error').forEach(error => error.remove());
+    document.querySelectorAll('.invalid-input, .valid-input').forEach(input => {
+        input.classList.remove('invalid-input', 'valid-input');
+    });
 }
 
 function nextStep() {
@@ -395,24 +433,26 @@ function validateStep(step) {
             return false;
         }
         
-        // Email validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(formState.email)) {
-            showErrorMessage('Please enter a valid email address');
-            return false;
+        // Validate all fields using real-time validation functions
+        const emailInput = document.querySelector('input[name="email"]');
+        const phoneInput = document.querySelector('input[name="phone"]');
+        const postcodeInput = document.querySelector('input[name="postcode"]');
+        
+        let isValid = true;
+        
+        if (!validateEmail(emailInput)) {
+            isValid = false;
         }
         
-        // UK Mobile number validation (matches API validation)
-        const ukMobileRegex = /^(?:(?:\+44\s?|0)7(?:[45789]\d{2}|624)\s?\d{3}\s?\d{3})$/;
-        if (!ukMobileRegex.test(formState.phone)) {
-            showErrorMessage('Please enter a valid UK mobile number (e.g., 07891234567)');
-            return false;
+        if (!validateMobileNumber(phoneInput)) {
+            isValid = false;
         }
         
-        // UK Postcode validation
-        const postcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$/i;
-        if (!postcodeRegex.test(formState.postcode)) {
-            showErrorMessage('Please enter a valid UK postcode');
+        if (!validatePostcode(postcodeInput)) {
+            isValid = false;
+        }
+        
+        if (!isValid) {
             return false;
         }
         
@@ -612,20 +652,33 @@ if (bookingForm) {
                 // Reset reCAPTCHA after successful submission
                 resetRecaptcha();
             } else {
-                throw new Error(result.error || 'Submission failed');
+                // Handle API validation errors with specific messages
+                if (result.errors && Array.isArray(result.errors)) {
+                    throw new Error(result.errors.join('. '));
+                } else {
+                    throw new Error(result.error || 'Submission failed');
+                }
             }
         } catch (error) {
             console.error('Booking submission error:', error);
             
-            let errorMessage = 'There was an error submitting your booking. ';
-            if (error.message && error.message.includes('Failed to fetch')) {
-                errorMessage += 'Please check your internet connection and try again.';
-            } else if (error.message && error.message.includes('422')) {
-                errorMessage += 'Please check your information and try again.';
-            } else if (error.message && error.message.includes('500')) {
-                errorMessage += 'Server error occurred. Please try again in a few moments.';
+            let errorMessage = '';
+            
+            // Handle specific API validation errors
+            if (error.message && error.message.includes('Valid UK mobile number required')) {
+                errorMessage = 'Please check your mobile number format. UK mobile numbers should start with 07 (e.g., 07891234567)';
+            } else if (error.message && error.message.includes('Valid UK postcode required')) {
+                errorMessage = 'Please check your postcode format. UK postcodes should be in the format like BS1 4DJ or M1 1AA';
+            } else if (error.message && error.message.includes('Failed to fetch')) {
+                errorMessage = 'Unable to connect to our servers. Please check your internet connection and try again.';
+            } else if (error.response?.status === 422 || error.message.includes('422')) {
+                errorMessage = 'Please check your information and try again.';
+            } else if (error.response?.status >= 500 || error.message.includes('500')) {
+                errorMessage = 'Server error occurred. Please try again in a few moments.';
+            } else if (error.message && error.message !== 'Submission failed') {
+                errorMessage = error.message;
             } else {
-                errorMessage += 'Please try again or contact us directly at 01458 860339.';
+                errorMessage = 'There was an error submitting your booking. Please try again or contact us directly at 01458 860339.';
             }
             
             showErrorMessage(errorMessage);
@@ -808,6 +861,92 @@ function getRecaptchaResponse() {
 function resetRecaptcha() {
     if (window.grecaptcha && recaptchaWidgetId !== null) {
         window.grecaptcha.reset(recaptchaWidgetId);
+    }
+}
+
+// Real-time validation functions
+function validateMobileNumber(input) {
+    const ukMobileRegex = /^(?:(?:\+44\s?|0)7(?:[45789]\d{2}|624)\s?\d{3}\s?\d{3})$/;
+    const value = input.value.trim();
+    
+    // Remove any existing validation styling
+    input.classList.remove('invalid-input', 'valid-input');
+    removeFieldError(input);
+    
+    if (value && !ukMobileRegex.test(value)) {
+        input.classList.add('invalid-input');
+        showFieldError(input, 'Please enter a valid UK mobile number (e.g., 07891234567)');
+        return false;
+    } else if (value) {
+        input.classList.add('valid-input');
+        return true;
+    }
+    return true;
+}
+
+function validatePostcode(input) {
+    const postcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$/i;
+    const value = input.value.trim();
+    
+    // Remove any existing validation styling
+    input.classList.remove('invalid-input', 'valid-input');
+    removeFieldError(input);
+    
+    if (value && !postcodeRegex.test(value)) {
+        input.classList.add('invalid-input');
+        showFieldError(input, 'Please enter a valid UK postcode (e.g., BS1 4DJ)');
+        return false;
+    } else if (value) {
+        input.classList.add('valid-input');
+        return true;
+    }
+    return true;
+}
+
+function validateEmail(input) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const value = input.value.trim();
+    
+    // Remove any existing validation styling
+    input.classList.remove('invalid-input', 'valid-input');
+    removeFieldError(input);
+    
+    if (value && !emailRegex.test(value)) {
+        input.classList.add('invalid-input');
+        showFieldError(input, 'Please enter a valid email address');
+        return false;
+    } else if (value) {
+        input.classList.add('valid-input');
+        return true;
+    }
+    return true;
+}
+
+function showFieldError(input, message) {
+    // Remove any existing error for this field
+    removeFieldError(input);
+    
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'field-error';
+    errorDiv.style.cssText = `
+        color: #dc2626;
+        font-size: 14px;
+        margin-top: 4px;
+        padding: 4px 8px;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 4px;
+    `;
+    errorDiv.textContent = message;
+    
+    // Insert after the input
+    input.parentNode.insertBefore(errorDiv, input.nextSibling);
+}
+
+function removeFieldError(input) {
+    const existingError = input.parentNode.querySelector('.field-error');
+    if (existingError) {
+        existingError.remove();
     }
 }
 

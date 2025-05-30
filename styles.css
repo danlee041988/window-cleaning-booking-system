@@ -1085,3 +1085,29 @@ h1, h2, h3, h4, h5, h6 {
         border-color: #ef4444;
     }
 }
+
+/* Real-time Validation Styles */
+.invalid-input {
+    border-color: #dc2626 !important;
+    background-color: #fef2f2 !important;
+}
+
+.valid-input {
+    border-color: #16a34a !important;
+    background-color: #f0fdf4 !important;
+}
+
+.field-error {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
