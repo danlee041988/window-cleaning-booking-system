@@ -3,12 +3,11 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   HomeIcon,
   UserGroupIcon,
-  ClipboardDocumentListIcon,
   ClockIcon,
   ArrowPathIcon,
   ChartBarIcon,
   CogIcon,
-  ArrowRightOnRectangleIcon,
+  ArrowRightStartOnRectangleIcon,
   Bars3Icon,
   XMarkIcon,
   BellIcon,
@@ -73,10 +72,27 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     navigate('/login');
   };
 
+  // Check permissions for each navigation item
+  const canViewDashboard = useHasPermission('dashboard:view');
+  const canViewLeads = useHasPermission('leads:view');
+  const canViewAnalytics = useHasPermission('analytics:view');
+  const canViewFollowUps = useHasPermission('follow_ups:view');
+  const canTransferLeads = useHasPermission('leads:transfer');
+  const canViewSettings = useHasPermission('settings:view');
+
   // Filter navigation based on permissions
   const allowedNavigation = navigation.filter(item => {
     if (item.permission === '*') return true;
-    return useHasPermission(item.permission);
+    
+    switch (item.permission) {
+      case 'dashboard:view': return canViewDashboard;
+      case 'leads:view': return canViewLeads;
+      case 'analytics:view': return canViewAnalytics;
+      case 'follow_ups:view': return canViewFollowUps;
+      case 'leads:transfer': return canTransferLeads;
+      case 'settings:view': return canViewSettings;
+      default: return false;
+    }
   });
 
   const isCurrentPath = (href: string) => {
@@ -129,6 +145,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           {/* Navigation */}
           <nav className="flex-1 px-4 py-6 space-y-2">
             {allowedNavigation.map((item) => {
+              if (!item || !item.icon) {
+                console.error('Invalid navigation item:', item);
+                return null;
+              }
               const Icon = item.icon;
               const isCurrent = isCurrentPath(item.href);
               
@@ -173,7 +193,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               onClick={handleLogout}
               className="mt-3 w-full flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
             >
-              <ArrowRightOnRectangleIcon className="mr-3 h-5 w-5" />
+              <ArrowRightStartOnRectangleIcon className="mr-3 h-5 w-5" />
               Sign out
             </button>
           </div>
