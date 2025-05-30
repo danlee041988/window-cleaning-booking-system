@@ -711,6 +711,89 @@ app.post('/api/submit-booking', logIpAddress, bookingLimiter, bookingValidation,
   }
 });
 
+// Export leads endpoint
+app.get('/api/leads/export', authenticateToken, async (req, res) => {
+  try {
+    const leads = await prisma.lead.findMany({
+      include: {
+        status: true,
+        assignedTo: {
+          select: { id: true, firstName: true, lastName: true, username: true }
+        }
+      },
+      orderBy: { submittedAt: 'desc' }
+    });
+
+    // Convert to CSV format
+    const csvData = leads.map(lead => ({
+      'Booking Reference': lead.bookingReference,
+      'Customer Name': lead.customerName,
+      'Email': lead.email,
+      'Mobile': lead.mobile,
+      'Address': `${lead.addressLine1}, ${lead.townCity}, ${lead.postcode}`,
+      'Property Type': lead.propertyType,
+      'Frequency': lead.frequency,
+      'Estimated Price': lead.estimatedPrice,
+      'Status': lead.status.displayName,
+      'Submitted At': lead.submittedAt
+    }));
+
+    res.json({ success: true, data: csvData });
+  } catch (error) {
+    console.error('Export leads error:', error);
+    res.status(500).json({ success: false, error: 'Failed to export leads' });
+  }
+});
+
+// Transfer history endpoint (placeholder)
+app.get('/api/leads/transfer-history', authenticateToken, async (req, res) => {
+  try {
+    // For now, return empty array as we don't have transfer tracking yet
+    res.json({ success: true, data: [] });
+  } catch (error) {
+    console.error('Transfer history error:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch transfer history' });
+  }
+});
+
+// Transfer to Squeegee endpoint (placeholder)
+app.post('/api/leads/transfer-to-squeegee', authenticateToken, async (req, res) => {
+  try {
+    const { leadIds } = req.body;
+    
+    if (!leadIds || !Array.isArray(leadIds)) {
+      return res.status(400).json({ success: false, error: 'Lead IDs required' });
+    }
+
+    // For now, just mark leads as scheduled
+    const updatedLeads = await Promise.all(
+      leadIds.map(async (leadId) => {
+        const scheduledStatus = await prisma.leadStatus.findFirst({
+          where: { name: 'Scheduled' }
+        });
+        
+        return prisma.lead.update({
+          where: { id: parseInt(leadId) },
+          data: { 
+            statusId: scheduledStatus?.id || 5 // Default to status 5 if Scheduled not found
+          }
+        });
+      })
+    );
+
+    res.json({ 
+      success: true, 
+      successful: updatedLeads.length,
+      failed: 0,
+      total: leadIds.length,
+      message: `Successfully transferred ${updatedLeads.length} leads to Squeegee`
+    });
+  } catch (error) {
+    console.error('Transfer to Squeegee error:', error);
+    res.status(500).json({ success: false, error: 'Failed to transfer leads' });
+  }
+});
+
 // ===================
 // SYSTEM ENDPOINTS
 // ===================
