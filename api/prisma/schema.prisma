@@ -34,14 +34,16 @@ model User {
 }
 
 model LeadStatus {
-  id          Int     @id @default(autoincrement())
-  name        String
-  description String?
-  color       String?
-  sortOrder   Int     @default(0) @map("sort_order")
-  isActive    Boolean @default(true) @map("is_active")
-  isDefault   Boolean @default(false) @map("is_default")
-  createdAt   DateTime @default(now()) @map("created_at")
+  id            Int     @id @default(autoincrement())
+  name          String
+  description   String?
+  color         String?
+  sortOrder     Int     @default(0) @map("sort_order")
+  isActive      Boolean @default(true) @map("is_active")
+  isDefault     Boolean @default(false) @map("is_default")
+  category      String  @default("active") // 'active', 'completed', 'urgent'
+  followUpDays  Int?    @map("follow_up_days") // Auto follow-up scheduling
+  createdAt     DateTime @default(now()) @map("created_at")
 
   // Relations
   leads Lead[]
@@ -89,9 +91,18 @@ model Lead {
   priority               Priority  @default(MEDIUM)
   assignedToId           Int?      @map("assigned_to")
   source                 String    @default("website")
+  leadType               String    @default("online_booking") @map("lead_type") // online_booking, phone_call, general_enquiry
+  
+  // Quote Management
+  quoteType              String?   @map("quote_type") // instant, phone, formal, site_visit
+  quoteVersion           Int       @default(1) @map("quote_version")
+  siteVisitRequired      Boolean   @default(false) @map("site_visit_required")
+  siteVisitDate          DateTime? @map("site_visit_date")
+  quoteSentAt            DateTime? @map("quote_sent_at")
   
   // Follow-up Information
   nextFollowUp           DateTime? @map("next_follow_up")
+  lastFollowUpAt         DateTime? @map("last_follow_up_at")
   followUpNotes          String?   @map("follow_up_notes") @db.Text
   
   // Technical Information

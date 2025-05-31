@@ -7,7 +7,6 @@ import {
   PhoneIcon,
   MapPinIcon,
   CalendarIcon,
-  ClipboardDocumentListIcon,
   UserIcon,
   ClockIcon,
   CheckCircleIcon,
@@ -19,9 +18,10 @@ import { leadApi } from '../services/api';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { PriorityBadge } from '../components/ui/PriorityBadge';
-import { formatCurrency, formatRelativeTime } from '../utils/formatters';
-import { formatFrequency, formatPropertyType, getBookingType } from '../utils/serviceFormatters';
+import { formatRelativeTime } from '../utils/formatters';
+import { formatPropertyType, getBookingType } from '../utils/serviceFormatters';
 import { useHasPermission } from '../stores/authStore';
+import { QuoteManagement } from '../components/quotes/QuoteManagement';
 import toast from 'react-hot-toast';
 
 export const LeadDetailPage: React.FC = () => {
@@ -84,45 +84,6 @@ export const LeadDetailPage: React.FC = () => {
     }
   };
 
-  const formatServicesDetails = (lead: any) => {
-    const services = [];
-    
-    // Check for standard residential services
-    if (lead.servicesRequested?.windowCleaning) {
-      services.push({
-        name: 'Window Cleaning',
-        frequency: formatFrequency(lead.frequency),
-        price: lead.estimatedPrice ? formatCurrency(lead.estimatedPrice) : 'TBD'
-      });
-    }
-    
-    // Check for additional services
-    if (lead.additionalServices?.conservatoryRoof) {
-      services.push({ name: 'Conservatory Roof Cleaning', frequency: 'As needed', price: 'Quote' });
-    }
-    if (lead.additionalServices?.gutterClearing) {
-      services.push({ name: 'Gutter Clearing', frequency: 'Annual', price: formatCurrency(lead.gutterClearingServicePrice || 0) });
-    }
-    if (lead.additionalServices?.fasciaSoffitGutter) {
-      services.push({ name: 'Fascia/Soffit/Gutter Cleaning', frequency: 'As needed', price: formatCurrency(lead.fasciaSoffitGutterServicePrice || 0) });
-    }
-    
-    // Check for general enquiry services
-    if (lead.generalEnquiryDetails?.requestedServices) {
-      const genServices = lead.generalEnquiryDetails.requestedServices;
-      Object.keys(genServices).forEach(key => {
-        if (genServices[key] && key !== 'other') {
-          services.push({
-            name: key.replace(/([A-Z])/g, ' $1').trim(),
-            frequency: formatFrequency(lead.generalEnquiryDetails.requestedFrequency),
-            price: 'Quote Required'
-          });
-        }
-      });
-    }
-    
-    return services;
-  };
 
   return (
     <div className="space-y-6">
@@ -263,37 +224,8 @@ export const LeadDetailPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Services & Pricing */}
-        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center">
-            <ClipboardDocumentListIcon className="h-5 w-5 mr-2" />
-            Services & Pricing
-          </h2>
-          <div className="space-y-4">
-            <div>
-              <span className="text-gray-400 text-sm">Services Requested:</span>
-              <div className="mt-2 space-y-2">
-                {formatServicesDetails(lead).map((service, index) => (
-                  <div key={index} className="flex justify-between items-center py-2 border-b border-gray-700">
-                    <div>
-                      <p className="text-white">{service.name}</p>
-                      <p className="text-sm text-gray-400">{service.frequency}</p>
-                    </div>
-                    <span className="text-green-400 font-medium">{service.price}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            {lead.estimatedPrice && (
-              <div className="pt-2 border-t border-gray-700">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Total Estimated Price:</span>
-                  <span className="text-xl font-bold text-green-400">{formatCurrency(lead.estimatedPrice)}</span>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        {/* Quote Management */}
+        <QuoteManagement lead={lead} />
 
         {/* Additional Information */}
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
