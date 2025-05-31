@@ -54,42 +54,16 @@ export const getFieldHints = () => {
 // Get better error messages
 export const getErrorMessages = () => {
   return {
-    customerName: {
-      required: "Please enter your name so we know who to contact",
-      invalid: "Please enter a valid name (letters only)"
-    },
-    email: {
-      required: "We need your email to send booking confirmation",
-      invalid: "Please check your email address format (e.g., name@example.com)"
-    },
-    mobile: {
-      required: "We need your mobile to confirm appointments",
-      invalid: "Please enter a valid UK mobile number (e.g., 07123 456789)"
-    },
-    addressLine1: {
-      required: "Please enter your street address",
-      invalid: "Please enter a complete address"
-    },
-    postcode: {
-      required: "We need your postcode to schedule your service",
-      invalid: "Please enter a valid UK postcode (e.g., BS1 4DJ)",
-      notCovered: "Sorry, we don't currently service this area. Try a general enquiry instead?"
-    },
-    selectedDate: {
-      required: "Please select your preferred start date",
-      invalid: "Please select a valid date from the available options"
-    },
-    propertyType: {
-      required: "Please select your property type for accurate pricing"
-    },
-    bedrooms: {
-      required: "Please select the number of bedrooms"
-    },
-    selectedFrequency: {
-      required: "Please choose how often you'd like us to clean"
-    },
-    recaptcha: {
-      required: "Please complete the security check to submit your booking"
-    }
+    customerName: "Please enter your name so we know who to contact",
+    email: "Please check your email address format (e.g., name@example.com)",
+    mobile: "Please enter a valid UK mobile number (e.g., 07123 456789)",
+    addressLine1: "Please enter your street address",
+    townCity: "Please enter your town or city",
+    postcode: "Please enter a valid UK postcode (e.g., BS1 4DJ)",
+    selectedDate: "Please select your preferred start date",
+    propertyType: "Please select your property type for accurate pricing",
+    bedrooms: "Please select the number of bedrooms",
+    selectedFrequency: "Please choose how often you'd like us to clean",
+    recaptcha: "Please complete the security check to submit your booking"
   };
 };
