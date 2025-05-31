@@ -3,9 +3,8 @@ import React, { useState } from 'react';
 import emailjs from '@emailjs/browser';
 import * as FORM_CONSTANTS from '../constants/formConstants'; // Import constants
 import WindowCleaningPricing from './WindowCleaningPricing';
-import PropertyDetailsForm from './PropertyDetailsForm';
 import AdditionalServicesForm from './AdditionalServicesForm';
-import ReviewSubmitForm from './ReviewSubmitForm';
+import PropertyDetailsAndReview from './PropertyDetailsAndReview';
 import SimpleProgressBar from './SimpleProgressBar';
 import useFormPersistence from '../hooks/useFormPersistence';
 
@@ -616,14 +615,13 @@ function BookingForm() {
   const [formData, setFormData] = useState(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
   const [submissionError, setSubmissionError] = useState(null);
-  const [isSubmitted, setIsSubmitted] = useState(false);
   
   // Add form persistence to prevent data loss
   const { clearSavedData } = useFormPersistence(formData, setFormData);
 
-  // Generic handleChange for simple inputs, used by PropertyDetailsForm
+  // Generic handleChange for simple inputs, used by PropertyDetailsAndReview
   const genericHandleChange = (input) => (e) => {
-    const { name, value, type, checked } = e.target;
+    const { value, type, checked } = e.target;
     let inputValue = type === 'checkbox' ? checked : value;
     
     // Uppercase postcode for proper matching with schedule data
@@ -663,7 +661,7 @@ function BookingForm() {
     window.scrollTo(0, 0);
   };
 
-  // Enhanced handleSubmit to store in database + send email
+  // Simplified handleSubmit using EmailJS only
   const handleSubmit = async (formDataToSubmit) => {
     if (!formDataToSubmit.recaptchaToken) { 
       setSubmissionError("Please complete the reCAPTCHA verification.");
@@ -673,61 +671,41 @@ function BookingForm() {
     setIsLoading(true);
     setSubmissionError(null);
 
-    // Prepare data for backend API (includes database storage + email sending)
-    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
-    
-    console.log('=== Backend API Submission ===');
-    console.log('API URL:', apiUrl);
-    console.log('Form Data:', formDataToSubmit);
-    console.log('=================================');
-
     try {
-      // Send email first (to customer) using existing EmailJS setup
+      // Send email using EmailJS
       const serviceId = process.env.REACT_APP_EMAILJS_SERVICE_ID;
       const templateId = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
       const userId = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
 
+      console.log('Sending booking via EmailJS...');
+      
       if (serviceId && templateId && userId) {
-        console.log('Sending email via EmailJS...');
         const templateParams = mapFormDataToTemplateParamsSimple(formDataToSubmit);
+        
+        // Generate a simple booking reference
+        const bookingRef = `SWC${Date.now().toString(36).toUpperCase().slice(-6)}`;
+        templateParams.bookingReference = bookingRef;
+        templateParams.timestamp = new Date().toLocaleString('en-GB', { 
+          dateStyle: 'full', 
+          timeStyle: 'short' 
+        });
+        
         await emailjs.send(serviceId, templateId, templateParams, userId);
-        console.log('Email sent successfully');
+        console.log('Email sent successfully!');
+        
+        // Store booking reference for confirmation page
+        setFormData(prev => ({ ...prev, bookingReference: bookingRef, isSubmitted: true }));
+        setCurrentStep(4); // Go to thank you page
+        clearSavedData();
+        
       } else {
-        console.warn('EmailJS not configured, skipping email');
+        throw new Error('Email service not configured. Please check environment variables.');
       }
-
-      // Then submit to backend API (for database storage)
-      console.log('Submitting to backend API...');
-      const response = await fetch(`${apiUrl}/api/submit-booking`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formDataToSubmit)
-      });
-
-      const result = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(result.error || result.errors?.join(', ') || 'Submission failed');
-      }
-
-      console.log('Backend Success Response:', result);
-      console.log('Booking Reference:', result.bookingReference);
-      console.log('Lead ID:', result.leadId);
-      
-      // Store booking reference for confirmation
-      setFormData(prev => ({ ...prev, bookingReference: result.bookingReference, leadId: result.leadId }));
-      
-      setIsSubmitted(true);
-      setCurrentStep(5); // Assuming 5 is your thank you/confirmation step
-      clearSavedData(); // Clear the saved form data after successful submission
       
     } catch (error) {
-      console.error('Booking submission FAILED...', error);
-      // Determine if it was a quote/enquiry or a booking for the error message
+      console.error('Booking submission failed:', error);
       const typeOfSubmission = formDataToSubmit.isCommercial || formDataToSubmit.isCustomQuote || formDataToSubmit.isGeneralEnquiry;
-      setSubmissionError(`An error occurred while submitting your ${getEnquiryOrBookingText(typeOfSubmission)}. ${error.message}. Please try again or contact us directly.`);
+      setSubmissionError(`An error occurred while submitting your ${getEnquiryOrBookingText(typeOfSubmission)}. Please try again or contact us directly.`);
     } finally {
       setIsLoading(false);
     }
@@ -737,10 +715,10 @@ function BookingForm() {
   // Pass CONSERVATORY_SURCHARGE to AdditionalServicesForm
   return (
     <>
-      {/* Add progress bar for steps 1-4 */}
-      {currentStep <= 4 && (
+      {/* Add progress bar for steps 1-3 */}
+      {currentStep <= 3 && (
         <div className="container mx-auto px-6 py-4">
-          <SimpleProgressBar currentStep={currentStep} totalSteps={4} />
+          <SimpleProgressBar currentStep={currentStep} totalSteps={3} />
         </div>
       )}
       
@@ -759,23 +737,22 @@ function BookingForm() {
                 conservatorySurchargeAmount={CONSERVATORY_SURCHARGE} 
                 extensionSurchargeAmount={EXTENSION_SURCHARGE_AMOUNT} // Pass new surcharge amount
              />;
-    case 3: // New: Property Details (contact, date for standard, quote specifics for custom/commercial)
-      return <PropertyDetailsForm nextStep={nextStep} prevStep={prevStep} handleChange={genericHandleChange} values={formData} setFormData={setFormData} goToStep={goToStep} />;
-    case 4: 
-      return <ReviewSubmitForm 
+    case 3: // Combined Property Details and Review
+      return <PropertyDetailsAndReview 
                 prevStep={prevStep} 
+                handleChange={genericHandleChange}
                 values={formData} 
-                handleSubmit={handleSubmit} 
-                setFormData={setFormData} // Pass setFormData for reCAPTCHA token
+                setFormData={setFormData}
+                handleSubmit={handleSubmit}
                 isLoading={isLoading} 
                 submissionError={submissionError} 
              />;
-    case 5: // Thank You / Confirmation page
+    case 4: // Thank You / Confirmation page
       return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
           <div className="container mx-auto px-6 py-12">
             <div className="max-w-2xl mx-auto bg-gradient-to-br from-gray-800 to-gray-900 shadow-2xl rounded-2xl p-8 border border-gray-700 text-center">
-              {submissionError ? (
+              {!formData.isSubmitted && submissionError ? (
                 <>
                   {/* Error State */}
                   <div className="inline-flex items-center justify-center w-20 h-20 bg-red-600 rounded-full mb-6">
@@ -791,7 +768,7 @@ function BookingForm() {
                     <p className="text-red-300 text-sm">{submissionError}</p>
                   </div>
                   <button 
-                    onClick={() => { setCurrentStep(4); setSubmissionError(null); }} 
+                    onClick={() => { setCurrentStep(3); setSubmissionError(null); }} 
                     className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 transform hover:scale-105 shadow-lg"
                   >
                     <span className="flex items-center justify-center">
@@ -899,7 +876,6 @@ function BookingForm() {
                   <button 
                     onClick={() => {
                         setCurrentStep(1);
-                        setIsSubmitted(false);
                         setFormData(initialFormData);
                     }} 
                     className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 transform hover:scale-105 shadow-lg"
