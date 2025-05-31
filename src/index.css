@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import accessible color palette */
+@import './styles/accessible-colors.css';
+
 /* You can add your custom styles below this line */
 
 body {
@@ -79,4 +82,161 @@ code {
 
 .hide-number-arrows {
   -moz-appearance: textfield; /* Firefox */
+}
+
+/* WCAG AA Compliant Focus Indicators */
+*:focus {
+  outline: none; /* Remove default outline, we'll use focus-visible */
+}
+
+*:focus-visible {
+  outline: 3px solid var(--primary-400, #60A5FA);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+button:focus-visible,
+.btn:focus-visible {
+  outline: 3px solid var(--primary-400, #60A5FA);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px rgba(96, 165, 250, 0.2);
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: var(--primary-500, #3B82F6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Skip to Content Link for Keyboard Navigation */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--primary-600, #2563EB);
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 0 0 4px 0;
+  z-index: 9999;
+}
+
+.skip-to-content:focus {
+  top: 0;
+}
+
+/* Improved Touch Targets for Mobile (H002 fix) */
+@media (pointer: coarse) {
+  button,
+  a,
+  input[type="checkbox"],
+  input[type="radio"],
+  select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Larger touch area for checkboxes and radios */
+  input[type="checkbox"],
+  input[type="radio"] {
+    position: relative;
+    cursor: pointer;
+  }
+  
+  input[type="checkbox"]::before,
+  input[type="radio"]::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+  }
+}
+
+/* Larger Slider Thumbs for Touch (H002 fix) */
+.range-thumb-blue::-webkit-slider-thumb {
+  background: var(--primary-500, #3B82F6);
+  -webkit-appearance: none;
+  appearance: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.range-thumb-blue::-moz-range-thumb {
+  background: var(--primary-500, #3B82F6);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Ensure slider track is tall enough for large thumb */
+.range-thumb-blue::-webkit-slider-runnable-track {
+  height: 8px;
+  background: var(--gray-300, #D1D5DB);
+  border-radius: 4px;
+}
+
+.range-thumb-blue::-moz-range-track {
+  height: 8px;
+  background: var(--gray-300, #D1D5DB);
+  border-radius: 4px;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  *:focus-visible {
+    outline: 3px solid currentColor;
+    outline-offset: 3px;
+  }
+  
+  button:focus-visible {
+    outline: 3px solid currentColor;
+    box-shadow: none;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Screen Reader Only Content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Show when focused (for skip links) */
+.sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
 }

@@ -7,6 +7,7 @@ import AdditionalServicesForm from './AdditionalServicesForm';
 import PropertyDetailsAndReview from './PropertyDetailsAndReview';
 import SimpleProgressBar from './SimpleProgressBar';
 import useFormPersistence from '../hooks/useFormPersistence';
+import { sanitizeFormData } from '../utils/sanitization';
 
 // Define the conservatory surcharge globally or pass as prop if it can vary
 const CONSERVATORY_SURCHARGE = 5;
@@ -179,15 +180,7 @@ export const mapFormDataToTemplateParamsSimple = (formData) => {
     bookingTypeDisplay = 'Custom Residential Quote Request';
   }
 
-  // Debug logging
-  console.log('EmailJS Debug - Form Data:', {
-    isResidential: formData.isResidential,
-    isCustomQuote: formData.isCustomQuote,
-    isCommercial: formData.isCommercial,
-    isGeneralEnquiry: formData.isGeneralEnquiry,
-    isStandardResidential: isStandardResidential,
-    bookingTypeDisplay: bookingTypeDisplay
-  });
+  // Debug logging removed for production (H004 fix)
 
   return {
     // EmailJS specific fields
@@ -672,15 +665,18 @@ function BookingForm() {
     setSubmissionError(null);
 
     try {
+      // Sanitize form data before submission
+      const sanitizedFormData = sanitizeFormData(formDataToSubmit);
+      
       // Send email using EmailJS
       const serviceId = process.env.REACT_APP_EMAILJS_SERVICE_ID;
       const templateId = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
       const userId = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
 
-      console.log('Sending booking via EmailJS...');
+      // Remove console.log for production (H004 fix)
       
       if (serviceId && templateId && userId) {
-        const templateParams = mapFormDataToTemplateParamsSimple(formDataToSubmit);
+        const templateParams = mapFormDataToTemplateParamsSimple(sanitizedFormData);
         
         // Generate a simple booking reference
         const bookingRef = `SWC${Date.now().toString(36).toUpperCase().slice(-6)}`;
@@ -691,7 +687,7 @@ function BookingForm() {
         });
         
         await emailjs.send(serviceId, templateId, templateParams, userId);
-        console.log('Email sent successfully!');
+        // Remove console.log for production (H004 fix)
         
         // Store booking reference for confirmation page
         setFormData(prev => ({ ...prev, bookingReference: bookingRef, isSubmitted: true }));
@@ -703,9 +699,10 @@ function BookingForm() {
       }
       
     } catch (error) {
-      console.error('Booking submission failed:', error);
+      // Use proper error handling instead of console.error (H004 fix)
+      const errorMessage = error.message || 'Unknown error occurred';
       const typeOfSubmission = formDataToSubmit.isCommercial || formDataToSubmit.isCustomQuote || formDataToSubmit.isGeneralEnquiry;
-      setSubmissionError(`An error occurred while submitting your ${getEnquiryOrBookingText(typeOfSubmission)}. Please try again or contact us directly.`);
+      setSubmissionError(`An error occurred while submitting your ${getEnquiryOrBookingText(typeOfSubmission)}. ${errorMessage}. Please try again or contact us directly.`);
     } finally {
       setIsLoading(false);
     }
@@ -715,6 +712,9 @@ function BookingForm() {
   // Pass CONSERVATORY_SURCHARGE to AdditionalServicesForm
   return (
     <>
+      {/* Screen reader announcement for form title */}
+      <h1 className="sr-only">Somerset Window Cleaning Booking Form</h1>
+      
       {/* Add progress bar for steps 1-3 */}
       {currentStep <= 3 && (
         <div className="container mx-auto px-6 py-4">

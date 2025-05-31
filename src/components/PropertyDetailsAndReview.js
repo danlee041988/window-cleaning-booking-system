@@ -8,6 +8,7 @@ import ValidationFeedback from './common/ValidationFeedback';
 import LoadingButton from './common/LoadingButton';
 import { getFieldHints, getErrorMessages } from '../utils/smartDefaults';
 import ScheduleSelection from './steps/ScheduleSelection';
+import { sanitizeTextInput, sanitizeEmail, sanitizePhone } from '../utils/sanitization';
 
 // Enhanced Input Field Component
 const InputField = ({ label, name, value, onChange, type = 'text', placeholder, required = false, error, touched, hint, onBlur }) => {
@@ -37,6 +38,14 @@ const InputField = ({ label, name, value, onChange, type = 'text', placeholder, 
                 onBlur={onBlur}
                 placeholder={placeholder}
                 required={required}
+                aria-label={label}
+                aria-required={required}
+                aria-invalid={error && touched ? 'true' : 'false'}
+                aria-describedby={
+                    error && touched ? `${name}-error` : 
+                    showHint ? `${name}-hint` : 
+                    undefined
+                }
                 className={`w-full px-4 py-3 bg-gray-700 border rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-all duration-200 hover:border-gray-500 ${
                     error && touched 
                         ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
@@ -130,10 +139,38 @@ function PropertyDetailsAndReview({ prevStep, handleChange, values, setFormData,
     };
 
     const handleFieldChange = (e) => {
-        const { name, value } = e.target;
-        handleChange(name)(e);
+        const { name, value, type } = e.target;
+        let sanitizedValue = value;
         
-        const error = validateField(name, value);
+        // Apply sanitization based on field type/name
+        if (name === 'bookingNotes' || name === 'enquiryComments' || name === 'otherNotes' || 
+            name === 'specificRequirements' || name === 'customAdditionalComments') {
+            sanitizedValue = sanitizeTextInput(value, { maxLength: 500 });
+        } else if (name === 'email') {
+            const { sanitized } = sanitizeEmail(value);
+            sanitizedValue = sanitized;
+        } else if (name === 'mobile' || name === 'phone') {
+            sanitizedValue = sanitizePhone(value);
+        } else if (type === 'text' && name !== 'postcode') {
+            // Sanitize other text inputs but allow more characters
+            sanitizedValue = sanitizeTextInput(value, { 
+                maxLength: 100,
+                allowNewlines: false 
+            });
+        }
+        
+        // Create a synthetic event with sanitized value
+        const sanitizedEvent = {
+            ...e,
+            target: {
+                ...e.target,
+                value: sanitizedValue
+            }
+        };
+        
+        handleChange(name)(sanitizedEvent);
+        
+        const error = validateField(name, sanitizedValue);
         setValidationErrors(prev => ({
             ...prev,
             [name]: error

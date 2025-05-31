@@ -1,5 +1,6 @@
 // Minimal progress bar that won't interfere with existing functionality
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const SimpleProgressBar = ({ currentStep, totalSteps = 3 }) => {
   const percentage = (currentStep / totalSteps) * 100;
@@ -28,6 +29,15 @@ const SimpleProgressBar = ({ currentStep, totalSteps = 3 }) => {
       </div>
     </div>
   );
+};
+
+SimpleProgressBar.propTypes = {
+  currentStep: PropTypes.number.isRequired,
+  totalSteps: PropTypes.number
+};
+
+SimpleProgressBar.defaultProps = {
+  totalSteps: 3
 };
 
 export default SimpleProgressBar;

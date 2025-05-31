@@ -48,8 +48,23 @@ class ErrorBoundary extends React.Component {
 function App() {
   return (
     <ErrorBoundary>
+      {/* Skip to main content link for keyboard navigation */}
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
+      
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
-        <main className="w-full">
+        {/* Live region for screen reader announcements */}
+        <div 
+          aria-live="polite" 
+          aria-atomic="true" 
+          className="sr-only"
+          id="live-region"
+        >
+          {/* Dynamic content will be announced here */}
+        </div>
+        
+        <main id="main-content" className="w-full" role="main">
           <BookingForm />
         </main>
       </div>
