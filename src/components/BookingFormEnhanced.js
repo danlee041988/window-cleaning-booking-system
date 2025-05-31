@@ -1,5 +1,5 @@
 // Enhanced BookingForm with all improvements implemented
-import React, { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react';
+import React, { useRef, useEffect, useCallback, lazy, Suspense } from 'react';
 import emailjs from '@emailjs/browser';
 import * as FORM_CONSTANTS from '../constants/formConstants';
 
@@ -13,13 +13,13 @@ import { FormSkeleton, LoadingOverlay } from './common/SkeletonLoader';
 // Enhanced hooks
 import { useSafeState, useAsyncSafeState, useSafeTimeout } from '../hooks/useSafeState';
 import useFormPersistenceEnhanced from '../hooks/useFormPersistenceEnhanced';
-import { useFieldValidation, useFormSubmit } from '../hooks/useFieldValidation';
+// Enhanced validation hooks are used in PropertyDetailsAndReviewEnhanced
 
 // Utilities
-import { deepClone, updateNestedState, debounce } from '../utils/stateUtils';
+import { deepClone, updateNestedState } from '../utils/stateUtils';
 
 // Lazy load heavy components
-const PropertyDetailsAndReview = lazy(() => import('./PropertyDetailsAndReview'));
+const PropertyDetailsAndReview = lazy(() => import('./PropertyDetailsAndReviewEnhanced'));
 
 // Constants
 const CONSERVATORY_SURCHARGE = 5;
@@ -160,7 +160,7 @@ const initialFormData = {
 };
 
 // Import template mapping functions from original
-import { mapFormDataToTemplateParamsSimple, mapFormDataToTemplateParams } from './BookingForm';
+import { mapFormDataToTemplateParamsSimple } from './BookingForm';
 
 // Helper function for booking type
 const getEnquiryOrBookingText = (isQuoteOrEnquiry) => {
@@ -210,7 +210,7 @@ function BookingFormEnhanced() {
   
   // Enhanced hooks
   const { executeAsync } = useAsyncSafeState();
-  const { setSafeTimeout, clearSafeTimeout } = useSafeTimeout();
+  const { setSafeTimeout } = useSafeTimeout();
   const { clearSavedData, getSavedDataInfo } = useFormPersistenceEnhanced(formData, setFormData, initialFormData);
   
   // Session tracking
@@ -294,7 +294,7 @@ function BookingFormEnhanced() {
     setSubmissionError(null);
 
     await executeAsync(
-      async (signal) => {
+      async () => {
         const serviceId = process.env.REACT_APP_EMAILJS_SERVICE_ID;
         const templateId = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
         const userId = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;

@@ -1,14 +1,11 @@
-import React, { useState, useEffect, useCallback, memo } from 'react';
+import React, { useEffect, useCallback, memo } from 'react';
 import ReCAPTCHA from "react-google-recaptcha";
-import { formatDateForStorage } from '../utils/scheduleUtils';
-import { calculateGutterClearingPrice } from '../utils/pricingUtils';
 import * as FORM_CONSTANTS from '../constants/formConstants';
 import Tooltip from './common/Tooltip';
 import ValidationFeedback from './common/ValidationFeedback';
 import { useFieldValidation, useFormSubmit } from '../hooks/useFieldValidation';
 import { useSafeState } from '../hooks/useSafeState';
 import ScheduleSelection from './steps/ScheduleSelection';
-import { debounce } from '../utils/stateUtils';
 
 // Enhanced mobile-first input field component
 const InputField = memo(({ 
