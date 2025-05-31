@@ -326,9 +326,10 @@ function PropertyDetailsAndReview({ prevStep, handleChange, values, setFormData,
                                     <h4 className="text-lg font-semibold text-white mb-4">Preferred Start Date</h4>
                                     <ScheduleSelection
                                         selectedDate={selectedDate}
-                                        setSelectedDate={setSelectedDate}
-                                        selectedTimeSlot={selectedTimeSlot}
-                                        setSelectedTimeSlot={setSelectedTimeSlot}
+                                        onDateSelect={(date) => {
+                                            setSelectedDate(date);
+                                            setFormData(prev => ({ ...prev, selectedDate: date }));
+                                        }}
                                         postcode={values.postcode}
                                     />
                                 </div>

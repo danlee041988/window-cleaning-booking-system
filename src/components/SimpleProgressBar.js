@@ -1,7 +1,7 @@
 // Minimal progress bar that won't interfere with existing functionality
 import React from 'react';
 
-const SimpleProgressBar = ({ currentStep, totalSteps = 4 }) => {
+const SimpleProgressBar = ({ currentStep, totalSteps = 3 }) => {
   const percentage = (currentStep / totalSteps) * 100;
   
   return (
@@ -24,8 +24,7 @@ const SimpleProgressBar = ({ currentStep, totalSteps = 4 }) => {
       <div className="flex justify-between mt-2 text-xs text-gray-500">
         <span className={currentStep >= 1 ? 'text-blue-400' : ''}>Service</span>
         <span className={currentStep >= 2 ? 'text-blue-400' : ''}>Add-ons</span>
-        <span className={currentStep >= 3 ? 'text-blue-400' : ''}>Details</span>
-        <span className={currentStep >= 4 ? 'text-blue-400' : ''}>Review</span>
+        <span className={currentStep >= 3 ? 'text-blue-400' : ''}>Details & Review</span>
       </div>
     </div>
   );
