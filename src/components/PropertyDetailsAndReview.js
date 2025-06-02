@@ -577,6 +577,109 @@ function PropertyDetailsAndReview({ prevStep, handleChange, values, setFormData,
                                                 )}
                                             </div>
 
+                                            {/* Gutter Clearing */}
+                                            <div className="p-4 bg-gray-700/50 border border-gray-600 rounded-lg">
+                                                <div className="flex items-center mb-3">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="comm-gutter-clearing"
+                                                        name="commercialDetails.services.gutterClearing"
+                                                        checked={values.commercialDetails?.services?.gutterClearing || false}
+                                                        onChange={handleChange('commercialDetails.services.gutterClearing')}
+                                                        className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+                                                    />
+                                                    <label htmlFor="comm-gutter-clearing" className="ml-3 text-white font-medium cursor-pointer">
+                                                        Gutter Clearing
+                                                    </label>
+                                                </div>
+                                                {values.commercialDetails?.services?.gutterClearing && (
+                                                    <div className="ml-7">
+                                                        <label className="block text-sm text-gray-300 mb-2">Preferred Frequency:</label>
+                                                        <select
+                                                            name="commercialDetails.frequencies.gutterClearing"
+                                                            value={values.commercialDetails?.frequencies?.gutterClearing || ''}
+                                                            onChange={handleChange('commercialDetails.frequencies.gutterClearing')}
+                                                            className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:ring-blue-500 focus:border-blue-500"
+                                                        >
+                                                            <option value="">Select frequency</option>
+                                                            <option value="twice-yearly">Twice yearly</option>
+                                                            <option value="annually">Annually</option>
+                                                            <option value="one-off">One-off clean</option>
+                                                            <option value="as-required">As required</option>
+                                                        </select>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Fascia & Soffit Cleaning */}
+                                            <div className="p-4 bg-gray-700/50 border border-gray-600 rounded-lg">
+                                                <div className="flex items-center mb-3">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="comm-fascia-soffit"
+                                                        name="commercialDetails.services.fasciaSoffit"
+                                                        checked={values.commercialDetails?.services?.fasciaSoffit || false}
+                                                        onChange={handleChange('commercialDetails.services.fasciaSoffit')}
+                                                        className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+                                                    />
+                                                    <label htmlFor="comm-fascia-soffit" className="ml-3 text-white font-medium cursor-pointer">
+                                                        Fascia & Soffit Cleaning
+                                                    </label>
+                                                </div>
+                                                {values.commercialDetails?.services?.fasciaSoffit && (
+                                                    <div className="ml-7">
+                                                        <label className="block text-sm text-gray-300 mb-2">Preferred Frequency:</label>
+                                                        <select
+                                                            name="commercialDetails.frequencies.fasciaSoffit"
+                                                            value={values.commercialDetails?.frequencies?.fasciaSoffit || ''}
+                                                            onChange={handleChange('commercialDetails.frequencies.fasciaSoffit')}
+                                                            className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:ring-blue-500 focus:border-blue-500"
+                                                        >
+                                                            <option value="">Select frequency</option>
+                                                            <option value="twice-yearly">Twice yearly</option>
+                                                            <option value="annually">Annually</option>
+                                                            <option value="one-off">One-off clean</option>
+                                                            <option value="as-required">As required</option>
+                                                        </select>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Solar Panel Cleaning */}
+                                            <div className="p-4 bg-gray-700/50 border border-gray-600 rounded-lg">
+                                                <div className="flex items-center mb-3">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="comm-solar-panels"
+                                                        name="commercialDetails.services.solarPanels"
+                                                        checked={values.commercialDetails?.services?.solarPanels || false}
+                                                        onChange={handleChange('commercialDetails.services.solarPanels')}
+                                                        className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+                                                    />
+                                                    <label htmlFor="comm-solar-panels" className="ml-3 text-white font-medium cursor-pointer">
+                                                        Solar Panel Cleaning
+                                                    </label>
+                                                </div>
+                                                {values.commercialDetails?.services?.solarPanels && (
+                                                    <div className="ml-7">
+                                                        <label className="block text-sm text-gray-300 mb-2">Preferred Frequency:</label>
+                                                        <select
+                                                            name="commercialDetails.frequencies.solarPanels"
+                                                            value={values.commercialDetails?.frequencies?.solarPanels || ''}
+                                                            onChange={handleChange('commercialDetails.frequencies.solarPanels')}
+                                                            className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:ring-blue-500 focus:border-blue-500"
+                                                        >
+                                                            <option value="">Select frequency</option>
+                                                            <option value="quarterly">Quarterly (3 months)</option>
+                                                            <option value="twice-yearly">Twice yearly</option>
+                                                            <option value="annually">Annually</option>
+                                                            <option value="one-off">One-off clean</option>
+                                                            <option value="as-required">As required</option>
+                                                        </select>
+                                                    </div>
+                                                )}
+                                            </div>
+
                                             {/* Pressure Washing */}
                                             <div className="p-4 bg-gray-700/50 border border-gray-600 rounded-lg">
                                                 <div className="flex items-center mb-3">
@@ -610,6 +713,128 @@ function PropertyDetailsAndReview({ prevStep, handleChange, values, setFormData,
                                                             <option value="one-off">One-off clean</option>
                                                             <option value="as-required">As required</option>
                                                         </select>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            
+                                            {/* Cladding Cleaning */}
+                                            <div className="p-4 bg-gray-700/50 border border-gray-600 rounded-lg">
+                                                <div className="flex items-center mb-3">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="comm-cladding"
+                                                        name="commercialDetails.services.claddingCleaning"
+                                                        checked={values.commercialDetails?.services?.claddingCleaning || false}
+                                                        onChange={handleChange('commercialDetails.services.claddingCleaning')}
+                                                        className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+                                                    />
+                                                    <label htmlFor="comm-cladding" className="ml-3 text-white font-medium cursor-pointer">
+                                                        Cladding & Panel Cleaning
+                                                    </label>
+                                                </div>
+                                                {values.commercialDetails?.services?.claddingCleaning && (
+                                                    <div className="ml-7">
+                                                        <label className="block text-sm text-gray-300 mb-2">Preferred Frequency:</label>
+                                                        <select
+                                                            name="commercialDetails.frequencies.claddingCleaning"
+                                                            value={values.commercialDetails?.frequencies?.claddingCleaning || ''}
+                                                            onChange={handleChange('commercialDetails.frequencies.claddingCleaning')}
+                                                            className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:ring-blue-500 focus:border-blue-500"
+                                                        >
+                                                            <option value="">Select frequency</option>
+                                                            <option value="quarterly">Quarterly (3 months)</option>
+                                                            <option value="6-monthly">6 Monthly</option>
+                                                            <option value="annually">Annually</option>
+                                                            <option value="one-off">One-off clean</option>
+                                                            <option value="as-required">As required</option>
+                                                        </select>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            
+                                            {/* Signage Cleaning */}
+                                            <div className="p-4 bg-gray-700/50 border border-gray-600 rounded-lg">
+                                                <div className="flex items-center mb-3">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="comm-signage"
+                                                        name="commercialDetails.services.signageCleaning"
+                                                        checked={values.commercialDetails?.services?.signageCleaning || false}
+                                                        onChange={handleChange('commercialDetails.services.signageCleaning')}
+                                                        className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+                                                    />
+                                                    <label htmlFor="comm-signage" className="ml-3 text-white font-medium cursor-pointer">
+                                                        Signage & Shop Front Cleaning
+                                                    </label>
+                                                </div>
+                                                {values.commercialDetails?.services?.signageCleaning && (
+                                                    <div className="ml-7">
+                                                        <label className="block text-sm text-gray-300 mb-2">Preferred Frequency:</label>
+                                                        <select
+                                                            name="commercialDetails.frequencies.signageCleaning"
+                                                            value={values.commercialDetails?.frequencies?.signageCleaning || ''}
+                                                            onChange={handleChange('commercialDetails.frequencies.signageCleaning')}
+                                                            className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:ring-blue-500 focus:border-blue-500"
+                                                        >
+                                                            <option value="">Select frequency</option>
+                                                            <option value="weekly">Weekly</option>
+                                                            <option value="fortnightly">Fortnightly (2 weeks)</option>
+                                                            <option value="monthly">Monthly</option>
+                                                            <option value="quarterly">Quarterly (3 months)</option>
+                                                            <option value="one-off">One-off clean</option>
+                                                            <option value="as-required">As required</option>
+                                                        </select>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Other Services */}
+                                            <div className="p-4 bg-gray-700/50 border border-gray-600 rounded-lg">
+                                                <div className="flex items-center mb-3">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="comm-other-services"
+                                                        name="commercialDetails.services.other"
+                                                        checked={values.commercialDetails?.services?.other || false}
+                                                        onChange={handleChange('commercialDetails.services.other')}
+                                                        className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+                                                    />
+                                                    <label htmlFor="comm-other-services" className="ml-3 text-white font-medium cursor-pointer">
+                                                        Other Services (please specify below)
+                                                    </label>
+                                                </div>
+                                                {values.commercialDetails?.services?.other && (
+                                                    <div className="ml-7 space-y-3">
+                                                        <div>
+                                                            <label className="block text-sm text-gray-300 mb-2">Service Details:</label>
+                                                            <textarea
+                                                                name="commercialDetails.otherServiceDetails"
+                                                                value={values.commercialDetails?.otherServiceDetails || ''}
+                                                                onChange={handleChange('commercialDetails.otherServiceDetails')}
+                                                                placeholder="e.g., Conservatory roof cleaning, UPVC cleaning, signage cleaning..."
+                                                                rows={2}
+                                                                className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white text-sm placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500 resize-vertical"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm text-gray-300 mb-2">Preferred Frequency:</label>
+                                                            <select
+                                                                name="commercialDetails.frequencies.other"
+                                                                value={values.commercialDetails?.frequencies?.other || ''}
+                                                                onChange={handleChange('commercialDetails.frequencies.other')}
+                                                                className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:ring-blue-500 focus:border-blue-500"
+                                                            >
+                                                                <option value="">Select frequency</option>
+                                                                <option value="weekly">Weekly</option>
+                                                                <option value="fortnightly">Fortnightly (2 weeks)</option>
+                                                                <option value="monthly">Monthly</option>
+                                                                <option value="quarterly">Quarterly (3 months)</option>
+                                                                <option value="twice-yearly">Twice yearly</option>
+                                                                <option value="annually">Annually</option>
+                                                                <option value="one-off">One-off clean</option>
+                                                                <option value="as-required">As required</option>
+                                                            </select>
+                                                        </div>
                                                     </div>
                                                 )}
                                             </div>
