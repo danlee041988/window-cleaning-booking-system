@@ -126,7 +126,7 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
     const gutterClearSelected = selectedAddons[FORM_CONSTANTS.ADDON_GUTTER_CLEARING] && canOfferGutterServices;
     const fasciaSoffitSelected = selectedAddons[FORM_CONSTANTS.ADDON_FASCIA_SOFFIT_GUTTER] && canOfferGutterServices;
     const windowServiceSelected = initialWindowPrice > 0 || (hasCons && conservatorySurchargeAmount > 0) || (hasExt && extensionSurchargeAmount > 0);
-    const isNotAdhoc = selectedFrequency !== FORM_CONSTANTS.FREQUENCY_ID_ADHOC;
+    const isNotAdhoc = selectedFrequency && selectedFrequency !== FORM_CONSTANTS.FREQUENCY_ID_ADHOC;
     const offerConditionsMet = gutterClearSelected && fasciaSoffitSelected && windowServiceSelected && isNotAdhoc;
 
     useEffect(() => {
@@ -539,8 +539,8 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
                                 <h3 className="text-2xl font-semibold text-blue-300">Additional Services</h3>
                             </div>
 
-                            {/* Special Offer Notice - Only show for regular customers */}
-                            {canOfferGutterServices && windowServiceSelected && selectedFrequency !== FORM_CONSTANTS.FREQUENCY_ID_ADHOC && (
+                            {/* Special Offer Notice - Only show for regular customers (not ad-hoc) */}
+                            {canOfferGutterServices && windowServiceSelected && selectedFrequency && selectedFrequency !== FORM_CONSTANTS.FREQUENCY_ID_ADHOC && (
                                 <div className={`mb-6 p-5 border-2 rounded-lg shadow-2xl transition-all duration-500 transform hover:scale-[1.02]
                                     ${offerConditionsMet 
                                         ? 'bg-gradient-to-br from-green-500 via-emerald-500 to-teal-600 border-green-300' 
