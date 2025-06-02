@@ -151,7 +151,21 @@ function PropertyDetailsAndReview({ prevStep, handleChange, values, setFormData,
             sanitizedValue = sanitized;
         } else if (name === 'mobile' || name === 'phone') {
             sanitizedValue = sanitizePhone(value);
-        } else if (type === 'text' && name !== 'postcode') {
+        } else if (name === 'addressLine1' || name === 'addressLine2' || name === 'townCity') {
+            // Allow spaces and longer content for addresses
+            sanitizedValue = sanitizeTextInput(value, { 
+                maxLength: 200,
+                allowNewlines: false,
+                trimWhitespace: false // Preserve spaces within addresses
+            });
+        } else if (name === 'postcode') {
+            // Preserve postcode formatting including spaces
+            sanitizedValue = sanitizeTextInput(value, { 
+                maxLength: 10,
+                allowNewlines: false,
+                trimWhitespace: false
+            });
+        } else if (type === 'text') {
             // Sanitize other text inputs but allow more characters
             sanitizedValue = sanitizeTextInput(value, { 
                 maxLength: 100,
@@ -844,45 +858,6 @@ function PropertyDetailsAndReview({ prevStep, handleChange, values, setFormData,
                                     {/* Site Access & Operational Details */}
                                     <div className="mb-8">
                                         <h4 className="text-xl font-semibold text-gray-200 mb-4">Site Access & Operational Details</h4>
-                                        <div className="space-y-6">
-                                            <div>
-                                                <label className="block text-sm font-semibold text-gray-200 mb-2">
-                                                    Preferred Cleaning Times
-                                                </label>
-                                                <select
-                                                    name="commercialDetails.preferredCleaningTimes"
-                                                    value={values.commercialDetails?.preferredCleaningTimes || ''}
-                                                    onChange={handleChange('commercialDetails.preferredCleaningTimes')}
-                                                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500"
-                                                >
-                                                    <option value="">Select preferred time</option>
-                                                    <option value="early-morning">Early morning (6am-8am)</option>
-                                                    <option value="business-hours">During business hours (9am-5pm)</option>
-                                                    <option value="after-hours">After business hours (5pm-8pm)</option>
-                                                    <option value="weekends">Weekends only</option>
-                                                    <option value="flexible">Flexible/No preference</option>
-                                                </select>
-                                            </div>
-                                            
-                                            <div>
-                                                <label className="block text-sm font-semibold text-gray-200 mb-2">
-                                                    Parking Available?
-                                                </label>
-                                                <select
-                                                    name="commercialDetails.parkingAvailable"
-                                                    value={values.commercialDetails?.parkingAvailable || ''}
-                                                    onChange={handleChange('commercialDetails.parkingAvailable')}
-                                                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500"
-                                                >
-                                                    <option value="">Select parking availability</option>
-                                                    <option value="on-site">Yes - On-site parking</option>
-                                                    <option value="street">Yes - Street parking nearby</option>
-                                                    <option value="paid">Paid parking only</option>
-                                                    <option value="none">No parking available</option>
-                                                    <option value="permit">Permit required</option>
-                                                </select>
-                                            </div>
-                                        </div>
                                         
                                         <div className="mt-6">
                                             <label className="block text-sm font-semibold text-gray-200 mb-2">Access Requirements</label>
@@ -891,18 +866,6 @@ function PropertyDetailsAndReview({ prevStep, handleChange, values, setFormData,
                                                 value={values.commercialDetails?.accessRequirements || ''}
                                                 onChange={handleChange('commercialDetails.accessRequirements')}
                                                 placeholder="e.g., Security codes, key collection, specific entry points, height restrictions, equipment access..."
-                                                rows={3}
-                                                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500 resize-vertical"
-                                            />
-                                        </div>
-                                        
-                                        <div className="mt-6">
-                                            <label className="block text-sm font-semibold text-gray-200 mb-2">Health & Safety Requirements</label>
-                                            <textarea
-                                                name="commercialDetails.healthSafetyRequirements"
-                                                value={values.commercialDetails?.healthSafetyRequirements || ''}
-                                                onChange={handleChange('commercialDetails.healthSafetyRequirements')}
-                                                placeholder="e.g., Site induction required, PPE requirements, risk assessments needed, working at height permits..."
                                                 rows={3}
                                                 className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500 resize-vertical"
                                             />
