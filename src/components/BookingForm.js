@@ -8,6 +8,7 @@ import PropertyDetailsAndReview from './PropertyDetailsAndReview';
 import SimpleProgressBar from './SimpleProgressBar';
 import useFormPersistence from '../hooks/useFormPersistence';
 import { sanitizeFormData } from '../utils/sanitization';
+import formAnalytics from '../utils/analytics';
 
 // Define the conservatory surcharge globally or pass as prop if it can vary
 const CONSERVATORY_SURCHARGE = 5;
@@ -647,6 +648,31 @@ function BookingForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [submissionError, setSubmissionError] = useState(null);
   
+  // Initialize analytics tracking
+  React.useEffect(() => {
+    formAnalytics.trackFormStart('booking');
+    formAnalytics.trackStepStart(1, 'service_selection');
+    formAnalytics.setupPageVisibilityTracking();
+    
+    return () => {
+      // Cleanup: track abandonment if form wasn't completed
+      const isCompleted = formData.isSubmitted;
+      if (!isCompleted) {
+        formAnalytics.trackFormAbandonment(currentStep, getStepName(currentStep), 'component_unmount');
+      }
+    };
+  }, []);
+
+  const getStepName = (step) => {
+    switch(step) {
+      case 1: return 'service_selection';
+      case 2: return 'additional_services';
+      case 3: return 'contact_details';
+      case 4: return 'confirmation';
+      default: return 'unknown';
+    }
+  };
+  
   // Add form persistence to prevent data loss
   const { clearSavedData } = useFormPersistence(formData, setFormData);
 
@@ -680,15 +706,39 @@ function BookingForm() {
   };
 
   const nextStep = () => {
-    setCurrentStep(prev => prev + 1);
+    // Track step completion
+    formAnalytics.trackStepComplete(currentStep, getStepName(currentStep), formData);
+    
+    const newStep = currentStep + 1;
+    setCurrentStep(newStep);
+    
+    // Track new step start
+    formAnalytics.trackStepStart(newStep, getStepName(newStep));
+    
     window.scrollTo(0, 0);
   };
+  
   const prevStep = () => {
-    setCurrentStep(prev => prev - 1);
+    const newStep = currentStep - 1;
+    setCurrentStep(newStep);
+    
+    // Track step navigation (going back)
+    formAnalytics.trackStepStart(newStep, getStepName(newStep));
+    
     window.scrollTo(0, 0);
   };
+  
   const goToStep = (stepNumber) => {
+    // Track current step completion if moving forward
+    if (stepNumber > currentStep) {
+      formAnalytics.trackStepComplete(currentStep, getStepName(currentStep), formData);
+    }
+    
     setCurrentStep(stepNumber);
+    
+    // Track new step start
+    formAnalytics.trackStepStart(stepNumber, getStepName(stepNumber));
+    
     window.scrollTo(0, 0);
   };
 
@@ -729,6 +779,14 @@ function BookingForm() {
         
         // Store booking reference for confirmation page
         setFormData(prev => ({ ...prev, bookingReference: bookingRef, isSubmitted: true }));
+        
+        // Track successful submission
+        const submissionType = formDataToSubmit.isCommercial ? 'commercial' : 
+                              formDataToSubmit.isCustomQuote ? 'custom_quote' :
+                              formDataToSubmit.isGeneralEnquiry ? 'general_enquiry' : 'standard_booking';
+        
+        formAnalytics.trackFormSubmission(submissionType, sanitizedFormData);
+        
         setCurrentStep(4); // Go to thank you page
         clearSavedData();
         
@@ -737,10 +795,40 @@ function BookingForm() {
       }
       
     } catch (error) {
-      // Use proper error handling instead of console.error (H004 fix)
-      const errorMessage = error.message || 'Unknown error occurred';
-      const typeOfSubmission = formDataToSubmit.isCommercial || formDataToSubmit.isCustomQuote || formDataToSubmit.isGeneralEnquiry;
-      setSubmissionError(`An error occurred while submitting your ${getEnquiryOrBookingText(typeOfSubmission)}. ${errorMessage}. Please try again or contact us directly.`);
+      // Enhanced error handling with specific error types
+      let userFriendlyMessage = '';
+      const submissionType = getEnquiryOrBookingText(formDataToSubmit.isCommercial || formDataToSubmit.isCustomQuote || formDataToSubmit.isGeneralEnquiry);
+      
+      if (error.name === 'NetworkError' || error.message.includes('network') || error.message.includes('fetch')) {
+        userFriendlyMessage = `Network connection issue. Please check your internet connection and try again. If the problem persists, please call us at 07123 456789.`;
+      } else if (error.status === 400) {
+        userFriendlyMessage = `There was an issue with the information provided. Please review your details and try again.`;
+      } else if (error.status === 429) {
+        userFriendlyMessage = `Too many requests. Please wait a moment and try again.`;
+      } else if (error.status >= 500) {
+        userFriendlyMessage = `Our servers are experiencing issues. We've been notified and are working to fix this. Please try again in a few minutes or contact us directly.`;
+      } else if (error.message.includes('configuration') || error.message.includes('environment')) {
+        userFriendlyMessage = `Service configuration issue. Please contact us directly at info@somersetwindowcleaning.co.uk or call 07123 456789.`;
+      } else {
+        userFriendlyMessage = `An unexpected error occurred while submitting your ${submissionType.toLowerCase()}. Please try again or contact us directly.`;
+      }
+      
+      // Track submission error
+      formAnalytics.trackSubmissionError(
+        error.name || 'unknown_error',
+        error.message || 'Unknown error occurred',
+        currentStep
+      );
+      
+      setSubmissionError({
+        message: userFriendlyMessage,
+        originalError: error.message,
+        canRetry: !error.message.includes('configuration'),
+        contactInfo: {
+          phone: '07123 456789',
+          email: 'info@somersetwindowcleaning.co.uk'
+        }
+      });
     } finally {
       setIsLoading(false);
     }

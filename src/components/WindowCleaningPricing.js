@@ -128,29 +128,21 @@ const WindowCleaningPricing = ({ goToStep, onFormChange }) => {
     goToStep(2); 
   };
 
-  // Dynamically adjust grid columns based on number of options
-  // For 8 options: xl:grid-cols-4, lg:grid-cols-3 (will wrap a bit on lg, might need adjustment or keep as 4)
-  // Let's try to keep it balanced. If 8 items, 4 columns is good for xl.
-  // For smaller screens, it will wrap. md:grid-cols-2 ensures at least two.
+  // All display options for the grid
   const allDisplayOptions = [...windowCleaningOptions, otherServicesOption];
-  const numOptions = allDisplayOptions.length;
-  let gridColsClass = 'md:grid-cols-2 lg:grid-cols-3'; // Default
-  if (numOptions > 6) { // e.g., for 7 or 8 options, try for 4 on xl
-    gridColsClass = 'md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-700 to-blue-900">
-      <div className="container mx-auto p-6">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/* Hero Header Section */}
-        <div className="text-center mb-16 pt-12">
-          <h1 className="text-5xl font-bold mb-4 text-white">
+        <div className="text-center mb-8 sm:mb-12 lg:mb-16 pt-6 sm:pt-8 lg:pt-12">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-white">
             Professional Window Cleaning
           </h1>
-          <h2 className="text-2xl font-semibold mb-6 text-blue-300">
+          <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-4 sm:mb-6 text-blue-300">
             Instant Quote & Book Online
           </h2>
-          <p className="mb-8 text-gray-200 md:text-lg max-w-2xl mx-auto leading-relaxed">
+          <p className="mb-6 sm:mb-8 text-sm sm:text-base lg:text-lg text-gray-200 max-w-2xl mx-auto leading-relaxed px-4">
             Select your property type for instant transparent pricing, or start a business enquiry. 
             <span className="text-blue-200 font-medium"> Professional service, guaranteed results</span>
           </p>
@@ -163,7 +155,7 @@ const WindowCleaningPricing = ({ goToStep, onFormChange }) => {
           </div>
         </div>
 
-      <div className={`grid ${gridColsClass} gap-x-6 gap-y-8`}>
+      <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8`}>
         {allDisplayOptions.map((option) => {
           if (option.isGeneralEnquiryCard) {
             return (

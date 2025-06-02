@@ -258,13 +258,13 @@ function PropertyDetailsAndReview({ prevStep, handleChange, values, setFormData,
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
-            <div className="container mx-auto px-6 py-8">
-                <div className="max-w-4xl mx-auto">
-                    <h2 className="text-3xl font-bold text-white mb-8 text-center">Complete Your Booking</h2>
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+                <div className="max-w-6xl mx-auto">
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-6 sm:mb-8 text-center">Complete Your Booking</h2>
                     
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className={`grid gap-8 ${values.isCommercial ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'}`}>
                         {/* Left Column - Contact Details */}
-                        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 shadow-2xl border border-gray-700">
+                        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-4 sm:p-6 lg:p-8 shadow-2xl border border-gray-700">
                             <h3 className="text-xl font-semibold text-white mb-6 flex items-center">
                                 <svg className="w-6 h-6 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
@@ -383,7 +383,7 @@ function PropertyDetailsAndReview({ prevStep, handleChange, values, setFormData,
                                     {/* Business Information */}
                                     <div className="mb-8">
                                         <h4 className="text-xl font-semibold text-gray-200 mb-4">Business Information</h4>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-6">
                                             <div className="mb-4">
                                                 <label className="block text-sm font-semibold text-gray-200 mb-2">
                                                     Business Name <span className="text-red-400">*</span>
@@ -460,7 +460,7 @@ function PropertyDetailsAndReview({ prevStep, handleChange, values, setFormData,
                                     {/* Contact Information */}
                                     <div className="mb-8">
                                         <h4 className="text-xl font-semibold text-gray-200 mb-4">Site Contact Details</h4>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-6">
                                             <div className="mb-4">
                                                 <label className="block text-sm font-semibold text-gray-200 mb-2">
                                                     Contact Person Name
@@ -844,7 +844,7 @@ function PropertyDetailsAndReview({ prevStep, handleChange, values, setFormData,
                                     {/* Site Access & Operational Details */}
                                     <div className="mb-8">
                                         <h4 className="text-xl font-semibold text-gray-200 mb-4">Site Access & Operational Details</h4>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-6">
                                             <div>
                                                 <label className="block text-sm font-semibold text-gray-200 mb-2">
                                                     Preferred Cleaning Times
@@ -1022,10 +1022,40 @@ function PropertyDetailsAndReview({ prevStep, handleChange, values, setFormData,
                                 </div>
                             </div>
 
-                            {/* Error Message */}
+                            {/* Enhanced Error Message */}
                             {submissionError && (
                                 <div className="mt-4 p-4 bg-red-900/30 border border-red-600 rounded-lg">
-                                    <p className="text-red-300 text-sm">{submissionError}</p>
+                                    <div className="flex items-start">
+                                        <svg className="w-5 h-5 text-red-400 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                        </svg>
+                                        <div className="flex-1">
+                                            <h4 className="text-red-300 font-semibold mb-2">Submission Failed</h4>
+                                            <p className="text-red-200 text-sm mb-3">
+                                                {typeof submissionError === 'string' ? submissionError : submissionError.message}
+                                            </p>
+                                            
+                                            {typeof submissionError === 'object' && submissionError.canRetry && (
+                                                <button
+                                                    onClick={() => handleActualSubmit()}
+                                                    className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors mr-3"
+                                                >
+                                                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+                                                    </svg>
+                                                    Try Again
+                                                </button>
+                                            )}
+                                            
+                                            {typeof submissionError === 'object' && submissionError.contactInfo && (
+                                                <div className="text-xs text-red-200 bg-red-800/30 p-2 rounded mt-3">
+                                                    <p className="font-medium mb-1">Need immediate assistance?</p>
+                                                    <p>📞 Call: <a href={`tel:${submissionError.contactInfo.phone}`} className="underline hover:text-white">{submissionError.contactInfo.phone}</a></p>
+                                                    <p>✉️ Email: <a href={`mailto:${submissionError.contactInfo.email}`} className="underline hover:text-white">{submissionError.contactInfo.email}</a></p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             )}
 

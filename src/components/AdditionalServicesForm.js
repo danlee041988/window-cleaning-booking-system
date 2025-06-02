@@ -242,11 +242,11 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
     if (isGeneralEnquiry) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
-                <div className="container mx-auto px-6 py-12">
-                    <div className="max-w-4xl mx-auto bg-gradient-to-br from-gray-800 to-gray-900 shadow-2xl rounded-2xl p-8 border border-gray-700">
-                        <div className="text-center mb-12">
-                            <h2 className="text-4xl font-bold text-white mb-4">Tell Us What You Need</h2>
-                            <p className="text-blue-300 text-lg mb-6">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+                    <div className="max-w-4xl mx-auto bg-gradient-to-br from-gray-800 to-gray-900 shadow-2xl rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-700">
+                        <div className="text-center mb-8 sm:mb-10 lg:mb-12">
+                            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4">Tell Us What You Need</h2>
+                            <p className="text-blue-300 text-base sm:text-lg mb-6">
                                 Select the services you're interested in and we'll provide a tailored quote
                             </p>
                             
@@ -420,11 +420,11 @@ const AdditionalServicesForm = ({ nextStep, prevStep, values, setFormData, conse
     // Standard Path (Non-General Enquiry)
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
-            <div className="container mx-auto px-6 py-12">
-                <div className="max-w-4xl mx-auto bg-gradient-to-br from-gray-800 to-gray-900 shadow-2xl rounded-2xl p-8 border border-gray-700">
-                    <div className="text-center mb-12">
-                        <h2 className="text-4xl font-bold text-white mb-4">Enhance Your Service</h2>
-                        <p className="text-blue-300 text-lg mb-6">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+                <div className="max-w-4xl mx-auto bg-gradient-to-br from-gray-800 to-gray-900 shadow-2xl rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-700">
+                    <div className="text-center mb-8 sm:mb-10 lg:mb-12">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4">Enhance Your Service</h2>
+                        <p className="text-blue-300 text-base sm:text-lg mb-6">
                             Add extra services and save with our exclusive bundle offers
                         </p>
                         
