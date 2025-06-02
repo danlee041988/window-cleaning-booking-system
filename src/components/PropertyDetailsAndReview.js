@@ -371,6 +371,335 @@ function PropertyDetailsAndReview({ prevStep, handleChange, values, setFormData,
                                     />
                                 </div>
                             )}
+
+                            {/* Enhanced Commercial Enquiry Form */}
+                            {values.isCommercial && (
+                                <div className="mt-8 pt-6 border-t border-gray-600">
+                                    <div className="bg-gradient-to-r from-purple-800 to-purple-700 p-6 rounded-lg border border-purple-600 mb-6">
+                                        <h3 className="text-2xl font-semibold text-white mb-2">Commercial Services Details</h3>
+                                        <p className="text-purple-200">Tell us about your business and cleaning requirements</p>
+                                    </div>
+                                    
+                                    {/* Business Information */}
+                                    <div className="mb-8">
+                                        <h4 className="text-xl font-semibold text-gray-200 mb-4">Business Information</h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="mb-4">
+                                                <label className="block text-sm font-semibold text-gray-200 mb-2">
+                                                    Business Name <span className="text-red-400">*</span>
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="commercialDetails.businessName"
+                                                    value={values.commercialDetails?.businessName || ''}
+                                                    onChange={handleChange('commercialDetails.businessName')}
+                                                    placeholder="e.g., ACME Corporation Ltd"
+                                                    required
+                                                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500"
+                                                />
+                                            </div>
+                                            
+                                            <div>
+                                                <label className="block text-sm font-semibold text-gray-200 mb-2">
+                                                    Type of Business <span className="text-red-400">*</span>
+                                                </label>
+                                                <select
+                                                    name="commercialDetails.propertyType"
+                                                    value={values.commercialDetails?.propertyType || ''}
+                                                    onChange={handleChange('commercialDetails.propertyType')}
+                                                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500"
+                                                    required
+                                                >
+                                                    <option value="">Select your business type</option>
+                                                    <option value={FORM_CONSTANTS.COMM_PROP_TYPE_OFFICE}>Office Building</option>
+                                                    <option value={FORM_CONSTANTS.COMM_PROP_TYPE_RETAIL}>Shop/Retail Store</option>
+                                                    <option value={FORM_CONSTANTS.COMM_PROP_TYPE_RESTAURANT}>Restaurant/Café</option>
+                                                    <option value={FORM_CONSTANTS.COMM_PROP_TYPE_WAREHOUSE}>Warehouse/Industrial</option>
+                                                    <option value={FORM_CONSTANTS.COMM_PROP_TYPE_MEDICAL}>Medical/Dental Practice</option>
+                                                    <option value={FORM_CONSTANTS.COMM_PROP_TYPE_SCHOOL}>School/Educational</option>
+                                                    <option value={FORM_CONSTANTS.COMM_PROP_TYPE_HOTEL}>Hotel/Accommodation</option>
+                                                    <option value={FORM_CONSTANTS.COMM_PROP_TYPE_OTHER}>Other</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div>
+                                                <label className="block text-sm font-semibold text-gray-200 mb-2">
+                                                    Building Size
+                                                </label>
+                                                <select
+                                                    name="commercialDetails.approxSizeOrWindows"
+                                                    value={values.commercialDetails?.approxSizeOrWindows || ''}
+                                                    onChange={handleChange('commercialDetails.approxSizeOrWindows')}
+                                                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500"
+                                                >
+                                                    <option value="">Select approximate size</option>
+                                                    <option value={FORM_CONSTANTS.COMM_SIZE_SMALL}>Small (up to 20 windows)</option>
+                                                    <option value={FORM_CONSTANTS.COMM_SIZE_MEDIUM}>Medium (20-50 windows)</option>
+                                                    <option value={FORM_CONSTANTS.COMM_SIZE_LARGE}>Large (50+ windows)</option>
+                                                    <option value={FORM_CONSTANTS.COMM_SIZE_MULTI_STOREY}>Multi-storey building</option>
+                                                    <option value={FORM_CONSTANTS.COMM_SIZE_COMPLEX}>Large complex/multiple buildings</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div className="mb-4">
+                                                <label className="block text-sm font-semibold text-gray-200 mb-2">
+                                                    Number of Floors
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="commercialDetails.numberOfFloors"
+                                                    value={values.commercialDetails?.numberOfFloors || ''}
+                                                    onChange={handleChange('commercialDetails.numberOfFloors')}
+                                                    placeholder="e.g., 3 floors"
+                                                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Contact Information */}
+                                    <div className="mb-8">
+                                        <h4 className="text-xl font-semibold text-gray-200 mb-4">Site Contact Details</h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="mb-4">
+                                                <label className="block text-sm font-semibold text-gray-200 mb-2">
+                                                    Contact Person Name
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="commercialDetails.contactPerson"
+                                                    value={values.commercialDetails?.contactPerson || ''}
+                                                    onChange={handleChange('commercialDetails.contactPerson')}
+                                                    placeholder="e.g., John Smith"
+                                                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500"
+                                                />
+                                            </div>
+                                            
+                                            <div className="mb-4">
+                                                <label className="block text-sm font-semibold text-gray-200 mb-2">
+                                                    Contact Role/Position
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="commercialDetails.contactRole"
+                                                    value={values.commercialDetails?.contactRole || ''}
+                                                    onChange={handleChange('commercialDetails.contactRole')}
+                                                    placeholder="e.g., Facilities Manager"
+                                                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Services Selection */}
+                                    <div className="mb-8">
+                                        <h4 className="text-xl font-semibold text-gray-200 mb-4">
+                                            Services Required <span className="text-sm text-gray-400">(Select all that apply)</span>
+                                        </h4>
+                                        <div className="space-y-6">
+                                            {/* External Window Cleaning */}
+                                            <div className="p-4 bg-gray-700/50 border border-gray-600 rounded-lg">
+                                                <div className="flex items-center mb-3">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="comm-window-external"
+                                                        name="commercialDetails.services.windowCleaningExternal"
+                                                        checked={values.commercialDetails?.services?.windowCleaningExternal || false}
+                                                        onChange={handleChange('commercialDetails.services.windowCleaningExternal')}
+                                                        className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+                                                    />
+                                                    <label htmlFor="comm-window-external" className="ml-3 text-white font-medium cursor-pointer">
+                                                        External Window Cleaning
+                                                    </label>
+                                                </div>
+                                                {values.commercialDetails?.services?.windowCleaningExternal && (
+                                                    <div className="ml-7">
+                                                        <label className="block text-sm text-gray-300 mb-2">Preferred Frequency:</label>
+                                                        <select
+                                                            name="commercialDetails.frequencies.windowCleaningExternal"
+                                                            value={values.commercialDetails?.frequencies?.windowCleaningExternal || ''}
+                                                            onChange={handleChange('commercialDetails.frequencies.windowCleaningExternal')}
+                                                            className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:ring-blue-500 focus:border-blue-500"
+                                                        >
+                                                            <option value="">Select frequency</option>
+                                                            <option value="weekly">Weekly</option>
+                                                            <option value="fortnightly">Fortnightly (2 weeks)</option>
+                                                            <option value="monthly">Monthly (4 weeks)</option>
+                                                            <option value="6-weekly">6 Weekly</option>
+                                                            <option value="8-weekly">8 Weekly</option>
+                                                            <option value="quarterly">Quarterly (12 weeks)</option>
+                                                            <option value="twice-yearly">Twice yearly</option>
+                                                            <option value="annually">Annually</option>
+                                                            <option value="one-off">One-off clean</option>
+                                                            <option value="as-required">As required</option>
+                                                        </select>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            
+                                            {/* Internal Window Cleaning */}
+                                            <div className="p-4 bg-gray-700/50 border border-gray-600 rounded-lg">
+                                                <div className="flex items-center mb-3">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="comm-window-internal"
+                                                        name="commercialDetails.services.windowCleaningInternal"
+                                                        checked={values.commercialDetails?.services?.windowCleaningInternal || false}
+                                                        onChange={handleChange('commercialDetails.services.windowCleaningInternal')}
+                                                        className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+                                                    />
+                                                    <label htmlFor="comm-window-internal" className="ml-3 text-white font-medium cursor-pointer">
+                                                        Internal Window Cleaning
+                                                    </label>
+                                                </div>
+                                                {values.commercialDetails?.services?.windowCleaningInternal && (
+                                                    <div className="ml-7">
+                                                        <label className="block text-sm text-gray-300 mb-2">Preferred Frequency:</label>
+                                                        <select
+                                                            name="commercialDetails.frequencies.windowCleaningInternal"
+                                                            value={values.commercialDetails?.frequencies?.windowCleaningInternal || ''}
+                                                            onChange={handleChange('commercialDetails.frequencies.windowCleaningInternal')}
+                                                            className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:ring-blue-500 focus:border-blue-500"
+                                                        >
+                                                            <option value="">Select frequency</option>
+                                                            <option value="weekly">Weekly</option>
+                                                            <option value="fortnightly">Fortnightly (2 weeks)</option>
+                                                            <option value="monthly">Monthly (4 weeks)</option>
+                                                            <option value="6-weekly">6 Weekly</option>
+                                                            <option value="8-weekly">8 Weekly</option>
+                                                            <option value="quarterly">Quarterly (12 weeks)</option>
+                                                            <option value="twice-yearly">Twice yearly</option>
+                                                            <option value="annually">Annually</option>
+                                                            <option value="one-off">One-off clean</option>
+                                                            <option value="as-required">As required</option>
+                                                        </select>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Pressure Washing */}
+                                            <div className="p-4 bg-gray-700/50 border border-gray-600 rounded-lg">
+                                                <div className="flex items-center mb-3">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="comm-pressure-washing"
+                                                        name="commercialDetails.services.pressureWashing"
+                                                        checked={values.commercialDetails?.services?.pressureWashing || false}
+                                                        onChange={handleChange('commercialDetails.services.pressureWashing')}
+                                                        className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+                                                    />
+                                                    <label htmlFor="comm-pressure-washing" className="ml-3 text-white font-medium cursor-pointer">
+                                                        Pressure Washing
+                                                    </label>
+                                                    <span className="ml-2 text-sm text-gray-400">(car parks, walkways, building exterior)</span>
+                                                </div>
+                                                {values.commercialDetails?.services?.pressureWashing && (
+                                                    <div className="ml-7">
+                                                        <label className="block text-sm text-gray-300 mb-2">Preferred Frequency:</label>
+                                                        <select
+                                                            name="commercialDetails.frequencies.pressureWashing"
+                                                            value={values.commercialDetails?.frequencies?.pressureWashing || ''}
+                                                            onChange={handleChange('commercialDetails.frequencies.pressureWashing')}
+                                                            className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:ring-blue-500 focus:border-blue-500"
+                                                        >
+                                                            <option value="">Select frequency</option>
+                                                            <option value="monthly">Monthly</option>
+                                                            <option value="quarterly">Quarterly (3 months)</option>
+                                                            <option value="6-monthly">6 Monthly</option>
+                                                            <option value="annually">Annually</option>
+                                                            <option value="one-off">One-off clean</option>
+                                                            <option value="as-required">As required</option>
+                                                        </select>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Site Access & Operational Details */}
+                                    <div className="mb-8">
+                                        <h4 className="text-xl font-semibold text-gray-200 mb-4">Site Access & Operational Details</h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div>
+                                                <label className="block text-sm font-semibold text-gray-200 mb-2">
+                                                    Preferred Cleaning Times
+                                                </label>
+                                                <select
+                                                    name="commercialDetails.preferredCleaningTimes"
+                                                    value={values.commercialDetails?.preferredCleaningTimes || ''}
+                                                    onChange={handleChange('commercialDetails.preferredCleaningTimes')}
+                                                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500"
+                                                >
+                                                    <option value="">Select preferred time</option>
+                                                    <option value="early-morning">Early morning (6am-8am)</option>
+                                                    <option value="business-hours">During business hours (9am-5pm)</option>
+                                                    <option value="after-hours">After business hours (5pm-8pm)</option>
+                                                    <option value="weekends">Weekends only</option>
+                                                    <option value="flexible">Flexible/No preference</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div>
+                                                <label className="block text-sm font-semibold text-gray-200 mb-2">
+                                                    Parking Available?
+                                                </label>
+                                                <select
+                                                    name="commercialDetails.parkingAvailable"
+                                                    value={values.commercialDetails?.parkingAvailable || ''}
+                                                    onChange={handleChange('commercialDetails.parkingAvailable')}
+                                                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500"
+                                                >
+                                                    <option value="">Select parking availability</option>
+                                                    <option value="on-site">Yes - On-site parking</option>
+                                                    <option value="street">Yes - Street parking nearby</option>
+                                                    <option value="paid">Paid parking only</option>
+                                                    <option value="none">No parking available</option>
+                                                    <option value="permit">Permit required</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="mt-6">
+                                            <label className="block text-sm font-semibold text-gray-200 mb-2">Access Requirements</label>
+                                            <textarea
+                                                name="commercialDetails.accessRequirements"
+                                                value={values.commercialDetails?.accessRequirements || ''}
+                                                onChange={handleChange('commercialDetails.accessRequirements')}
+                                                placeholder="e.g., Security codes, key collection, specific entry points, height restrictions, equipment access..."
+                                                rows={3}
+                                                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500 resize-vertical"
+                                            />
+                                        </div>
+                                        
+                                        <div className="mt-6">
+                                            <label className="block text-sm font-semibold text-gray-200 mb-2">Health & Safety Requirements</label>
+                                            <textarea
+                                                name="commercialDetails.healthSafetyRequirements"
+                                                value={values.commercialDetails?.healthSafetyRequirements || ''}
+                                                onChange={handleChange('commercialDetails.healthSafetyRequirements')}
+                                                placeholder="e.g., Site induction required, PPE requirements, risk assessments needed, working at height permits..."
+                                                rows={3}
+                                                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500 resize-vertical"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Additional Requirements */}
+                                    <div className="mb-6">
+                                        <label className="block text-sm font-semibold text-gray-200 mb-2">
+                                            Additional Information (Optional)
+                                        </label>
+                                        <textarea
+                                            name="commercialDetails.specificRequirements"
+                                            value={values.commercialDetails?.specificRequirements || ''}
+                                            onChange={handleChange('commercialDetails.specificRequirements')}
+                                            placeholder="Any other specific requirements, budget considerations, current supplier details, or additional information that would help us provide an accurate quote..."
+                                            rows={4}
+                                            className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500 resize-vertical"
+                                        />
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Right Column - Booking Summary */}
@@ -441,20 +770,22 @@ function PropertyDetailsAndReview({ prevStep, handleChange, values, setFormData,
                                 </SummarySection>
                             )}
 
-                            {/* Additional Notes */}
-                            <div className="mt-6">
-                                <label className="block text-sm font-semibold text-gray-200 mb-2">
-                                    Additional Notes (Optional)
-                                </label>
-                                <textarea
-                                    name="bookingNotes"
-                                    value={values.bookingNotes || ''}
-                                    onChange={handleChange('bookingNotes')}
-                                    placeholder="Any special requirements or access instructions..."
-                                    rows={3}
-                                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
+                            {/* Additional Notes - Show for non-commercial */}
+                            {!values.isCommercial && (
+                                <div className="mt-6">
+                                    <label className="block text-sm font-semibold text-gray-200 mb-2">
+                                        Additional Notes (Optional)
+                                    </label>
+                                    <textarea
+                                        name="bookingNotes"
+                                        value={values.bookingNotes || ''}
+                                        onChange={handleChange('bookingNotes')}
+                                        placeholder="Any special requirements or access instructions..."
+                                        rows={3}
+                                        className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                            )}
 
                             {/* reCAPTCHA */}
                             <div className="mt-6 flex justify-center">
