@@ -875,7 +875,7 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                             value={isGeneralEnquiry ? values.generalEnquiryDetails?.enquiryComments || '' : values.bookingNotes || ''}
                             onChange={handleChange(isGeneralEnquiry ? "generalEnquiryDetails.enquiryComments" : "bookingNotes")}
                             placeholder={
-                                isGeneralEnquiry
+                                isGeneralEnquiry 
                                     ? "Example: I have a 4-bedroom detached house with conservatory. Interested in monthly window cleaning and occasional gutter clearing. Property has side gate access but 2 friendly dogs in garden. Best contact time is weekday mornings."
                                     : isCommercial
                                         ? "Example: Office building with 40+ windows across 3 floors. Require monthly cleaning during business hours (9-5). Parking available on-site. Health & safety induction required for all contractors."
