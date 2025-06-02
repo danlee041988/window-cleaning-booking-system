@@ -165,6 +165,13 @@ function PropertyDetailsAndReview({ prevStep, handleChange, values, setFormData,
                 allowNewlines: false,
                 trimWhitespace: false
             });
+        } else if (name === 'customerName') {
+            // Allow spaces and preserve formatting for customer names
+            sanitizedValue = sanitizeTextInput(value, { 
+                maxLength: 100,
+                allowNewlines: false,
+                trimWhitespace: false // Preserve spaces in names
+            });
         } else if (type === 'text') {
             // Sanitize other text inputs but allow more characters
             sanitizedValue = sanitizeTextInput(value, { 
