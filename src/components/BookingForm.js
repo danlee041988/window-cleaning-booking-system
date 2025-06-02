@@ -84,25 +84,40 @@ const initialFormData = {
         approxSizeOrWindows: '',
         specificRequirements: '',
         
-        // New services structure with individual services
+        // New enhanced services structure
         services: {
-            windowCleaning: false,
+            windowCleaningExternal: false,
+            windowCleaningInternal: false,
             gutterClearing: false,
             fasciaSoffit: false,
             solarPanels: false,
             pressureWashing: false,
+            claddingCleaning: false,
+            signageCleaning: false,
             other: false
         },
         
         // Individual frequencies for each service
         frequencies: {
-            windowCleaning: '',
+            windowCleaningExternal: '',
+            windowCleaningInternal: '',
             gutterClearing: '',
             fasciaSoffit: '',
             solarPanels: '',
             pressureWashing: '',
+            claddingCleaning: '',
+            signageCleaning: '',
             other: ''
         },
+        
+        // Additional commercial-specific details
+        numberOfFloors: '',
+        preferredCleaningTimes: '',
+        accessRequirements: '',
+        healthSafetyRequirements: '',
+        parkingAvailable: '',
+        contactPerson: '',
+        contactRole: '',
         
         // Details for other services
         otherServiceDetails: '',
@@ -285,12 +300,35 @@ export const mapFormDataToTemplateParamsSimple = (formData) => {
     commercialOtherServiceText: formData.isCommercial ? (formData.commercialDetails?.otherServiceText || '') : '',
     
     // Commercial Services - Convert booleans to strings for EmailJS
-    commercialWindowCleaning: formData.isCommercial && formData.commercialDetails?.servicesRequested?.windowCleaning ? 'true' : '',
-    commercialGutterCleaning: formData.isCommercial && formData.commercialDetails?.servicesRequested?.gutterCleaning ? 'true' : '',
-    commercialFasciaSoffit: formData.isCommercial && formData.commercialDetails?.servicesRequested?.fasciaSoffitCleaning ? 'true' : '',
-    commercialCladding: formData.isCommercial && formData.commercialDetails?.servicesRequested?.claddingCleaning ? 'true' : '',
-    commercialSignage: formData.isCommercial && formData.commercialDetails?.servicesRequested?.signageCleaning ? 'true' : '',
-    commercialOther: formData.isCommercial && formData.commercialDetails?.servicesRequested?.other ? 'true' : '',
+    commercialWindowExternal: formData.isCommercial && formData.commercialDetails?.services?.windowCleaningExternal ? 'true' : '',
+    commercialWindowInternal: formData.isCommercial && formData.commercialDetails?.services?.windowCleaningInternal ? 'true' : '',
+    commercialGutterCleaning: formData.isCommercial && formData.commercialDetails?.services?.gutterClearing ? 'true' : '',
+    commercialFasciaSoffit: formData.isCommercial && formData.commercialDetails?.services?.fasciaSoffit ? 'true' : '',
+    commercialSolarPanels: formData.isCommercial && formData.commercialDetails?.services?.solarPanels ? 'true' : '',
+    commercialPressureWashing: formData.isCommercial && formData.commercialDetails?.services?.pressureWashing ? 'true' : '',
+    commercialCladding: formData.isCommercial && formData.commercialDetails?.services?.claddingCleaning ? 'true' : '',
+    commercialSignage: formData.isCommercial && formData.commercialDetails?.services?.signageCleaning ? 'true' : '',
+    commercialOther: formData.isCommercial && formData.commercialDetails?.services?.other ? 'true' : '',
+    
+    // Commercial Service Frequencies
+    commercialWindowExternalFreq: formData.isCommercial ? (formData.commercialDetails?.frequencies?.windowCleaningExternal || '') : '',
+    commercialWindowInternalFreq: formData.isCommercial ? (formData.commercialDetails?.frequencies?.windowCleaningInternal || '') : '',
+    commercialGutterFreq: formData.isCommercial ? (formData.commercialDetails?.frequencies?.gutterClearing || '') : '',
+    commercialFasciaSoffitFreq: formData.isCommercial ? (formData.commercialDetails?.frequencies?.fasciaSoffit || '') : '',
+    commercialSolarPanelsFreq: formData.isCommercial ? (formData.commercialDetails?.frequencies?.solarPanels || '') : '',
+    commercialPressureWashingFreq: formData.isCommercial ? (formData.commercialDetails?.frequencies?.pressureWashing || '') : '',
+    commercialCladdingFreq: formData.isCommercial ? (formData.commercialDetails?.frequencies?.claddingCleaning || '') : '',
+    commercialSignageFreq: formData.isCommercial ? (formData.commercialDetails?.frequencies?.signageCleaning || '') : '',
+    commercialOtherFreq: formData.isCommercial ? (formData.commercialDetails?.frequencies?.other || '') : '',
+    
+    // Additional Commercial Details
+    commercialNumberOfFloors: formData.isCommercial ? (formData.commercialDetails?.numberOfFloors || '') : '',
+    commercialContactPerson: formData.isCommercial ? (formData.commercialDetails?.contactPerson || '') : '',
+    commercialContactRole: formData.isCommercial ? (formData.commercialDetails?.contactRole || '') : '',
+    commercialPreferredCleaningTimes: formData.isCommercial ? (formData.commercialDetails?.preferredCleaningTimes || '') : '',
+    commercialParkingAvailable: formData.isCommercial ? (formData.commercialDetails?.parkingAvailable || '') : '',
+    commercialAccessRequirements: formData.isCommercial ? (formData.commercialDetails?.accessRequirements || '') : '',
+    commercialHealthSafetyRequirements: formData.isCommercial ? (formData.commercialDetails?.healthSafetyRequirements || '') : '',
 
     // General Enquiry Details
     enquiryType: formData.isGeneralEnquiry ? 'General Enquiry' : '',
