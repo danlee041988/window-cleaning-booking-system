@@ -532,14 +532,20 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                         <div className="mb-8">
                             <h4 className="text-xl font-semibold text-gray-200 mb-4">Business Information</h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <InputField
-                                    label="Business Name"
-                                    name="commercialDetails.businessName"
-                                    value={commercialDetails?.businessName || ''}
-                                    onChange={handleChange('commercialDetails.businessName')}
-                                    placeholder="e.g., ACME Corporation Ltd"
-                                    required
-                                />
+                                <div className="mb-6">
+                                    <label className="block text-sm font-semibold text-gray-200 mb-2">
+                                        Business Name <span className="text-red-400">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="commercialDetails.businessName"
+                                        value={commercialDetails?.businessName || ''}
+                                        onChange={handleChange('commercialDetails.businessName')}
+                                        placeholder="e.g., ACME Corporation Ltd"
+                                        required
+                                        className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500"
+                                    />
+                                </div>
                                 
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-200 mb-2">
@@ -584,14 +590,19 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                                     </select>
                                 </div>
                                 
-                                <InputField
-                                    label="Number of Floors"
-                                    name="commercialDetails.numberOfFloors"
-                                    value={commercialDetails?.numberOfFloors || ''}
-                                    onChange={handleChange('commercialDetails.numberOfFloors')}
-                                    placeholder="e.g., 3 floors"
-                                    type="text"
-                                />
+                                <div className="mb-6">
+                                    <label className="block text-sm font-semibold text-gray-200 mb-2">
+                                        Number of Floors
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="commercialDetails.numberOfFloors"
+                                        value={commercialDetails?.numberOfFloors || ''}
+                                        onChange={handleChange('commercialDetails.numberOfFloors')}
+                                        placeholder="e.g., 3 floors"
+                                        className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500"
+                                    />
+                                </div>
                             </div>
                         </div>
                         
@@ -599,21 +610,33 @@ const PropertyDetailsForm = ({ nextStep, prevStep, handleChange, values, setForm
                         <div className="mb-8">
                             <h4 className="text-xl font-semibold text-gray-200 mb-4">Site Contact Details</h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <InputField
-                                    label="Contact Person Name"
-                                    name="commercialDetails.contactPerson"
-                                    value={commercialDetails?.contactPerson || ''}
-                                    onChange={handleChange('commercialDetails.contactPerson')}
-                                    placeholder="e.g., John Smith"
-                                />
+                                <div className="mb-6">
+                                    <label className="block text-sm font-semibold text-gray-200 mb-2">
+                                        Contact Person Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="commercialDetails.contactPerson"
+                                        value={commercialDetails?.contactPerson || ''}
+                                        onChange={handleChange('commercialDetails.contactPerson')}
+                                        placeholder="e.g., John Smith"
+                                        className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500"
+                                    />
+                                </div>
                                 
-                                <InputField
-                                    label="Contact Role/Position"
-                                    name="commercialDetails.contactRole"
-                                    value={commercialDetails?.contactRole || ''}
-                                    onChange={handleChange('commercialDetails.contactRole')}
-                                    placeholder="e.g., Facilities Manager"
-                                />
+                                <div className="mb-6">
+                                    <label className="block text-sm font-semibold text-gray-200 mb-2">
+                                        Contact Role/Position
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="commercialDetails.contactRole"
+                                        value={commercialDetails?.contactRole || ''}
+                                        onChange={handleChange('commercialDetails.contactRole')}
+                                        placeholder="e.g., Facilities Manager"
+                                        className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-500"
+                                    />
+                                </div>
                             </div>
                         </div>
 
