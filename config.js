@@ -4,14 +4,14 @@
 const config = {
     // EmailJS Configuration
     emailjs: {
-        serviceId: window.EMAILJS_SERVICE_ID || process.env.EMAILJS_SERVICE_ID || '',
-        templateId: window.EMAILJS_TEMPLATE_ID || process.env.EMAILJS_TEMPLATE_ID || '',
-        publicKey: window.EMAILJS_PUBLIC_KEY || process.env.EMAILJS_PUBLIC_KEY || ''
+        serviceId: window.EMAILJS_SERVICE_ID || process.env.EMAILJS_SERVICE_ID || 'service_dsxv0ig',
+        templateId: window.EMAILJS_TEMPLATE_ID || process.env.EMAILJS_TEMPLATE_ID || 'template_loh8t5j',
+        publicKey: window.EMAILJS_PUBLIC_KEY || process.env.EMAILJS_PUBLIC_KEY || 'DVzUcK_kOKQ96JOtk'
     },
     
     // reCAPTCHA Configuration
     recaptcha: {
-        siteKey: window.RECAPTCHA_SITE_KEY || process.env.RECAPTCHA_SITE_KEY || ''
+        siteKey: window.RECAPTCHA_SITE_KEY || process.env.RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
     },
     
     // API Configuration
