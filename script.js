@@ -504,22 +504,22 @@ function updatePriceDisplay() {
 function updateGutterOffer() {
     const hasInternal = formState.additionalServices.includes('gutterInternal');
     const hasExternal = formState.additionalServices.includes('gutterExternal');
-    // Check for any variation of one-time service
-    const isOneTime = formState.frequency === 'onetime' || 
-                      formState.frequency === 'one-time' ||
-                      (formState.frequency && formState.frequency.toLowerCase().includes('one-time'));
+    // Check for any variation of one-off service
+    const isOneOff = formState.frequency === 'oneoff' || 
+                     formState.frequency === 'one-off' ||
+                     (formState.frequency && formState.frequency.toLowerCase().includes('one-off'));
     const offerDiv = document.getElementById('gutterOffer');
     
     if (offerDiv) {
-        // Hide offer for one-time customers as this is for regular service customers only
-        const shouldShowOffer = hasInternal && hasExternal && !isOneTime;
+        // Hide offer for one-off customers as this is for regular service customers only
+        const shouldShowOffer = hasInternal && hasExternal && !isOneOff;
         offerDiv.style.display = shouldShowOffer ? 'flex' : 'none';
         
         // Debug logging to verify the logic works
         console.log('Gutter offer check:', {
             hasInternal,
             hasExternal, 
-            isOneTime,
+            isOneOff,
             frequency: formState.frequency,
             shouldShowOffer
         });
