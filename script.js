@@ -620,6 +620,9 @@ function showStep(step) {
         updateReviewSummary();
     }
     
+    // Scroll to top of form section for all step changes
+    scrollToFormTop();
+    
     // Focus management for accessibility
     setTimeout(() => {
         // Find the first focusable element in the new step
@@ -640,6 +643,31 @@ function showStep(step) {
     }, 100);
 }
 
+function scrollToFormTop() {
+    // Try multiple selectors to find the form section
+    const formSection = document.getElementById('booking') || 
+                       document.querySelector('.booking-section') || 
+                       document.querySelector('#bookingForm') ||
+                       document.querySelector('.booking-form-container');
+    
+    if (formSection) {
+        // Scroll to form with some offset for better UX
+        const offset = 100;
+        const targetPosition = formSection.offsetTop - offset;
+        
+        window.scrollTo({ 
+            top: targetPosition, 
+            behavior: 'smooth' 
+        });
+    } else {
+        // Fallback: scroll to top of page
+        window.scrollTo({ 
+            top: 0, 
+            behavior: 'smooth' 
+        });
+    }
+}
+
 function clearAllFieldErrors() {
     document.querySelectorAll('.field-error').forEach(error => error.remove());
     document.querySelectorAll('.invalid-input, .valid-input').forEach(input => {
@@ -652,7 +680,7 @@ function nextStep() {
         if (currentStep < totalSteps) {
             currentStep++;
             showStep(currentStep);
-            window.scrollTo({ top: document.getElementById('booking').offsetTop - 100, behavior: 'smooth' });
+            // Note: scrolling is now handled in showStep() for consistency
         }
     }
 }
@@ -661,6 +689,7 @@ function previousStep() {
     if (currentStep > 1) {
         currentStep--;
         showStep(currentStep);
+        // Note: scrolling is now handled in showStep() for consistency
     }
 }
 
