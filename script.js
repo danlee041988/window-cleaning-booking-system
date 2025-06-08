@@ -253,8 +253,8 @@ function restoreFormData() {
         // Show the saved step
         showStep(currentStep);
         
-        // Show a message that form was restored
-        showSuccessMessage('Your previous progress has been restored.');
+        // Log that form was restored (no user message needed)
+        console.log('Form data restored from localStorage');
     }
 }
 
@@ -1103,12 +1103,12 @@ const loadConfig = () => {
     // Fallback to inline config (will be populated by environment variables in production)
     return {
         emailjs: {
-            serviceId: window.EMAILJS_SERVICE_ID || '',
-            templateId: window.EMAILJS_TEMPLATE_ID || '',
-            publicKey: window.EMAILJS_PUBLIC_KEY || ''
+            serviceId: window.EMAILJS_SERVICE_ID || 'service_dsxv0ig',
+            templateId: window.EMAILJS_TEMPLATE_ID || 'template_loh8t5j',
+            publicKey: window.EMAILJS_PUBLIC_KEY || 'DVzUcK_kOKQ96JOtk'
         },
         recaptcha: {
-            siteKey: window.RECAPTCHA_SITE_KEY || ''
+            siteKey: window.RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
         },
         form: {
             errorMessageDuration: 15000,
