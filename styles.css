@@ -487,6 +487,11 @@ h1, h2, h3, h4, h5, h6 {
     padding: 2rem;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    min-height: 600px;
+    max-height: none;
+    overflow: visible;
+    transition: all 0.3s ease;
+    position: relative;
 }
 
 .form-progress {
@@ -1128,11 +1133,19 @@ h1, h2, h3, h4, h5, h6 {
     
     .booking-wrapper {
         grid-template-columns: 1fr;
+        gap: 2rem;
     }
     
     .booking-benefits {
         position: static;
         margin-top: 2rem;
+    }
+    
+    .booking-form-container {
+        padding: 1.5rem;
+        min-height: auto;
+        max-height: none;
+        margin-bottom: 2rem;
     }
     
     .form-row {
@@ -1171,5 +1184,59 @@ h1, h2, h3, h4, h5, h6 {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+/* Form step transitions */
+.form-step {
+    transition: all 0.3s ease;
+    min-height: 400px;
+}
+
+/* Dynamic content animations */
+.service-card-option,
+.special-offer,
+.form-navigation {
+    transition: all 0.3s ease;
+    animation: slideDown 0.3s ease-out;
+}
+
+/* Ensure form can expand naturally */
+.booking-form {
+    display: flex;
+    flex-direction: column;
+    min-height: inherit;
+}
+
+/* Better spacing for dynamic content */
+.service-selection {
+    min-height: 300px;
+    transition: height 0.3s ease;
+}
+
+/* Prevent layout shifts */
+.additional-services-section {
+    transition: all 0.3s ease;
+}
+
+.special-offer {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    transform: translateY(0);
+}
+
+/* Smooth height transitions for mobile */
+@media (max-width: 768px) {
+    .form-step {
+        min-height: 350px;
+    }
+    
+    .service-selection {
+        min-height: 250px;
+    }
+    
+    .booking-form-container {
+        overflow: visible;
+        height: auto;
     }
 }

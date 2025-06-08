@@ -419,6 +419,11 @@ function initializeBookingForm() {
             }
             updateGutterOffer();
             saveFormState();
+            
+            // Adjust form layout when dynamic content appears
+            setTimeout(() => {
+                adjustFormLayout();
+            }, 100);
         });
     });
 
@@ -639,6 +644,11 @@ function showStep(step) {
     // Scroll to top of form section for all step changes
     scrollToFormTop();
     
+    // Adjust form layout for dynamic content
+    setTimeout(() => {
+        adjustFormLayout();
+    }, 150);
+    
     // Focus management for accessibility
     setTimeout(() => {
         // Find the first focusable element in the new step
@@ -681,6 +691,34 @@ function scrollToFormTop() {
             top: 0, 
             behavior: 'smooth' 
         });
+    }
+}
+
+function adjustFormLayout() {
+    const formContainer = document.querySelector('.booking-form-container');
+    const currentStep = document.querySelector('.form-step.active');
+    
+    if (formContainer && currentStep) {
+        // Get the actual content height
+        const contentHeight = currentStep.scrollHeight;
+        const containerHeight = formContainer.clientHeight;
+        
+        // If content is taller than container, ensure it's visible
+        if (contentHeight > containerHeight) {
+            // Ensure the form can expand
+            formContainer.style.height = 'auto';
+            formContainer.style.minHeight = `${contentHeight + 100}px`;
+            
+            // Check if the bottom of the form is visible
+            const formRect = formContainer.getBoundingClientRect();
+            const windowHeight = window.innerHeight;
+            
+            // If form bottom is below viewport, scroll to keep it visible
+            if (formRect.bottom > windowHeight) {
+                const scrollOffset = Math.min(50, formRect.bottom - windowHeight + 50);
+                window.scrollBy({ top: scrollOffset, behavior: 'smooth' });
+            }
+        }
     }
 }
 
