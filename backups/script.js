@@ -127,220 +127,6 @@ const formState = {
 let currentStep = 1;
 const totalSteps = 4;
 
-// LocalStorage keys
-const STORAGE_KEYS = {
-    FORM_STATE: 'windowCleaningFormState',
-    CURRENT_STEP: 'windowCleaningCurrentStep',
-    EXPIRY_TIME: 'windowCleaningFormExpiry'
-};
-
-// Form persistence functions
-function saveFormState() {
-    try {
-        // Set expiry time (24 hours from now)
-        const expiryTime = new Date().getTime() + (24 * 60 * 60 * 1000);
-        
-        localStorage.setItem(STORAGE_KEYS.FORM_STATE, JSON.stringify(formState));
-        localStorage.setItem(STORAGE_KEYS.CURRENT_STEP, currentStep.toString());
-        localStorage.setItem(STORAGE_KEYS.EXPIRY_TIME, expiryTime.toString());
-        
-        console.log('Form state saved to localStorage');
-    } catch (error) {
-        console.error('Error saving form state:', error);
-    }
-}
-
-function loadFormState() {
-    try {
-        const savedState = localStorage.getItem(STORAGE_KEYS.FORM_STATE);
-        const savedStep = localStorage.getItem(STORAGE_KEYS.CURRENT_STEP);
-        const expiryTime = localStorage.getItem(STORAGE_KEYS.EXPIRY_TIME);
-        
-        // Check if data exists and hasn't expired
-        if (savedState && expiryTime) {
-            const now = new Date().getTime();
-            if (now < parseInt(expiryTime)) {
-                // Data is still valid
-                const parsedState = JSON.parse(savedState);
-                
-                // Merge saved state with current state (preserving structure)
-                Object.keys(parsedState).forEach(key => {
-                    if (key in formState) {
-                        formState[key] = parsedState[key];
-                    }
-                });
-                
-                // Restore step
-                if (savedStep) {
-                    currentStep = parseInt(savedStep) || 1;
-                }
-                
-                console.log('Form state restored from localStorage');
-                return true;
-            } else {
-                // Data has expired, clear it
-                clearFormState();
-            }
-        }
-    } catch (error) {
-        console.error('Error loading form state:', error);
-        clearFormState();
-    }
-    return false;
-}
-
-function clearFormState() {
-    try {
-        localStorage.removeItem(STORAGE_KEYS.FORM_STATE);
-        localStorage.removeItem(STORAGE_KEYS.CURRENT_STEP);
-        localStorage.removeItem(STORAGE_KEYS.EXPIRY_TIME);
-        console.log('Form state cleared from localStorage');
-    } catch (error) {
-        console.error('Error clearing form state:', error);
-    }
-}
-
-// Restore form state on page load
-function restoreFormData() {
-    // Try to load saved state
-    if (loadFormState()) {
-        // Restore step 1 - Property type
-        const propertyTypeSelect = document.getElementById('propertyType');
-        if (propertyTypeSelect && formState.propertyType) {
-            propertyTypeSelect.value = formState.propertyType;
-            updateStep1Display();
-        }
-        
-        // Restore frequency
-        if (formState.frequency) {
-            const frequencyRadio = document.querySelector(`input[name="frequency"][value="${formState.frequency}"]`);
-            if (frequencyRadio) {
-                frequencyRadio.checked = true;
-                updatePriceDisplay();
-            }
-        }
-        
-        // Restore additional services
-        formState.additionalServices.forEach(service => {
-            const checkbox = document.querySelector(`input[name="additionalServices"][value="${service}"]`);
-            if (checkbox) {
-                checkbox.checked = true;
-            }
-        });
-        updateGutterOffer();
-        
-        // Restore step 3 fields
-        const fieldsToRestore = ['fullName', 'email', 'phone', 'address', 'city', 'postcode', 'contactMethod', 'preferredDate', 'notes'];
-        fieldsToRestore.forEach(fieldName => {
-            const input = document.querySelector(`[name="${fieldName}"]`);
-            if (input && formState[fieldName]) {
-                input.value = formState[fieldName];
-                // Trigger validation for fields with real-time validation
-                if (['email', 'phone', 'postcode'].includes(fieldName)) {
-                    if (fieldName === 'email') validateEmail(input);
-                    if (fieldName === 'phone') validateMobileNumber(input);
-                    if (fieldName === 'postcode') validatePostcode(input);
-                }
-            }
-        });
-        
-        // Restore terms checkbox
-        const termsCheckbox = document.querySelector('input[name="termsAgreed"]');
-        if (termsCheckbox && formState.termsAgreed) {
-            termsCheckbox.checked = formState.termsAgreed;
-        }
-        
-        // Show the saved step
-        showStep(currentStep);
-        
-        // Show a message that form was restored
-        showSuccessMessage('Your previous progress has been restored.');
-    }
-}
-
-// Accessibility helper function
-function announceToScreenReader(message) {
-    const srContainer = document.getElementById('form-errors');
-    if (srContainer) {
-        srContainer.textContent = message;
-        // Clear after announcement
-        setTimeout(() => {
-            srContainer.textContent = '';
-        }, 1000);
-    }
-}
-
-// Debouncing utility
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-// Loading state functions
-function showButtonLoading(button) {
-    if (!button) return;
-    
-    button.classList.add('btn-loading');
-    button.disabled = true;
-    
-    // Store original content
-    button.dataset.originalText = button.innerHTML;
-    
-    // Add spinner
-    const spinner = document.createElement('span');
-    spinner.className = 'loading-spinner';
-    button.innerHTML = '';
-    button.appendChild(spinner);
-}
-
-function hideButtonLoading(button) {
-    if (!button) return;
-    
-    button.classList.remove('btn-loading');
-    button.disabled = false;
-    
-    // Restore original content
-    if (button.dataset.originalText) {
-        button.innerHTML = button.dataset.originalText;
-        delete button.dataset.originalText;
-    }
-}
-
-function showFormLoading(formElement) {
-    if (!formElement) return;
-    
-    // Add loading overlay
-    const overlay = document.createElement('div');
-    overlay.className = 'form-loading-overlay';
-    overlay.innerHTML = '<span class="loading-spinner"></span>';
-    
-    // Make form container relative if not already
-    const container = formElement.closest('.booking-form-container');
-    if (container) {
-        container.style.position = 'relative';
-        container.appendChild(overlay);
-    }
-}
-
-function hideFormLoading(formElement) {
-    if (!formElement) return;
-    
-    const container = formElement.closest('.booking-form-container');
-    if (container) {
-        const overlay = container.querySelector('.form-loading-overlay');
-        if (overlay) {
-            overlay.remove();
-        }
-    }
-}
-
 // Pricing data
 const propertyPrices = {
     'semi-2': 20,
@@ -394,7 +180,6 @@ function initializeBookingForm() {
     propertyTypeSelect?.addEventListener('change', (e) => {
         formState.propertyType = e.target.value;
         updateStep1Display();
-        saveFormState();
     });
 
     // Frequency change handler
@@ -402,7 +187,6 @@ function initializeBookingForm() {
         radio.addEventListener('change', (e) => {
             formState.frequency = e.target.value;
             updatePriceDisplay();
-            saveFormState();
         });
     });
 
@@ -417,7 +201,6 @@ function initializeBookingForm() {
                 );
             }
             updateGutterOffer();
-            saveFormState();
         });
     });
 
@@ -432,22 +215,21 @@ function initializeBookingForm() {
             const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
             if (name && name !== 'additionalServices') {
                 formState[name] = value;
-                saveFormState();
             }
             
-            // Real-time validation for mobile number (debounced)
+            // Real-time validation for mobile number
             if (name === 'phone') {
-                debouncedValidateMobileNumber(e.target);
+                validateMobileNumber(e.target);
             }
             
-            // Real-time validation for postcode (debounced)
+            // Real-time validation for postcode
             if (name === 'postcode') {
-                debouncedValidatePostcode(e.target);
+                validatePostcode(e.target);
             }
             
-            // Real-time validation for email (debounced)
+            // Real-time validation for email
             if (name === 'email') {
-                debouncedValidateEmail(e.target);
+                validateEmail(e.target);
             }
         });
         
@@ -467,9 +249,6 @@ function initializeBookingForm() {
 
     // Initialize reCAPTCHA
     loadRecaptcha();
-    
-    // Restore saved form data if available
-    restoreFormData();
 }
 
 function updateStep1Display() {
@@ -586,23 +365,10 @@ function getNextAvailableDates(dayName, weekNumber, count) {
 
 function updateProgressBar() {
     document.querySelectorAll('.progress-step').forEach((step, index) => {
-        const stepNumber = index + 1;
-        const isCurrent = stepNumber === currentStep;
-        const isCompleted = stepNumber < currentStep;
-        
-        if (isCompleted || isCurrent) {
+        if (index < currentStep) {
             step.classList.add('active');
         } else {
             step.classList.remove('active');
-        }
-        
-        // Update ARIA attributes
-        step.setAttribute('aria-current', isCurrent ? 'step' : 'false');
-        
-        // Announce step changes to screen readers
-        if (isCurrent) {
-            const stepName = step.textContent;
-            announceToScreenReader(`Now on ${stepName}`);
         }
     });
 }
@@ -612,32 +378,12 @@ function showStep(step) {
     clearAllFieldErrors();
     
     document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
-    const activeStep = document.getElementById(`step${step}`);
-    activeStep.classList.add('active');
+    document.getElementById(`step${step}`).classList.add('active');
     updateProgressBar();
     
     if (step === 4) {
         updateReviewSummary();
     }
-    
-    // Focus management for accessibility
-    setTimeout(() => {
-        // Find the first focusable element in the new step
-        const focusableElements = activeStep.querySelectorAll(
-            'h3, input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])'
-        );
-        
-        if (focusableElements.length > 0) {
-            // Focus on the heading first, or the first input if no heading
-            const heading = activeStep.querySelector('h3');
-            if (heading) {
-                heading.setAttribute('tabindex', '-1');
-                heading.focus();
-            } else {
-                focusableElements[0].focus();
-            }
-        }
-    }, 100);
 }
 
 function clearAllFieldErrors() {
@@ -664,46 +410,12 @@ function previousStep() {
     }
 }
 
-// Collect form data from step 3
-function collectStep3Data() {
-    const inputs = {
-        fullName: document.querySelector('input[name="fullName"]'),
-        email: document.querySelector('input[name="email"]'),
-        phone: document.querySelector('input[name="phone"]'),
-        address: document.querySelector('input[name="address"]'),
-        city: document.querySelector('input[name="city"]'),
-        postcode: document.querySelector('input[name="postcode"]'),
-        contactMethod: document.querySelector('select[name="contactMethod"]'),
-        preferredDate: document.querySelector('input[name="preferredDate"]'),
-        notes: document.querySelector('textarea[name="notes"]')
-    };
-    
-    // Update formState with current values
-    Object.keys(inputs).forEach(key => {
-        if (inputs[key]) {
-            formState[key] = inputs[key].value.trim();
-        }
-    });
-}
-
 function validateStep(step) {
     if (step === 1) {
         if (!formState.propertyType) {
             showErrorMessage('Please select a property type');
             return false;
         }
-        
-        // Check if frequency is required for this property type
-        const requiresFrequency = formState.propertyType && 
-            formState.propertyType !== 'custom' && 
-            formState.propertyType !== 'commercial' && 
-            formState.propertyType !== 'general';
-            
-        if (requiresFrequency && !formState.frequency) {
-            showErrorMessage('Please select a cleaning frequency');
-            return false;
-        }
-        
         return true;
     }
     
@@ -713,9 +425,6 @@ function validateStep(step) {
     }
     
     if (step === 3) {
-        // Collect form data before validation
-        collectStep3Data();
-        saveFormState();
         const requiredFields = ['fullName', 'email', 'address', 'city', 'postcode', 'phone'];
         const missingFields = requiredFields.filter(field => !formState[field]);
         
@@ -866,8 +575,9 @@ if (bookingForm) {
         
         // Show loading state
         const submitBtn = document.getElementById('submitBtn');
-        showButtonLoading(submitBtn);
-        showFormLoading(bookingForm);
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Submitting...';
+        submitBtn.disabled = true;
         
         // Prepare data for API
         const bookingData = {
@@ -898,20 +608,13 @@ if (bookingForm) {
         console.log('Submitting booking data:', bookingData);
         
         try {
-            // Create AbortController for timeout
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), CONFIG.form.networkTimeout);
-            
             const response = await fetch('https://window-cleaning-booking-system-6k15.vercel.app/api/submit-booking', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(bookingData),
-                signal: controller.signal
+                body: JSON.stringify(bookingData)
             });
-            
-            clearTimeout(timeoutId);
             
             const result = await response.json();
             console.log('API Response:', result);
@@ -929,32 +632,26 @@ if (bookingForm) {
                     }
                 });
                 
-                // Clear saved state after successful submission
-                clearFormState();
+                // Reset form
+                bookingForm.reset();
+                Object.keys(formState).forEach(key => {
+                    if (key === 'additionalServices') {
+                        formState[key] = [];
+                    } else if (key === 'frequency') {
+                        formState[key] = '4weekly';
+                    } else if (key === 'contactMethod') {
+                        formState[key] = 'email';
+                    } else if (key === 'termsAgreed') {
+                        formState[key] = false;
+                    } else {
+                        formState[key] = '';
+                    }
+                });
+                currentStep = 1;
+                showStep(1);
                 
-                // Delay form reset to allow user to read success message
-                setTimeout(() => {
-                    // Reset form
-                    bookingForm.reset();
-                    Object.keys(formState).forEach(key => {
-                        if (key === 'additionalServices') {
-                            formState[key] = [];
-                        } else if (key === 'frequency') {
-                            formState[key] = '4weekly';
-                        } else if (key === 'contactMethod') {
-                            formState[key] = 'email';
-                        } else if (key === 'termsAgreed') {
-                            formState[key] = false;
-                        } else {
-                            formState[key] = '';
-                        }
-                    });
-                    currentStep = 1;
-                    showStep(1);
-                    
-                    // Reset reCAPTCHA after successful submission
-                    resetRecaptcha();
-                }, CONFIG.form.successMessageDuration);
+                // Reset reCAPTCHA after successful submission
+                resetRecaptcha();
             } else {
                 // Handle API validation errors with specific messages
                 if (result.errors && Array.isArray(result.errors)) {
@@ -973,8 +670,6 @@ if (bookingForm) {
                 errorMessage = 'Please check your phone number format. We accept UK mobile and landline numbers';
             } else if (error.message && error.message.includes('Valid UK postcode required')) {
                 errorMessage = 'Please check your postcode format. UK postcodes should be in the format like BS1 4DJ or M1 1AA';
-            } else if (error.name === 'AbortError') {
-                errorMessage = 'Request timed out. Please check your internet connection and try again.';
             } else if (error.message && error.message.includes('Failed to fetch')) {
                 errorMessage = 'Unable to connect to our servers. Please check your internet connection and try again.';
             } else if (error.response?.status === 422 || error.message.includes('422')) {
@@ -992,9 +687,9 @@ if (bookingForm) {
             // Reset reCAPTCHA after failed submission
             resetRecaptcha();
         } finally {
-            // Hide loading state
-            hideButtonLoading(submitBtn);
-            hideFormLoading(bookingForm);
+            // Restore button state
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
         }
     });
 }
@@ -1006,8 +701,6 @@ function showErrorMessage(message) {
     
     const messageDiv = document.createElement('div');
     messageDiv.className = 'booking-message error-message';
-    messageDiv.setAttribute('role', 'alert');
-    messageDiv.setAttribute('aria-live', 'assertive');
     messageDiv.innerHTML = `
         <div style="background: #fee; border: 1px solid #f88; color: #c33; padding: 15px; border-radius: 8px; margin: 20px 0; font-size: 16px;">
             <strong>❌ Error:</strong> ${message}
@@ -1017,18 +710,15 @@ function showErrorMessage(message) {
     const form = document.getElementById('bookingForm');
     form.insertBefore(messageDiv, form.firstChild);
     
-    // Announce to screen readers
-    announceToScreenReader(`Error: ${message}`);
-    
     // Scroll to message
     messageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
     
-    // Auto-remove after configured duration
+    // Auto-remove after 10 seconds
     setTimeout(() => {
         if (messageDiv.parentNode) {
             messageDiv.remove();
         }
-    }, CONFIG.form.errorMessageDuration);
+    }, 10000);
 }
 
 function showSuccessMessage(message) {
@@ -1037,8 +727,6 @@ function showSuccessMessage(message) {
     
     const messageDiv = document.createElement('div');
     messageDiv.className = 'booking-message success-message';
-    messageDiv.setAttribute('role', 'status');
-    messageDiv.setAttribute('aria-live', 'polite');
     messageDiv.innerHTML = `
         <div style="background: #efe; border: 1px solid #8f8; color: #393; padding: 15px; border-radius: 8px; margin: 20px 0; font-size: 16px;">
             <strong>✅ Success:</strong> ${message}
@@ -1047,9 +735,6 @@ function showSuccessMessage(message) {
     
     const form = document.getElementById('bookingForm');
     form.insertBefore(messageDiv, form.firstChild);
-    
-    // Announce to screen readers
-    announceToScreenReader(`Success: ${message}`);
     
     // Scroll to message
     messageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1060,43 +745,16 @@ function removeExistingMessages() {
     existingMessages.forEach(msg => msg.remove());
 }
 
-// Load configuration from environment or config.js
-const loadConfig = () => {
-    // Try to load from config.js if it exists
-    if (typeof config !== 'undefined') {
-        return config;
-    }
-    
-    // Fallback to inline config (will be populated by environment variables in production)
-    return {
-        emailjs: {
-            serviceId: window.EMAILJS_SERVICE_ID || '',
-            templateId: window.EMAILJS_TEMPLATE_ID || '',
-            publicKey: window.EMAILJS_PUBLIC_KEY || ''
-        },
-        recaptcha: {
-            siteKey: window.RECAPTCHA_SITE_KEY || ''
-        },
-        form: {
-            errorMessageDuration: 15000,
-            successMessageDuration: 5000,
-            debounceDelay: 300,
-            networkTimeout: 30000,
-            maxRetries: 3
-        },
-        validation: {
-            phonePattern: /^(?:\+?44\s?|0)(?:\d\s?){9,10}$/,
-            emailPattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-            postcodePattern: /^[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i
-        },
-        isConfigured: function() {
-            return this.emailjs.serviceId && this.emailjs.templateId && 
-                   this.emailjs.publicKey && this.recaptcha.siteKey;
-        }
-    };
+// Configuration
+const EMAILJS_CONFIG = {
+    SERVICE_ID: 'service_your_id', // Replace with your actual EmailJS service ID
+    TEMPLATE_ID: 'template_your_id', // Replace with your actual EmailJS template ID
+    PUBLIC_KEY: 'your_public_key' // Replace with your actual EmailJS public key
 };
 
-const CONFIG = loadConfig();
+const RECAPTCHA_CONFIG = {
+    SITE_KEY: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI' // Test key - replace with your actual reCAPTCHA site key
+};
 
 let recaptchaLoaded = false;
 let recaptchaWidgetId = null;
@@ -1112,7 +770,7 @@ function loadEmailJS() {
         const script = document.createElement('script');
         script.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
         script.onload = () => {
-            window.emailjs.init(CONFIG.emailjs.publicKey);
+            window.emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
             resolve(window.emailjs);
         };
         script.onerror = reject;
@@ -1146,8 +804,8 @@ async function sendConfirmationEmail(bookingData, bookingReference) {
         console.log('Sending confirmation email via EmailJS...');
         
         await window.emailjs.send(
-            CONFIG.emailjs.serviceId,
-            CONFIG.emailjs.templateId,
+            EMAILJS_CONFIG.SERVICE_ID,
+            EMAILJS_CONFIG.TEMPLATE_ID,
             templateParams
         );
         
@@ -1182,7 +840,7 @@ function initRecaptchaWidget() {
     if (recaptchaContainer && window.grecaptcha) {
         try {
             recaptchaWidgetId = window.grecaptcha.render(recaptchaContainer, {
-                'sitekey': CONFIG.recaptcha.siteKey,
+                'sitekey': RECAPTCHA_CONFIG.SITE_KEY,
                 'theme': 'light',
                 'size': 'normal'
             });
@@ -1207,16 +865,11 @@ function resetRecaptcha() {
     }
 }
 
-// Create debounced validation functions
-const debouncedValidateMobileNumber = debounce(validateMobileNumber, CONFIG.form.debounceDelay);
-const debouncedValidatePostcode = debounce(validatePostcode, CONFIG.form.debounceDelay);
-const debouncedValidateEmail = debounce(validateEmail, CONFIG.form.debounceDelay);
-
 // Real-time validation functions
 function validateMobileNumber(input) {
-    // UK phone regex - accepts mobile and landline numbers with flexible formatting
+    // UK phone regex - accepts mobile (07) and landline (01/02/03) numbers
     // Allows spaces and dashes for user convenience
-    const ukPhoneRegex = CONFIG.validation.phonePattern;
+    const ukPhoneRegex = /^(?:(?:\+44\s?|0)(?:1\d{8,9}|2\d{9}|3\d{9}|7\d{9}|8\d{9}))$/;
     // Clean the value by removing spaces, dashes, and parentheses for validation
     const value = input.value.trim().replace(/[\s\-\(\)]/g, '');
     
@@ -1236,7 +889,7 @@ function validateMobileNumber(input) {
 }
 
 function validatePostcode(input) {
-    const postcodeRegex = CONFIG.validation.postcodePattern;
+    const postcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$/i;
     const value = input.value.trim();
     
     // Remove any existing validation styling
@@ -1255,7 +908,7 @@ function validatePostcode(input) {
 }
 
 function validateEmail(input) {
-    const emailRegex = CONFIG.validation.emailPattern;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const value = input.value.trim();
     
     // Remove any existing validation styling
@@ -1277,14 +930,8 @@ function showFieldError(input, message) {
     // Remove any existing error for this field
     removeFieldError(input);
     
-    // Generate unique error ID
-    const errorId = `${input.name || input.id}-error`;
-    
     const errorDiv = document.createElement('div');
     errorDiv.className = 'field-error';
-    errorDiv.id = errorId;
-    errorDiv.setAttribute('role', 'alert');
-    errorDiv.setAttribute('aria-live', 'polite');
     errorDiv.style.cssText = `
         color: #dc2626;
         font-size: 14px;
@@ -1296,15 +943,8 @@ function showFieldError(input, message) {
     `;
     errorDiv.textContent = message;
     
-    // Update input ARIA attributes
-    input.setAttribute('aria-invalid', 'true');
-    input.setAttribute('aria-describedby', errorId);
-    
     // Insert after the input
     input.parentNode.insertBefore(errorDiv, input.nextSibling);
-    
-    // Announce to screen readers
-    announceToScreenReader(message);
 }
 
 function removeFieldError(input) {
@@ -1312,10 +952,6 @@ function removeFieldError(input) {
     if (existingError) {
         existingError.remove();
     }
-    
-    // Remove ARIA attributes
-    input.removeAttribute('aria-invalid');
-    input.removeAttribute('aria-describedby');
 }
 
 // Initialize booking form when DOM is ready

@@ -1,0 +1,25 @@
+<!-- 
+Environment Variable Injector for Static Sites
+Add this script before config.js in your index.html to inject environment variables
+-->
+<script>
+    // This script allows you to set environment variables for static hosting
+    // In production, replace these with your actual values or use your hosting platform's env var system
+    
+    // Set your environment variables here
+    window.EMAILJS_SERVICE_ID = '<!-- ENV:EMAILJS_SERVICE_ID -->';
+    window.EMAILJS_TEMPLATE_ID = '<!-- ENV:EMAILJS_TEMPLATE_ID -->';
+    window.EMAILJS_PUBLIC_KEY = '<!-- ENV:EMAILJS_PUBLIC_KEY -->';
+    window.RECAPTCHA_SITE_KEY = '<!-- ENV:RECAPTCHA_SITE_KEY -->';
+    window.API_URL = '<!-- ENV:API_URL -->';
+    
+    // For local development, you can hardcode test values here
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.log('Development mode - using test configuration');
+        // Only use test keys for local development
+        // window.EMAILJS_SERVICE_ID = 'test_service_id';
+        // window.EMAILJS_TEMPLATE_ID = 'test_template_id';
+        // window.EMAILJS_PUBLIC_KEY = 'test_public_key';
+        // window.RECAPTCHA_SITE_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'; // Google test key
+    }
+</script>

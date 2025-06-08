@@ -284,15 +284,12 @@ cl<!DOCTYPE html>
             <p class="section-subtitle">Quick and easy online booking - get your windows sparkling clean!</p>
             <div class="booking-wrapper">
                 <div class="booking-form-container">
-                    <!-- Error message container for screen readers -->
-                    <div id="form-errors" class="sr-only" role="alert" aria-live="assertive" aria-atomic="true"></div>
-                    
-                    <form class="booking-form" id="bookingForm" aria-label="Window cleaning service booking form">
-                        <div class="form-progress" role="group" aria-label="Booking progress">
-                            <div class="progress-step active" data-step="1" role="progressbar" aria-valuenow="1" aria-valuemin="1" aria-valuemax="4" aria-label="Step 1 of 4: Service selection">1. Service</div>
-                            <div class="progress-step" data-step="2" role="progressbar" aria-valuenow="2" aria-valuemin="1" aria-valuemax="4" aria-label="Step 2 of 4: Additional services">2. Additional</div>
-                            <div class="progress-step" data-step="3" role="progressbar" aria-valuenow="3" aria-valuemin="1" aria-valuemax="4" aria-label="Step 3 of 4: Contact details">3. Details</div>
-                            <div class="progress-step" data-step="4" role="progressbar" aria-valuenow="4" aria-valuemin="1" aria-valuemax="4" aria-label="Step 4 of 4: Review and submit">4. Review</div>
+                    <form class="booking-form" id="bookingForm">
+                        <div class="form-progress">
+                            <div class="progress-step active" data-step="1">1. Service</div>
+                            <div class="progress-step" data-step="2">2. Additional</div>
+                            <div class="progress-step" data-step="3">3. Details</div>
+                            <div class="progress-step" data-step="4">4. Review</div>
                         </div>
                         
                         <!-- Step 1: Service Selection -->
@@ -300,7 +297,7 @@ cl<!DOCTYPE html>
                             <h3>Select Your Service</h3>
                             <div class="service-selection">
                                 <div class="property-type-section">
-                                    <label for="propertyType">Property Type</label>
+                                    <label>Property Type</label>
                                     <select name="propertyType" id="propertyType" required>
                                         <option value="">Select property type</option>
                                         <option value="semi-2">Semi-detached House (2 bed)</option>
@@ -318,9 +315,8 @@ cl<!DOCTYPE html>
                                 </div>
                                 
                                 <div class="frequency-section" style="display: none;">
-                                    <fieldset>
-                                        <legend>Cleaning Frequency</legend>
-                                        <div class="frequency-options" role="radiogroup" aria-describedby="price-display">
+                                    <label>Cleaning Frequency</label>
+                                    <div class="frequency-options">
                                         <label class="frequency-option">
                                             <input type="radio" name="frequency" value="4weekly" checked>
                                             <div class="frequency-content">
@@ -349,11 +345,10 @@ cl<!DOCTYPE html>
                                                 <p>+£20 per clean</p>
                                             </div>
                                         </label>
-                                        </div>
-                                    </fieldset>
+                                    </div>
                                 </div>
                                 
-                                <div class="price-display" id="price-display" style="display: none;" aria-live="polite" aria-atomic="true">
+                                <div class="price-display" style="display: none;">
                                     <h4>Estimated Price</h4>
                                     <div class="price-amount" id="step1Price">£0</div>
                                     <p class="price-frequency">per clean</p>
@@ -361,8 +356,8 @@ cl<!DOCTYPE html>
                             </div>
                             
                             <div class="form-navigation">
-                                <button type="button" class="btn-secondary" disabled aria-label="Go to previous step">Previous</button>
-                                <button type="button" class="btn-primary" onclick="nextStep()" aria-label="Continue to additional services">Next</button>
+                                <button type="button" class="btn-secondary" disabled>Previous</button>
+                                <button type="button" class="btn-primary" onclick="nextStep()">Next</button>
                             </div>
                         </div>
                         
@@ -407,8 +402,8 @@ cl<!DOCTYPE html>
                                 </label>
                             </div>
                             
-                            <div class="special-offer" id="gutterOffer" style="display: none;" role="alert" aria-live="polite">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" role="img" aria-label="Special offer icon">
+                            <div class="special-offer" id="gutterOffer" style="display: none;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
                                 </svg>
                                 <p><strong>Special Offer!</strong> Select both gutter services and get your windows cleaned FREE!</p>
@@ -425,41 +420,39 @@ cl<!DOCTYPE html>
                             <h3>Your Details</h3>
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="fullName">Full Name</label>
-                                    <input type="text" name="fullName" id="fullName" required aria-required="true">
+                                    <label>Full Name</label>
+                                    <input type="text" name="fullName" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="email">Email Address</label>
-                                    <input type="email" name="email" id="email" required aria-required="true">
+                                    <label>Email Address</label>
+                                    <input type="email" name="email" required>
                                 </div>
                             </div>
                             
                             <div class="form-group">
-                                <label for="address">Property Address</label>
-                                <input type="text" name="address" id="address" placeholder="Street address" required aria-required="true">
+                                <label>Property Address</label>
+                                <input type="text" name="address" placeholder="Street address" required>
                             </div>
                             
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="city">Town/City</label>
-                                    <input type="text" name="city" id="city" required aria-required="true">
+                                    <label>Town/City</label>
+                                    <input type="text" name="city" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="postcode">Postcode</label>
-                                    <input type="text" name="postcode" id="postcode" required aria-required="true" pattern="[A-Za-z]{1,2}[0-9]{1,2}[A-Za-z]?\s?[0-9][A-Za-z]{2}" aria-describedby="postcode-help">
-                                    <small id="postcode-help" class="form-text">Format: BS1 4DJ</small>
+                                    <label>Postcode</label>
+                                    <input type="text" name="postcode" required pattern="[A-Za-z]{1,2}[0-9]{1,2}[A-Za-z]?\s?[0-9][A-Za-z]{2}">
                                 </div>
                             </div>
                             
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="phone">Phone Number</label>
-                                    <input type="tel" name="phone" id="phone" required aria-required="true" aria-describedby="phone-help">
-                                    <small id="phone-help" class="form-text">UK mobile or landline number</small>
+                                    <label>Phone Number</label>
+                                    <input type="tel" name="phone" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="contactMethod">Preferred Contact Method</label>
-                                    <select name="contactMethod" id="contactMethod" required aria-required="true">
+                                    <label>Preferred Contact Method</label>
+                                    <select name="contactMethod" required>
                                         <option value="email">Email</option>
                                         <option value="phone">Phone</option>
                                         <option value="text">Text Message</option>
@@ -468,17 +461,16 @@ cl<!DOCTYPE html>
                             </div>
                             
                             <div class="form-group" id="preferredDateGroup" style="display: none;">
-                                <label for="preferredDate">Preferred Start Date</label>
-                                <select name="preferredDate" id="preferredDate" aria-describedby="date-note">
+                                <label>Preferred Start Date</label>
+                                <select name="preferredDate" id="preferredDate">
                                     <option value="">Select available date</option>
                                 </select>
-                                <p class="date-note" id="date-note">Available dates based on your postcode area</p>
+                                <p class="date-note">Available dates based on your postcode area</p>
                             </div>
                             
                             <div class="form-group">
-                                <label for="notes">Additional Notes (Optional)</label>
-                                <textarea name="notes" id="notes" rows="3" placeholder="Any special requirements, access instructions, or questions..." aria-describedby="notes-help"></textarea>
-                                <small id="notes-help" class="form-text">Include any special requirements or access instructions</small>
+                                <label>Additional Notes</label>
+                                <textarea name="notes" rows="3" placeholder="Any special requirements, access instructions, or questions..."></textarea>
                             </div>
                             
                             <div class="form-navigation">
@@ -512,11 +504,10 @@ cl<!DOCTYPE html>
                             </div>
                             
                             <div class="terms-agreement">
-                                <label for="termsAgreed">
-                                    <input type="checkbox" name="termsAgreed" id="termsAgreed" required aria-required="true" aria-describedby="terms-desc">
-                                    I agree to the <a href="#" aria-label="View terms and conditions (opens in same window)">terms and conditions</a>
+                                <label>
+                                    <input type="checkbox" name="termsAgreed" required>
+                                    I agree to the terms and conditions
                                 </label>
-                                <small id="terms-desc" class="form-text">You must agree to our terms to proceed with the booking</small>
                             </div>
                             
                             <div class="form-navigation">
@@ -835,9 +826,6 @@ cl<!DOCTYPE html>
         </div>
     </footer>
 
-    <!-- Configuration -->
-    <script src="config.js"></script>
-    <!-- Main Application Script -->
     <script src="script.js"></script>
 </body>
 </html>
