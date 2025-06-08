@@ -402,6 +402,7 @@ function initializeBookingForm() {
         radio.addEventListener('change', (e) => {
             formState.frequency = e.target.value;
             updatePriceDisplay();
+            updateGutterOffer(); // Update gutter offer based on frequency
             saveFormState();
         });
     });
@@ -503,10 +504,13 @@ function updatePriceDisplay() {
 function updateGutterOffer() {
     const hasInternal = formState.additionalServices.includes('gutterInternal');
     const hasExternal = formState.additionalServices.includes('gutterExternal');
+    const isOneTime = formState.frequency === 'onetime';
     const offerDiv = document.getElementById('gutterOffer');
     
     if (offerDiv) {
-        offerDiv.style.display = hasInternal && hasExternal ? 'flex' : 'none';
+        // Hide offer for one-time customers as this is for regular service customers only
+        const shouldShowOffer = hasInternal && hasExternal && !isOneTime;
+        offerDiv.style.display = shouldShowOffer ? 'flex' : 'none';
     }
 }
 
