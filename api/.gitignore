@@ -41,8 +41,26 @@ coverage/
 # Production
 build/
 dist/
+*.tgz
+
+# Prisma
+.migrate
+
+# Runtime
+*.pid
+*.seed
+*.pid.lock
+
+# Security (CRITICAL)
+*.pem
+*.key
+id_rsa*
+*.p12
+*.cer
 
 # Misc
 .cache
 .temp
 .tmp
+*.backup
+*.bak

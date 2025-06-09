@@ -1,5 +1,5 @@
 // Main parent component for the multi-step booking form
-import React, { useState } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import emailjs from '@emailjs/browser';
 import * as FORM_CONSTANTS from '../constants/formConstants'; // Import constants
 import WindowCleaningPricing from './WindowCleaningPricing';

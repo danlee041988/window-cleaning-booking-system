@@ -74,7 +74,7 @@ interface LeadTableProps {
   canDelete: boolean;
 }
 
-export const LeadTable: React.FC<LeadTableProps> = ({
+export const LeadTable: React.FC<LeadTableProps> = React.memo(({
   leads,
   selectedLeads,
   onSelectionChange,
@@ -374,4 +374,4 @@ export const LeadTable: React.FC<LeadTableProps> = ({
       )}
     </div>
   );
-};
+});

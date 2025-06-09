@@ -1,9 +1,9 @@
+/* Import accessible color palette */
+@import './styles/accessible-colors.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Import accessible color palette */
-@import './styles/accessible-colors.css';
 
 /* You can add your custom styles below this line */
 

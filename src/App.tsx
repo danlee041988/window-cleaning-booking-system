@@ -1,20 +1,29 @@
-import React from 'react';
+import React, { Component, ReactNode, ErrorInfo } from 'react';
 import './App.css';
-// Use the original working form for now to ensure Vercel builds
-import BookingForm from './components/BookingForm';
+// Use the refactored container for better maintainability
+import BookingFormTest from './components/BookingFormTest';
+
+interface ErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
 
 // Error boundary component
-class ErrorBoundary extends React.Component {
-  constructor(props) {
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error, errorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     console.error('Booking form error:', error, errorInfo);
   }
 
@@ -45,7 +54,7 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-function App() {
+const App: React.FC = () => {
   return (
     <ErrorBoundary>
       {/* Skip to main content link for keyboard navigation */}
@@ -65,11 +74,11 @@ function App() {
         </div>
         
         <main id="main-content" className="w-full" role="main">
-          <BookingForm />
+          <BookingFormTest />
         </main>
       </div>
     </ErrorBoundary>
   );
-}
+};
 
 export default App;

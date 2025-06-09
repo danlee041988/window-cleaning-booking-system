@@ -9,9 +9,36 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const { PrismaClient } = require('@prisma/client');
+const logger = require('./utils/logger');
 
 // Load environment variables
 dotenv.config();
+
+// Validate required environment variables
+const requiredEnvVars = [
+  'DATABASE_URL',
+  'JWT_SECRET',
+  'JWT_REFRESH_SECRET'
+];
+
+const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingEnvVars.length > 0) {
+  console.error('Missing required environment variables:', missingEnvVars.join(', '));
+  console.error('Please check your .env file or environment configuration');
+  process.exit(1);
+}
+
+// Validate JWT secret complexity
+if (process.env.JWT_SECRET.length < 32) {
+  console.error('JWT_SECRET must be at least 32 characters for security');
+  process.exit(1);
+}
+
+if (process.env.JWT_REFRESH_SECRET.length < 32) {
+  console.error('JWT_REFRESH_SECRET must be at least 32 characters for security');
+  process.exit(1);
+}
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -56,7 +83,7 @@ app.use(cors({
     if (isAllowed) {
       callback(null, true);
     } else {
-      console.log('CORS blocked origin:', origin);
+      logger.warn('CORS blocked origin', { origin });
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -92,7 +119,7 @@ const logIpAddress = (req, res, next) => {
   req.clientIp = req.headers['x-forwarded-for']?.split(',')[0] || 
                  req.connection.remoteAddress || 
                  req.socket.remoteAddress;
-  console.log(`Request from IP: ${req.clientIp} at ${new Date().toISOString()}`);
+  logger.debug(`Request from IP: ${req.clientIp}`, { ip: req.clientIp, timestamp: new Date().toISOString() });
   next();
 };
 
@@ -119,7 +146,7 @@ const authenticateToken = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    console.error('Token verification error:', error);
+    logger.error('Token verification error', { error: error.message });
     res.status(403).json({ success: false, error: 'Invalid token' });
   }
 };
@@ -172,7 +199,7 @@ const logActivity = async (userId, action, tableName = null, recordId = null, ol
       }
     });
   } catch (error) {
-    console.error('Audit logging error:', error);
+    logger.error('Audit logging error', { error: error.message });
   }
 };
 
@@ -210,7 +237,7 @@ app.post('/api/auth/login', authLimiter, [
     }
 
     if (!process.env.JWT_SECRET) {
-      console.error('JWT_SECRET not configured');
+      logger.error('JWT_SECRET not configured');
       return res.status(500).json({ success: false, error: 'Authentication configuration error' });
     }
 
@@ -260,11 +287,10 @@ app.post('/api/auth/login', authLimiter, [
     });
 
   } catch (error) {
-    console.error('Login error:', error);
-    console.error('Error details:', {
-      message: error.message,
-      stack: error.stack,
-      username: username
+    logger.error('Login error', { 
+      error: error.message, 
+      username: username,
+      stack: error.stack 
     });
     res.status(500).json({ success: false, error: 'Login failed: ' + error.message });
   }
@@ -284,7 +310,7 @@ app.post('/api/auth/logout', authenticateToken, async (req, res) => {
 
     res.json({ success: true, message: 'Logged out successfully' });
   } catch (error) {
-    console.error('Logout error:', error);
+    logger.error('Logout error', { error: error.message });
     res.status(500).json({ success: false, error: 'Logout failed' });
   }
 });
@@ -359,7 +385,7 @@ app.post('/api/auth/refresh', [
     });
 
   } catch (error) {
-    console.error('Token refresh error:', error);
+    logger.error('Token refresh error', { error: error.message });
     res.status(401).json({ success: false, error: 'Invalid refresh token' });
   }
 });
@@ -405,7 +431,8 @@ app.get('/api/leads', authenticateToken, async (req, res) => {
     const orderBy = {};
     orderBy[sortBy] = sortOrder;
 
-    const [leads, total] = await Promise.all([
+    // Optimize with single query and count
+    const [leads, total] = await prisma.$transaction([
       prisma.lead.findMany({
         where,
         include: {
@@ -415,7 +442,13 @@ app.get('/api/leads', authenticateToken, async (req, res) => {
           },
           activities: {
             take: 1,
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
+            select: {
+              id: true,
+              activityType: true,
+              createdAt: true,
+              nextFollowUp: true
+            }
           }
         },
         orderBy,
@@ -437,7 +470,7 @@ app.get('/api/leads', authenticateToken, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Get leads error:', error);
+    logger.error('Get leads error', { error: error.message });
     res.status(500).json({ success: false, error: 'Failed to fetch leads' });
   }
 });
@@ -469,7 +502,7 @@ app.get('/api/leads/:id', authenticateToken, async (req, res) => {
 
     res.json({ success: true, data: lead });
   } catch (error) {
-    console.error('Get lead error:', error);
+    logger.error('Get lead error', { error: error.message });
     res.status(500).json({ success: false, error: 'Failed to fetch lead' });
   }
 });
@@ -508,7 +541,7 @@ app.put('/api/leads/:id', authenticateToken, async (req, res) => {
 
     res.json({ success: true, data: updatedLead });
   } catch (error) {
-    console.error('Update lead error:', error);
+    logger.error('Update lead error', { error: error.message });
     res.status(500).json({ success: false, error: 'Failed to update lead' });
   }
 });
@@ -542,7 +575,7 @@ app.delete('/api/leads/:id', authenticateToken, async (req, res) => {
 
     res.json({ success: true, message: 'Lead deleted successfully' });
   } catch (error) {
-    console.error('Delete lead error:', error);
+    logger.error('Delete lead error', { error: error.message });
     res.status(500).json({ success: false, error: 'Failed to delete lead' });
   }
 });
@@ -641,7 +674,7 @@ app.post('/api/leads', authenticateToken, [
 
     res.json({ success: true, data: lead });
   } catch (error) {
-    console.error('Create lead error:', error);
+    logger.error('Create lead error', { error: error.message });
     res.status(500).json({ success: false, error: 'Failed to create lead' });
   }
 });
@@ -720,7 +753,11 @@ app.post('/api/submit-booking', logIpAddress, bookingLimiter, bookingValidation,
     // Note: Email is sent from the frontend, not here
     // The backend just stores the booking data for the admin dashboard
     
-    console.log(`Booking ${bookingRef} submitted successfully from IP ${req.clientIp} and stored as lead ID ${lead.id}`);
+    logger.info('Booking submitted successfully', { 
+      bookingRef, 
+      leadId: lead.id, 
+      ip: req.clientIp 
+    });
 
     res.json({
       success: true,
@@ -730,7 +767,7 @@ app.post('/api/submit-booking', logIpAddress, bookingLimiter, bookingValidation,
     });
 
   } catch (error) {
-    console.error('Booking submission error:', error);
+    logger.error('Booking submission error', { error: error.message });
     res.status(500).json({
       success: false,
       error: 'There was an error submitting your booking. Please try again or contact us directly.'
@@ -767,7 +804,7 @@ app.get('/api/leads/export', authenticateToken, async (req, res) => {
 
     res.json({ success: true, data: csvData });
   } catch (error) {
-    console.error('Export leads error:', error);
+    logger.error('Export leads error', { error: error.message });
     res.status(500).json({ success: false, error: 'Failed to export leads' });
   }
 });
@@ -778,7 +815,7 @@ app.get('/api/leads/transfer-history', authenticateToken, async (req, res) => {
     // For now, return empty array as we don't have transfer tracking yet
     res.json({ success: true, data: [] });
   } catch (error) {
-    console.error('Transfer history error:', error);
+    logger.error('Transfer history error', { error: error.message });
     res.status(500).json({ success: false, error: 'Failed to fetch transfer history' });
   }
 });
@@ -816,7 +853,7 @@ app.post('/api/leads/transfer-to-squeegee', authenticateToken, async (req, res) 
       message: `Successfully transferred ${updatedLeads.length} leads to Squeegee`
     });
   } catch (error) {
-    console.error('Transfer to Squeegee error:', error);
+    logger.error('Transfer to Squeegee error', { error: error.message });
     res.status(500).json({ success: false, error: 'Failed to transfer leads' });
   }
 });
@@ -834,7 +871,7 @@ app.get('/api/system/lead-statuses', authenticateToken, async (req, res) => {
     });
     res.json({ success: true, data: statuses });
   } catch (error) {
-    console.error('Get lead statuses error:', error);
+    logger.error('Get lead statuses error', { error: error.message });
     res.status(500).json({ success: false, error: 'Failed to fetch lead statuses' });
   }
 });
@@ -850,7 +887,7 @@ app.get('/api/system/config', authenticateToken, async (req, res) => {
     
     res.json({ success: true, data: configObj });
   } catch (error) {
-    console.error('Get system config error:', error);
+    logger.error('Get system config error', { error: error.message });
     res.status(500).json({ success: false, error: 'Failed to fetch system configuration' });
   }
 });
@@ -893,7 +930,7 @@ app.put('/api/system/config', authenticateToken, requireAdmin, async (req, res) 
 
     res.json({ success: true, message: 'System configuration updated successfully' });
   } catch (error) {
-    console.error('Update system config error:', error);
+    logger.error('Update system config error', { error: error.message });
     res.status(500).json({ success: false, error: 'Failed to update system configuration' });
   }
 });
@@ -919,7 +956,7 @@ app.get('/api/system/users', authenticateToken, async (req, res) => {
 
     res.json({ success: true, data: users });
   } catch (error) {
-    console.error('Get users error:', error);
+    logger.error('Get users error', { error: error.message });
     res.status(500).json({ success: false, error: 'Failed to fetch users' });
   }
 });
@@ -928,36 +965,32 @@ app.get('/api/system/users', authenticateToken, async (req, res) => {
 // ANALYTICS ENDPOINTS
 // ===================
 
-// Get dashboard metrics
+// Get dashboard metrics - optimized version
 app.get('/api/analytics/dashboard', authenticateToken, async (req, res) => {
   try {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
 
-    const [
-      totalLeads,
-      monthlyLeads,
-      weeklyLeads,
-      conversionRate,
-      statusBreakdown
-    ] = await Promise.all([
-      prisma.lead.count(),
-      prisma.lead.count({
-        where: { submittedAt: { gte: startOfMonth } }
-      }),
-      prisma.lead.count({
-        where: { submittedAt: { gte: startOfWeek } }
-      }),
-      prisma.lead.count({
-        where: { convertedAt: { not: null } }
-      }).then(converted => totalLeads > 0 ? (converted / totalLeads * 100).toFixed(2) : 0),
-      prisma.lead.groupBy({
-        by: ['statusId'],
-        _count: true,
-        orderBy: { statusId: 'asc' }
-      })
-    ]);
+    // Use aggregation pipeline for better performance
+    const metrics = await prisma.$queryRaw`
+      SELECT 
+        COUNT(*) as total_leads,
+        COUNT(CASE WHEN submitted_at >= ${startOfMonth} THEN 1 END) as monthly_leads,
+        COUNT(CASE WHEN submitted_at >= ${startOfWeek} THEN 1 END) as weekly_leads,
+        COUNT(CASE WHEN converted_at IS NOT NULL THEN 1 END) as converted_leads
+      FROM leads
+    `;
+    
+    const statusBreakdown = await prisma.lead.groupBy({
+      by: ['statusId'],
+      _count: true,
+      orderBy: { statusId: 'asc' }
+    });
+    
+    const totalLeads = Number(metrics[0].total_leads);
+    const conversionRate = totalLeads > 0 ? 
+      (Number(metrics[0].converted_leads) / totalLeads * 100).toFixed(2) : 0;
 
     res.json({
       success: true,
@@ -970,7 +1003,7 @@ app.get('/api/analytics/dashboard', authenticateToken, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get dashboard metrics error:', error);
+    logger.error('Get dashboard metrics error', { error: error.message });
     res.status(500).json({ success: false, error: 'Failed to fetch dashboard metrics' });
   }
 });
@@ -985,8 +1018,12 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Debug endpoint to check environment configuration
+// Debug endpoint to check environment configuration (development only)
 app.get('/api/debug/env', (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(404).json({ error: 'Not found' });
+  }
+  
   res.json({
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
@@ -998,12 +1035,16 @@ app.get('/api/debug/env', (req, res) => {
   });
 });
 
-// Debug endpoint to test database connection and admin user
+// Debug endpoint to test database connection and admin user (development only)
 app.get('/api/debug/db', async (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(404).json({ error: 'Not found' });
+  }
+  
   try {
-    console.log('Testing database connection...');
+    logger.debug('Testing database connection');
     const users = await prisma.user.findMany();
-    console.log('Users found:', users.length);
+    logger.debug('Users found', { count: users.length });
     
     const admin = await prisma.user.findUnique({
       where: { username: 'admin' },
@@ -1019,7 +1060,7 @@ app.get('/api/debug/db', async (req, res) => {
       adminHasPassword: !!admin?.passwordHash
     });
   } catch (error) {
-    console.error('Database test error:', error);
+    logger.error('Database test error', { error: error.message });
     res.status(500).json({
       success: false,
       error: error.message,
@@ -1037,8 +1078,12 @@ async function initializeAdminUser() {
     });
     
     if (!adminUser) {
-      console.log('Creating admin user...');
-      const hashedPassword = await bcrypt.hash('admin123', 12);
+      logger.info('Creating admin user');
+      
+      // Generate a secure random password for initial setup
+      const tempPassword = crypto.randomBytes(16).toString('hex');
+      const hashedPassword = await bcrypt.hash(tempPassword, 12);
+      
       await prisma.user.create({
         data: {
           username: 'admin',
@@ -1050,31 +1095,30 @@ async function initializeAdminUser() {
           lastName: 'User'
         }
       });
-      console.log('Admin user created successfully');
+      
+      logger.info('Admin user created successfully');
+      logger.startup('IMPORTANT: Temporary admin password generated. Please change immediately!', {
+        username: 'admin',
+        tempPassword: tempPassword,
+        email: 'admin@somersetwindowcleaning.co.uk'
+      });
+      logger.startup('Use the reset-admin-password.js script to set a secure password');
     } else {
-      // Ensure password is correct
-      const isValid = await bcrypt.compare('admin123', adminUser.passwordHash);
-      if (!isValid) {
-        console.log('Updating admin password...');
-        const hashedPassword = await bcrypt.hash('admin123', 12);
-        await prisma.user.update({
-          where: { username: 'admin' },
-          data: { 
-            passwordHash: hashedPassword,
-            isActive: true
-          }
-        });
-        console.log('Admin password updated successfully');
+      // Check if still using weak default password
+      const isWeakPassword = await bcrypt.compare('admin123', adminUser.passwordHash);
+      if (isWeakPassword) {
+        logger.warn('SECURITY WARNING: Admin user is still using default password!');
+        logger.warn('Please run: node reset-admin-password.js to set a secure password');
       }
     }
   } catch (error) {
-    console.error('Error initializing admin user:', error);
+    logger.error('Error initializing admin user', { error: error.message });
   }
 }
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Server error:', err);
+  logger.error('Server error', { error: err.message, stack: err.stack });
   res.status(500).json({
     success: false,
     error: 'An unexpected error occurred. Please try again later.'
@@ -1083,21 +1127,23 @@ app.use((err, req, res, next) => {
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('SIGTERM received, shutting down gracefully');
+  logger.info('SIGTERM received, shutting down gracefully');
   await prisma.$disconnect();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
-  console.log('SIGINT received, shutting down gracefully');
+  logger.info('SIGINT received, shutting down gracefully');
   await prisma.$disconnect();
   process.exit(0);
 });
 
 // Start server
 app.listen(PORT, async () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  logger.startup(`Server running on port ${PORT}`, {
+    port: PORT,
+    environment: process.env.NODE_ENV || 'development'
+  });
   
   // Initialize admin user
   await initializeAdminUser();
