@@ -1,7 +1,7 @@
 import React, { Component, ReactNode, ErrorInfo } from 'react';
 import './App.css';
 // Use the refactored container for better maintainability
-import BookingFormTest from './components/BookingFormTest';
+import BookingForm from './components/BookingForm.original';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -74,7 +74,7 @@ const App: React.FC = () => {
         </div>
         
         <main id="main-content" className="w-full" role="main">
-          <BookingFormTest />
+          <BookingForm />
         </main>
       </div>
     </ErrorBoundary>
