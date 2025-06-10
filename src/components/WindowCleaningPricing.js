@@ -161,29 +161,28 @@ const WindowCleaningPricing = ({ goToStep, onFormChange }) => {
             return (
               <div 
                 key={option.id} 
-                className="group relative bg-gradient-to-br from-white to-emerald-50 border-2 border-emerald-200 p-6 rounded-2xl shadow-xl flex flex-col text-center transition-all duration-500 hover:shadow-2xl hover:scale-105 h-full overflow-hidden"
+                className="group relative bg-gradient-to-br from-white to-emerald-50 border-2 border-emerald-200 p-3 rounded-2xl shadow-xl flex flex-col text-center transition-all duration-500 hover:shadow-2xl hover:scale-105 h-full overflow-hidden"
               >
                 <div className="relative z-10">
-                  <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full mb-4 mx-auto shadow-lg">
-                    <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full mb-2 mx-auto shadow-lg">
+                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                      <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" strokeWidth="1"/>
                     </svg>
                   </div>
                   
-                  <h3 className="text-2xl font-bold mb-4 text-gray-800 h-12">
+                  <h3 className="text-lg font-bold mb-2 text-gray-800">
                     {option.type}
                   </h3>
-                  <p className="mb-8 flex-grow text-gray-600 leading-relaxed">
+                  <p className="mb-4 flex-grow text-gray-600 text-sm leading-relaxed">
                     {option.description}
                   </p>
                   <button 
                     type="button"
                     onClick={handleOtherServices}
-                    className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-5 px-6 rounded-xl transition-all duration-300 mt-auto text-lg transform hover:scale-105 shadow-lg hover:shadow-xl border-2 border-emerald-400"
+                    className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 mt-auto text-base transform hover:scale-105 shadow-lg hover:shadow-xl border-2 border-emerald-400"
                   >
                     <span className="flex items-center justify-center">
-                      <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                       </svg>
                       <span className="font-black">
@@ -200,32 +199,32 @@ const WindowCleaningPricing = ({ goToStep, onFormChange }) => {
             return (
               <div 
                 key={option.id} 
-                className={`group relative p-6 rounded-2xl shadow-xl flex flex-col text-center transition-all duration-500 hover:shadow-2xl hover:scale-105 h-full overflow-hidden
+                className={`group relative p-3 rounded-2xl shadow-xl flex flex-col text-center transition-all duration-500 hover:shadow-2xl hover:scale-105 h-full overflow-hidden
                             ${isCommercialCard 
                               ? 'bg-gradient-to-br from-white to-gray-50 border-2 border-gray-300 hover:border-gray-500' 
                               : 'bg-gradient-to-br from-white to-amber-50 border-2 border-amber-200 hover:border-amber-400'}`}
               >
                 
                 {/* Icon */}
-                <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 mx-auto shadow-lg
+                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-full mb-2 mx-auto shadow-lg
                                 ${isCommercialCard 
                                   ? 'bg-gradient-to-br from-gray-600 to-gray-800' 
                                   : 'bg-gradient-to-br from-amber-500 to-orange-600'}`}>
                   {isCommercialCard ? (
-                    <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/>
+                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v2h2v-2h2v2h2v2zm0-4h-2v-2h2v2zm0-4h-2V9h2v2z"/>
                     </svg>
                   ) : (
-                    <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
                     </svg>
                   )}
                 </div>
                 
-                <h3 className="text-2xl font-bold mb-4 text-gray-800 h-12">
+                <h3 className="text-lg font-bold mb-2 text-gray-800">
                   {option.bedrooms === 'All Types' ? option.type : `${option.bedrooms} - ${option.type}`}
                 </h3>
-                <p className="mb-8 flex-grow text-gray-600 leading-relaxed">
+                <p className="mb-4 flex-grow text-gray-600 text-sm leading-relaxed">
                   {isCommercialCard 
                     ? 'Offices, shops, restaurants, and all business premises. Professional service with flexible scheduling to suit your business needs.'
                     : 'For larger properties or unique requirements, we provide a tailored quote to ensure accurate pricing.'
@@ -234,18 +233,18 @@ const WindowCleaningPricing = ({ goToStep, onFormChange }) => {
                 <button 
                   type="button"
                   onClick={() => handleSelectOption(option)}
-                  className={`w-full text-white font-bold py-5 px-6 rounded-xl transition-all duration-300 mt-auto text-lg transform hover:scale-105 shadow-lg hover:shadow-xl border-2
+                  className={`w-full text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 mt-auto text-base transform hover:scale-105 shadow-lg hover:shadow-xl border-2
                               ${isCommercialCard 
                                 ? 'bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 border-gray-500' 
                                 : 'bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-700 hover:to-orange-800 border-amber-500'}`}
                 >
                   <span className="flex items-center justify-center">
                     {isCommercialCard ? (
-                      <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
                       </svg>
                     ) : (
-                      <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                       </svg>
                     )}
@@ -262,100 +261,57 @@ const WindowCleaningPricing = ({ goToStep, onFormChange }) => {
           return (
             <div 
               key={option.id} 
-              className={`group relative bg-white border-2 p-6 rounded-2xl shadow-xl flex flex-col text-center transition-all duration-500 hover:shadow-2xl hover:scale-105 h-full
+              className={`group relative bg-white border-2 p-3 rounded-2xl shadow-xl flex flex-col text-center transition-all duration-500 hover:shadow-2xl hover:scale-105 h-full
                           ${globalSelection.optionId === option.id ? 'border-blue-500 ring-4 ring-blue-200 bg-gradient-to-br from-blue-50 to-white' : 'border-gray-300 hover:border-blue-300'}`}
             >
               {/* Property type header with icon */}
-              <div className="mb-6">
-                <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 mx-auto transition-all duration-300 shadow-lg
+              <div className="mb-3">
+                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-full mb-2 mx-auto transition-all duration-300 shadow-lg
                                 ${globalSelection.optionId === option.id ? 'bg-gradient-to-br from-blue-500 to-blue-700' : 'bg-gradient-to-br from-slate-600 to-slate-800'}`}>
                   {/* Simple bed icons showing bedroom count */}
                   {option.bedrooms === '1-2 Bed' ? (
-                    <div className="flex items-center justify-center space-x-1">
-                      {/* 1-2 beds */}
-                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
-                      </svg>
-                      <svg className="w-5 h-5 text-white opacity-60" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
+                    <div className="flex items-center justify-center">
+                      {/* Simple house icon for 1-2 beds */}
+                      <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
                       </svg>
                     </div>
                   ) : option.bedrooms === '3 Bed' ? (
-                    <div className="flex items-center justify-center space-x-1">
-                      {/* 3 beds in a line */}
-                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
-                      </svg>
-                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
-                      </svg>
-                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
+                    <div className="flex items-center justify-center">
+                      {/* House with number 3 */}
+                      <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                        <text x="12" y="16" textAnchor="middle" fill="currentColor" fontSize="8" fontWeight="bold">3</text>
                       </svg>
                     </div>
                   ) : option.bedrooms === '4 Bed' ? (
-                    <div className="flex flex-col items-center justify-center space-y-1">
-                      {/* 4 beds in 2x2 grid */}
-                      <div className="flex space-x-1">
-                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
-                        </svg>
-                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
-                        </svg>
-                      </div>
-                      <div className="flex space-x-1">
-                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
-                        </svg>
-                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
-                        </svg>
-                      </div>
+                    <div className="flex items-center justify-center">
+                      {/* House with number 4 */}
+                      <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                        <text x="12" y="16" textAnchor="middle" fill="currentColor" fontSize="8" fontWeight="bold">4</text>
+                      </svg>
                     </div>
                   ) : option.bedrooms === '5 Bed' ? (
-                    <div className="flex flex-col items-center justify-center space-y-1">
-                      {/* 5 beds - 3 on top, 2 below */}
-                      <div className="flex space-x-1">
-                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
-                        </svg>
-                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
-                        </svg>
-                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
-                        </svg>
-                      </div>
-                      <div className="flex space-x-1">
-                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
-                        </svg>
-                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
-                        </svg>
-                      </div>
+                    <div className="flex items-center justify-center">
+                      {/* House with number 5 */}
+                      <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                        <text x="12" y="16" textAnchor="middle" fill="currentColor" fontSize="8" fontWeight="bold">5</text>
+                      </svg>
                     </div>
                   ) : option.bedrooms === '6+ Beds & Bespoke' ? (
                     <div className="flex items-center justify-center">
-                      {/* Diamond shape for 6+ beds luxury properties */}
-                      <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2l5 5 5 5-5 5-5 5-5-5-5-5 5-5z"/>
-                        <path d="M12 7v10M7 12h10" stroke="white" strokeWidth="1" strokeOpacity="0.5"/>
-                        <circle cx="12" cy="12" r="3" fill="white" fillOpacity="0.3"/>
+                      {/* Star icon for premium properties */}
+                      <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                       </svg>
                     </div>
                   ) : (
-                    <div className="flex items-center justify-center space-x-1">
-                      {/* Default: 3 beds */}
-                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
-                      </svg>
-                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
-                      </svg>
-                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M7 14c1.66 0 3-1.34 3-3S8.66 8 7 8s-3 1.34-3 3 1.34 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM19 7h-8v7H3V6c0-.55-.45-1-1-1s-1 .45-1 1v11c0 .55.45 1 1 1s1-.45 1-1v-2h18v2c0 .55.45 1 1 1s1-.45 1-1V10c0-1.65-1.35-3-3-3z"/>
+                    <div className="flex items-center justify-center">
+                      {/* Default: house icon */}
+                      <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
                       </svg>
                     </div>
                   )}
@@ -368,14 +324,14 @@ const WindowCleaningPricing = ({ goToStep, onFormChange }) => {
                     {option.bedrooms}
                   </div>
                 </div>
-                <h3 className={`text-2xl font-bold mb-2 h-12 transition-colors duration-300
+                <h3 className={`text-lg font-bold mb-2 transition-colors duration-300
                                 ${globalSelection.optionId === option.id ? 'text-blue-700' : 'text-gray-800'}`}>
                   {option.bedrooms === '1-2 Bed' ? '1-2 Bedroom Property' : `${option.bedrooms} ${option.type}`}
                 </h3>
               </div>
               
               {/* Frequency selection grid */}
-              <div className="grid grid-cols-2 gap-3 mb-8">
+              <div className="grid grid-cols-2 gap-2 mb-4">
                 {frequencyOptionsDefinition.map((freq) => {
                   const priceForThisFreqButton = calculatePriceForFrequency(option.basePrice, freq.id);
                   const isSelected = globalSelection.optionId === option.id && globalSelection.frequencyId === freq.id;
@@ -387,7 +343,7 @@ const WindowCleaningPricing = ({ goToStep, onFormChange }) => {
                         e.stopPropagation(); 
                         handleFrequencySelection(option.id, freq.id);
                       }}
-                      className={`w-full py-4 px-2 text-sm font-bold rounded-xl border-2 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg
+                      className={`w-full py-2 px-2 text-sm font-bold rounded-xl border-2 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg
                                   ${isSelected 
                                       ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white border-blue-500 shadow-lg ring-2 ring-blue-200'
                                       : 'bg-gradient-to-r from-white to-gray-50 text-gray-700 border-gray-200 hover:border-blue-400 hover:text-blue-600 hover:shadow-xl'}`}
@@ -396,7 +352,7 @@ const WindowCleaningPricing = ({ goToStep, onFormChange }) => {
                         <span className={`text-xs uppercase tracking-wide mb-1 ${isSelected ? 'text-blue-100' : 'text-gray-500'}`}>
                           {freq.label}
                         </span>
-                        <span className={`text-xl font-black ${isSelected ? 'text-white' : 'text-blue-600'}`}>
+                        <span className={`text-lg font-black ${isSelected ? 'text-white' : 'text-blue-600'}`}>
                           £{priceForThisFreqButton}
                         </span>
                       </div>
@@ -413,7 +369,7 @@ const WindowCleaningPricing = ({ goToStep, onFormChange }) => {
                     type="button"
                     onClick={() => handleSelectOption(option)}
                     disabled={!isActive}
-                    className={`w-full font-bold py-5 px-6 rounded-xl transition-all duration-300 mt-auto text-lg transform shadow-lg
+                    className={`w-full font-bold py-3 px-4 rounded-xl transition-all duration-300 mt-auto text-base transform shadow-lg
                                 ${isActive 
                                     ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 hover:scale-105 hover:shadow-xl border-2 border-blue-500' 
                                     : 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-400 cursor-not-allowed border-2 border-gray-300'}`}

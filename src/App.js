@@ -47,8 +47,14 @@ class ErrorBoundary extends Component {
 function App() {
   return (
     <ErrorBoundary>
-      <div className="App">
-        <BookingForm />
+      <div className="App" style={{ height: '100vh', overflow: 'hidden' }}>
+        <div style={{ 
+          height: '100vh', 
+          overflow: 'auto',
+          WebkitOverflowScrolling: 'touch' // For smooth scrolling on iOS
+        }}>
+          <BookingForm />
+        </div>
       </div>
     </ErrorBoundary>
   );

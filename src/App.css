@@ -1,6 +1,20 @@
 /* Custom application styles */
 /* Default Create React App styles have been removed to reduce bundle size */
 
+/* App container styles */
+.App {
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Ensure body and html don't interfere with scrolling */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
 /* Add styles for range slider thumb */
 .range-thumb-blue::-webkit-slider-thumb {
   background: #2563EB; /* Tailwind blue-600 */
